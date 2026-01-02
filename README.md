@@ -14,15 +14,15 @@ The study integrates all four analytical perspectives:
 - **Predictive**
 - **Prescriptive**
 
-The objective is to transform raw public data into **actionable insights** that support evidence-based decision-making and policy analysis.
+The objective is 
 
 ---
 
 ## 👥 Group Members & Roles
 | Name | Role |
 |-----|------|
-| **Nurul Husna Binti Mohd Napi** | Diagnostic Analytics |
 | **Nurul Ain Maisarah Binti Hamidin** | Descriptive Analytics |
+| **Nurul Husna Binti Mohd Napi** | Diagnostic Analytics |
 | **Nadia Shahzanani Binti Padzri** | Predictive Analytics |
 | **Nur Khalida Binti Shahidi** | Prescriptive Analytics |
 
@@ -35,6 +35,6 @@ All datasets are sourced from the official Malaysian Open Data Portal:
 
 ### Data Sources Used
 ```python
-URL_PRICECATCHER = "https://storage.data.gov.my/pricecatcher/pricecatcher_2025-12.parquet"
-URL_PREMISE     = "https://storage.data.gov.my/pricecatcher/lookup_premise.parquet"
-URL_ITEM        = "https://storage.data.gov.my/pricecatcher/lookup_item.parquet"
+URL_PRICECATCHER ( **Pricecatcher Data** ) "https://storage.data.gov.my/pricecatcher/pricecatcher_2025-12.parquet"
+URL_PREMISE ( **Lookup Premise Data** )    "https://storage.data.gov.my/pricecatcher/lookup_premise.parquet"
+URL_ITEM ( **Lookup Item Data** )        "https://storage.data.gov.my/pricecatcher/lookup_item.parquet"
