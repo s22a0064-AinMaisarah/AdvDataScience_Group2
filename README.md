@@ -1,11 +1,10 @@
-# AdvDataScience_Group2
 # AdvDataScience_Group2  
 **Advanced Topic in Data Science (JIE43203)**  
 **Group Project: Price Surveillance / Trade Analytics**
 
 ---
 
-## 📌 Project Overview
+## Project Overview
 This project applies a **comprehensive data analytics pipeline** using open government data from **data.gov.my**, focusing on **price surveillance and trade analysis** in Malaysia.  
 
 The study integrates all four analytical perspectives:
@@ -18,7 +17,7 @@ The objective is
 
 ---
 
-## 👥 Group Members & Roles
+## Group Members & Roles
 | Name | Role |
 |-----|------|
 | **Nurul Ain Maisarah Binti Hamidin** | Descriptive Analytics |
@@ -28,10 +27,10 @@ The objective is
 
 ---
 
-## 📊 Dataset Information
+## Dataset Information
 All datasets are sourced from the official Malaysian Open Data Portal:
 
-🔗 **https://data.gov.my**
+**https://data.gov.my**
 
 ### Data Sources Used
 ```python
