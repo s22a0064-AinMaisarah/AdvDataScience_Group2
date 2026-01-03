@@ -1,5 +1,9 @@
 import streamlit as st
 
-def app():
-    st.title("🔍 Prescriptive Analysis")
+st.title("🧠 Prescriptive Analysis")
 
+st.write("""
+This page provides **recommendations**, such as:
+- Where to expand Pasar Mini
+- Policy or business suggestions
+""")
