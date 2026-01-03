@@ -18,4 +18,19 @@ def load_data():
     return pd.read_csv("filtered_pasar_mini_data.csv")
 
 df = load_data()
+page = st.sidebar.radio(
+    "Navigate",
+    ["Descriptive", "Diagnostic", "Predictive", "Prescriptive"]
+)
 
+if page == "Descriptive":
+    Descriptive.app()
+
+elif page == "Diagnostic":
+    Diagnostic.app()
+
+elif page == "Predictive":
+    Predictive.app()
+
+elif page == "Prescriptive":
+    Prescriptive.app()
