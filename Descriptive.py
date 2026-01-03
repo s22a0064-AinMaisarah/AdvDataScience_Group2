@@ -1,37 +1,24 @@
-# Descriptive.py
 import streamlit as st
-import altair as alt
 import pandas as pd
+import altair as alt
 
-def app():
-    st.title("📊 State Distribution for Pasar Mini")
+st.title("📊 Descriptive Analysis – Pasar Mini")
 
-    # Load data
-    @st.cache_data
-    def load_data():
-        return pd.read_csv("filtered_pasar_mini_data.csv")
+@st.cache_data
+def load_data():
+    return pd.read_csv("filtered_pasar_mini_data.csv")
 
-    pasar_mini_df = load_data()
+df = load_data()
 
-    # Calculate the count of each state
-    state_counts_pasar_mini = (
-        pasar_mini_df['state']
-        .value_counts()
-        .reset_index()
-    )
-    state_counts_pasar_mini.columns = ['state', 'count']
+state_counts = df['state'].value_counts().reset_index()
+state_counts.columns = ['state', 'count']
 
-    # Create Altair bar chart
-    chart = alt.Chart(state_counts_pasar_mini).mark_bar().encode(
-        x=alt.X('state:N', sort='-y', title='State'),
-        y=alt.Y('count:Q', title='Number of Entries'),
-        tooltip=['state:N', 'count:Q']
-    ).properties(
-        title='State Count in Pasar Mini'
-    )
+chart = alt.Chart(state_counts).mark_bar().encode(
+    x=alt.X('state:N', sort='-y', title='State'),
+    y=alt.Y('count:Q', title='Number of Entries'),
+    tooltip=['state:N', 'count:Q']
+).properties(
+    title="State Distribution of Pasar Mini"
+)
 
-    st.altair_chart(chart, use_container_width=True)
-
-    st.success(
-        "Interactive bar chart displaying the count of each state in Pasar Mini premise data."
-    )
+st.altair_chart(chart, use_container_width=True)
