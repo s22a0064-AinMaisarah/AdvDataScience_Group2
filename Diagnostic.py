@@ -1,5 +1,10 @@
 import streamlit as st
 
-def app():
-    st.title("🔍 Diagnostic Analysis")
+st.title("🔍 Diagnostic Analysis")
 
+st.write("""
+This page focuses on **why patterns occur**, such as:
+- State comparison
+- Outliers
+- Regional dominance
+""")
