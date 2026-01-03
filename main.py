@@ -1,30 +1,18 @@
-# Main.py
 import streamlit as st
-import Descriptive
-import Diagnostic
-import Predictive
-import Prescriptive
 
 st.set_page_config(
     page_title="Pasar Mini Dashboard",
     layout="wide"
 )
 
-st.sidebar.title("📌 Navigation")
+st.title("🏪 Pasar Mini Analytics Dashboard")
 
-page = st.sidebar.radio(
-    "Go to",
-    ["Descriptive", "Diagnostic", "Predictive", "Prescriptive"]
-)
+st.markdown("""
+Welcome to the Pasar Mini dashboard.
 
-if page == "Descriptive":
-    Descriptive.app()
-
-elif page == "Diagnostic":
-    Diagnostic.app()
-
-elif page == "Predictive":
-    Predictive.app()
-
-elif page == "Prescriptive":
-    Prescriptive.app()
+Use the **sidebar** to navigate between:
+- Descriptive Analysis
+- Diagnostic Analysis
+- Predictive Analysis
+- Prescriptive Analysis
+""")
