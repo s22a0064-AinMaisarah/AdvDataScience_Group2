@@ -1,25 +1,19 @@
+# Main.py
 import streamlit as st
-import pandas as pd
-import altair as alt
+import Descriptive
+import Diagnostic
+import Predictive
+import Prescriptive
 
-# --------------------------------------------------
-# Page Configuration
-# --------------------------------------------------
 st.set_page_config(
     page_title="Pasar Mini Dashboard",
     layout="wide"
 )
 
-# --------------------------------------------------
-# Load Data (Cached)
-# --------------------------------------------------
-@st.cache_data
-def load_data():
-    return pd.read_csv("filtered_pasar_mini_data.csv")
+st.sidebar.title("📌 Navigation")
 
-df = load_data()
 page = st.sidebar.radio(
-    "Navigate",
+    "Go to",
     ["Descriptive", "Diagnostic", "Predictive", "Prescriptive"]
 )
 
