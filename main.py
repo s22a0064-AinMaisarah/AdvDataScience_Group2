@@ -7,12 +7,9 @@ st.set_page_config(
 
 st.title("🏪 Pasar Mini Analytics Dashboard")
 
-st.markdown("""
-Welcome to the Pasar Mini dashboard.
+st.markdown("### 📌 Navigate to Analysis Pages")
 
-Use the **sidebar** to navigate between:
-- Descriptive Analysis
-- Diagnostic Analysis
-- Predictive Analysis
-- Prescriptive Analysis
-""")
+st.page_link("pages/1_Descriptive.py", label="📊 Descriptive Analysis")
+st.page_link("pages/2_Diagnostic.py", label="🔍 Diagnostic Analysis")
+st.page_link("pages/3_Predictive.py", label="📈 Predictive Analysis")
+st.page_link("pages/4_Prescriptive.py", label="🧠 Prescriptive Analysis")
