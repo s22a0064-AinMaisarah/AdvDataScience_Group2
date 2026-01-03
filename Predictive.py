@@ -1,5 +1,9 @@
 import streamlit as st
 
-def app():
-    st.title("🔍 Predictive Analysis")
+st.title("📈 Predictive Analysis")
 
+st.write("""
+This page focuses on **future trends**, such as:
+- Forecasting Pasar Mini growth
+- Trend-based insights
+""")
