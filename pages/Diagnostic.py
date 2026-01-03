@@ -1,7 +1,22 @@
+
+
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
-st.set_page_config(page_title="Diagnostic Analysis", layout="wide")
+# ---------------------------------------------------------
+# PAGE HEADER
+# ---------------------------------------------------------
+st.title("🚨 Socioeconomic Determinants of Crime: Income, Poverty & Offense Patterns Across Cities")
+
+st.markdown("""
+### 🎯 Research Objective  
+
+To investigate how income levels and poverty rates influence overall crime incidence across different city categories.  
+This analysis aims to determine whether socioeconomic disparities serve as predictors of crime intensity, providing insights into how economic conditions shape urban crime dynamics.
+""")
+
+
 
 st.title("🔍 Diagnostic Analysis")
 
