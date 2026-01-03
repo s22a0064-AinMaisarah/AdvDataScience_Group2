@@ -2,7 +2,35 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 
-st.set_page_config(page_title="Descriptive Analysis", layout="wide")
+# ---------------------------------------------------------
+# PAGE SETTINGS
+# ---------------------------------------------------------
+st.set_page_config(
+    page_title="Crime Clustering Dashboard",
+    page_icon="📊",
+    layout="wide"
+)
+
+# Sidebar
+with st.sidebar:
+    st.title("📊 Crime Analytics Dashboard Menu")
+    st.write("Gain insights into relationships between socioeconomic factors and crime patterns across cities.")
+    st.markdown("---")
+    st.subheader("📂 Navigation")
+    st.info("Use the menu to explore different analysis modules.")
+    st.markdown("---")
+    st.caption("👩🏻‍💻 Created by **Nurul Ain Maisarah Hamidin (2025)** | Scientific Visualization Project 🌟")
+
+# ---------------------------------------------------------
+# HEADER
+# ---------------------------------------------------------
+st.title("🚨 Crime Pattern Clustering & PCA Dashboard")
+st.markdown("""
+### 🎯 Objective  
+The objective of this visualization is to identify **patterns in urban crime** by grouping similar crime profiles.  
+This helps reveal hidden patterns across regions and demographics — guiding urban safety strategies.
+""")
+
 
 st.title("📊 Descriptive Analysis – Pasar Mini")
 
