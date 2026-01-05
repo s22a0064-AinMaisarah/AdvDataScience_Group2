@@ -204,11 +204,11 @@ with st.container():
     spearman_corr,
     text_auto=".2f",
     color_continuous_scale=[
-        "#d73027",  # strong negative
-        "#f46d43",  # moderate negative
-        "#ffffbf",  # neutral / zero
-        "#66bd63",  # moderate positive
-        "#1a9850"   # strong positive
+        "#313695",  # strong negative (dark blue)
+        "#74add1",  # moderate negative (light blue)
+        "#ffffbf",  # neutral / zero (pale yellow)
+        "#f46d43",  # moderate positive (orange-red)
+        "#d73027"   # strong positive (dark red)
     ],
     zmin=-1,
     zmax=1,
