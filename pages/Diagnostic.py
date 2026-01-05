@@ -64,48 +64,78 @@ with st.expander("📈 Dataset Summary Statistics (Numeric Columns)", expanded=F
         use_container_width=True
     )
 
-# --------------------
-# Summary Box
-# --------------------
+# -----------------------------
+# Diagnostic Summary Metrics
+# -----------------------------
 
-import streamlit as st
+total_records = pasar_mini_df.shape[0]
+unique_items = pasar_mini_df['item_enc'].nunique()
+unique_categories = pasar_mini_df['item_category_enc'].nunique()
+average_price = round(pasar_mini_df['price'].mean(), 2)
 
-# --- Calculate Diagnostic Metrics ---
-total_records = pasar_mini_df.shape[0]  # total rows
-unique_items = pasar_mini_df['item_enc'].nunique()  # total unique items
-unique_categories = pasar_mini_df['item_category_enc'].nunique()  # unique item categories
-average_price = round(pasar_mini_df['price'].mean(), 2)  # average price
-
-# --- Metric Setup ---
 metrics = [
-    ("Total Records", total_records, "Total number of Pasar Mini price records in the dataset."),
-    ("Unique Items", unique_items, "Number of distinct items sold in Pasar Mini."),
-    ("Unique Item Categories", unique_categories, "Number of distinct item categories."),
-    ("Average Price (RM)", average_price, "Mean price across all records in Pasar Mini.")
+    ("Total Records", total_records, 
+     "Total number of price observations collected from Pasar Mini."),
+    
+    ("Unique Items", unique_items, 
+     "Number of distinct items recorded in the Pasar Mini dataset."),
+    
+    ("Item Categories", unique_categories, 
+     "Number of unique product categories available in Pasar Mini."),
+    
+    ("Average Price (RM)", average_price, 
+     "Overall mean price calculated across all Pasar Mini records.")
 ]
 
-# --- Display Metrics in 4 Columns ---
 cols = st.columns(4)
-for col, (label, value, help_text) in zip(cols, metrics):
-    col.markdown(f"""
+
+for col, (label, value, info) in zip(cols, metrics):
+    col.markdown(
+        f"""
         <div style="
-            background-color:#F8F9FA; 
-            border:1px solid #DDD; 
-            border-radius:10px; 
-            padding:15px; 
-            text-align:center;
-            min-height:120px;
-            display:flex;
-            flex-direction:column;
-            justify-content:center;
-            box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #F9FAFB, #EEF2FF);
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            min-height: 125px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.08);
         ">
-            <div style="font-size:16px; font-weight:700; color:#1E293B; margin-bottom:8px; line-height:1.2em;">
-                {label} <span title="{help_text}" style="cursor:help; color:#2563EB;">🛈</span>
+            <div style="
+                font-size: 15px;
+                font-weight: 700;
+                color: #1E293B;
+                margin-bottom: 6px;
+            ">
+                {label}
+                <span 
+                    title="{info}"
+                    style="
+                        margin-left: 6px;
+                        font-weight: 800;
+                        color: #6366F1;
+                        cursor: help;
+                        border-radius: 50%;
+                        padding: 2px 6px;
+                        background-color: #E0E7FF;
+                    "
+                >?</span>
             </div>
-            <div style="font-size:26px; font-weight:800; color:#111;">{value}</div>
+
+            <div style="
+                font-size: 28px;
+                font-weight: 800;
+                color: #0F172A;
+            ">
+                {value}
+            </div>
         </div>
-    """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True
+    )
 
 
 st.markdown("---")
@@ -279,46 +309,19 @@ with st.container():
     st.subheader("🧩 Market Segmentation by State and Item Group")
     st.caption(
         "This segmentation groups Pasar Mini data by state and item group, "
-        "and computes the average price to identify regional and product-based "
-        "pricing patterns."
+        "and computes the average price to identify price differences "
+        "across regional and product-based segments."
     )
-
-    # ---- Filter Section ----
-    col1, col2 = st.columns(2)
-
-    with col1:
-        selected_states = st.multiselect(
-            "Select State(s)",
-            options=sorted(pasar_mini_df['state_enc'].unique()),
-            default=sorted(pasar_mini_df['state_enc'].unique())
-        )
-
-    with col2:
-        selected_items = st.multiselect(
-            "Select Item Group(s)",
-            options=sorted(pasar_mini_df['item_group_enc'].unique()),
-            default=sorted(pasar_mini_df['item_group_enc'].unique())
-        )
-
-    # Filter data
-    filtered_df = pasar_mini_df[
-        (pasar_mini_df['state_enc'].isin(selected_states)) &
-        (pasar_mini_df['item_group_enc'].isin(selected_items))
-    ]
 
     # Aggregate average price
     seg_state_item = (
-        filtered_df
+        pasar_mini_df
         .groupby(['state_enc', 'item_group_enc'], as_index=False)['price']
         .mean()
         .sort_values('price', ascending=False)
     )
 
-    # Display table
-    st.markdown("**Top Segments by Average Price**")
-    st.dataframe(seg_state_item, use_container_width=True)
-
-    # Visualization
+    # Bar chart visualization
     fig = px.bar(
         seg_state_item,
         x='state_enc',
@@ -334,6 +337,13 @@ with st.container():
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+# Show top segments in a dropdown
+with st.expander("📋 View Top 10 State–Item Group Segments by Average Price"):
+    st.dataframe(
+        seg_state_item.head(10),
+        use_container_width=True
+    )
 
 
 
