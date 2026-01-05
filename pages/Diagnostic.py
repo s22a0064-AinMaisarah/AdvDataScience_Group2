@@ -152,12 +152,10 @@ with row2_col2:
             </p>
         </div>
         """,
-        .divider {
-        border-top: 3px solid #1f77b4;
-        margin: 1.2rem 0 2rem 0;
-    }
-    unsafe_allow_html=True
+        unsafe_allow_html=True
     )
+
+st.markdown("---")
 
 
 # --------------------
