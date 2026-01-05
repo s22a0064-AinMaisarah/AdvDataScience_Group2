@@ -15,15 +15,53 @@ df = load_data()
 # --------------------
 # Streamlit UI
 # --------------------
-st.title("📊 Pasar Mini Diagnostic Analytics Dashboard")
+st.markdown(
+    '<div class="center-title">📊 Pasar Mini Diagnostic Analytics Dashboard</div>',
+    unsafe_allow_html=True
+)
 
-st.write("### Preview of the Dataset")
-st.dataframe(df.head())
+st.markdown(
+    '<div class="subtitle">Descriptive and Diagnostic Analysis of Price Patterns</div>',
+    unsafe_allow_html=True
+)
 
-st.write("### Dataset Summary")
-st.write(df.describe(include='all'))
+st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 
-import streamlit as st
+# ---------- Custom CSS ----------
+st.markdown("""
+<style>
+.center-title {
+    text-align: center;
+    font-size: 2.4rem;
+    font-weight: 800;
+    margin-bottom: 0.3rem;
+}
+.subtitle {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 1.2rem;
+}
+.divider {
+    border-top: 3px solid #1f77b4;
+    margin: 1.2rem 0 2rem 0;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --------------------
+# Dataset Summary
+# --------------------
+
+with st.expander("🔍 Preview of the Dataset", expanded=False):
+    st.dataframe(df.head(), use_container_width=True)
+
+with st.expander("📈 Dataset Summary Statistics", expanded=False):
+    st.dataframe(df.describe(include="all"), use_container_width=True)
+
+# --------------------
+# Objectives
+# --------------------
 
 st.markdown("""
 <style>
