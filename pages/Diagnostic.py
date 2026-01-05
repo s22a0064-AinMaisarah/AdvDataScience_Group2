@@ -21,7 +21,7 @@ st.markdown(
 )
 
 st.markdown(
-    '<div class="subtitle">Descriptive and Diagnostic Analysis of Price Patterns</div>',
+    '<div class="subtitle">Diagnostic Analysis of Price Patterns</div>',
     unsafe_allow_html=True
 )
 
@@ -56,8 +56,12 @@ st.markdown("""
 with st.expander("🔍 Preview of the Dataset", expanded=False):
     st.dataframe(df.head(), use_container_width=True)
 
-with st.expander("📈 Dataset Summary Statistics", expanded=False):
-    st.dataframe(df.describe(include="all"), use_container_width=True)
+with st.expander("📈 Dataset Summary Statistics (Numeric Columns)", expanded=False):
+    numeric_df = df.select_dtypes(include=['int64', 'float64'])
+    st.dataframe(
+        numeric_df.describe(),
+        use_container_width=True
+    )
 
 # --------------------
 # Objectives
@@ -105,6 +109,75 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
+# --------------------
+# Visualization Sections
+# --------------------
+
+st.markdown("---")
+
+st.markdown(
+    """
+    <h2 style='text-align:center;'>📊 Diagnostic Analysis Visualizations</h2>
+    <p style='text-align:center; color: gray;'>
+    This section presents visual evidence supporting the diagnostic objectives,
+    including correlation analysis, segmentation, statistical testing, and root cause analysis.
+    </p>
+    """,
+    unsafe_allow_html=True
+)
+
+# -----------------------------
+# Spearman Correlation Analysis
+# -----------------------------
+
+with st.container():
+    st.subheader("🔗 Correlation Analysis")
+    st.caption(
+        "Spearman correlation is applied to examine monotonic relationships "
+        "between price and encoded categorical factors in Pasar Mini."
+    )
+
+    # Select relevant columns
+    corr_cols = [
+        'price',
+        'state_enc',
+        'district_enc',
+        'item_group_enc',
+        'item_category_enc'
+    ]
+
+    # Compute Spearman correlation
+    spearman_corr = pasar_mini_df[corr_cols].corr(method='spearman')
+
+    # Interactive heatmap
+    corr_fig = px.imshow(
+        spearman_corr,
+        text_auto=".2f",
+        aspect="auto",
+        color_continuous_scale="RdBu_r",
+        zmin=-1,
+        zmax=1,
+        title="Spearman Correlation: Price vs Factors (Pasar Mini)"
+    )
+
+    corr_fig.update_layout(
+        title_x=0.5,
+        coloraxis_colorbar=dict(title="Correlation Coefficient"),
+        margin=dict(l=40, r=40, t=60, b=40)
+    )
+
+    # Display in Streamlit
+    st.plotly_chart(corr_fig, use_container_width=True)
+
+    # Optional: show correlation table
+    with st.expander("📄 View Correlation Matrix (Table)", expanded=False):
+        st.dataframe(spearman_corr, use_container_width=True)
+
+
+
+
+
 
 # Objective 2
 st.markdown("""
