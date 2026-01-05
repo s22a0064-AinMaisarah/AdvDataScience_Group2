@@ -152,21 +152,17 @@ with st.container():
     spearman_corr = pasar_mini_df[corr_cols].corr(method='spearman')
 
     # Interactive heatmap
-    corr_fig = px.imshow(
+
+    fig = px.imshow(
         spearman_corr,
-        text_auto=".2f",
-        aspect="auto",
+        text_auto=True,
         color_continuous_scale="RdBu_r",
         zmin=-1,
         zmax=1,
         title="Spearman Correlation: Price vs Factors (Pasar Mini)"
     )
 
-    corr_fig.update_layout(
-        title_x=0.5,
-        coloraxis_colorbar=dict(title="Correlation Coefficient"),
-        margin=dict(l=40, r=40, t=60, b=40)
-    )
+    fig.update_layout(title_x=0.5)
 
     # Display in Streamlit
     st.plotly_chart(corr_fig, use_container_width=True)
