@@ -236,36 +236,37 @@ with st.container():
 
 
 # 2. Calculate Pearson correlation
-pearson_corr = pasar_mini_df[['price', 'date']].corr(method='pearson')
 
-# Create heatmap with custom red-positive / blue-negative palette
+# Ensure date is datetime
+pasar_mini_df['date'] = pd.to_datetime(pasar_mini_df['date'])
+
+# Convert date to numeric (ordinal)
+pasar_mini_df['date_numeric'] = pasar_mini_df['date'].map(pd.Timestamp.toordinal)
+
+# Calculate Pearson correlation
+pearson_corr = pasar_mini_df[['price', 'date_numeric']].corr(method='pearson')
+
+# Plot heatmap with your red-positive / blue-negative palette
 fig = px.imshow(
     pearson_corr,
     text_auto=".2f",
     color_continuous_scale=[
-        "#313695",  # strong negative (dark blue)
-        "#74add1",  # moderate negative (light blue)
-        "#ffffbf",  # neutral / zero (pale yellow)
-        "#f46d43",  # moderate positive (orange-red)
-        "#d73027"   # strong positive (dark red)
+        "#313695",  # strong negative (blue)
+        "#74add1",  # moderate negative
+        "#ffffbf",  # neutral
+        "#f46d43",  # moderate positive
+        "#d73027"   # strong positive (red)
     ],
     zmin=-1,
     zmax=1,
     title="Pearson Correlation: Price vs Time (Pasar Mini)"
 )
 
-# Adjust layout
 fig.update_layout(
-    title=dict(
-        text="Pearson Correlation: Price vs Time (Pasar Mini)",
-        x=0.5,
-        xanchor='center'
-    ),
-    coloraxis_colorbar=dict(title="Correlation"),
-    margin=dict(l=40, r=40, t=80, b=40)
+    title=dict(x=0.5, xanchor="center"),
+    coloraxis_colorbar=dict(title="Correlation")
 )
 
-# Display in Streamlit
 st.plotly_chart(fig, use_container_width=True)
 
 
