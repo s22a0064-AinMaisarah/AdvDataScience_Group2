@@ -54,10 +54,10 @@ st.markdown("""
 # --------------------
 
 with st.expander("🔍 Preview of the Dataset", expanded=False):
-    st.dataframe(df.head(), use_container_width=True)
+    st.dataframe(pasar_mini_df.head(), use_container_width=True)
 
 with st.expander("📈 Dataset Summary Statistics (Numeric Columns)", expanded=False):
-    numeric_df = df.select_dtypes(include=['int64', 'float64'])
+    numeric_df = pasar_mini_df.select_dtypes(include=['int64', 'float64'])
     st.dataframe(
         numeric_df.describe(),
         use_container_width=True
