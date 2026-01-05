@@ -194,7 +194,7 @@ with st.container():
         'item_category_enc'
     ]
 
-    # Compute Spearman correlation
+    # 1. Compute Spearman correlation
     spearman_corr = pasar_mini_df[corr_cols].corr(method='spearman')
 
     
@@ -235,6 +235,38 @@ with st.container():
         st.dataframe(spearman_corr, use_container_width=True)
 
 
+# 2. Calculate Pearson correlation
+pearson_corr = pasar_mini_df[['price', 'date']].corr(method='pearson')
+
+# Create heatmap with custom red-positive / blue-negative palette
+fig = px.imshow(
+    pearson_corr,
+    text_auto=".2f",
+    color_continuous_scale=[
+        "#313695",  # strong negative (dark blue)
+        "#74add1",  # moderate negative (light blue)
+        "#ffffbf",  # neutral / zero (pale yellow)
+        "#f46d43",  # moderate positive (orange-red)
+        "#d73027"   # strong positive (dark red)
+    ],
+    zmin=-1,
+    zmax=1,
+    title="Pearson Correlation: Price vs Time (Pasar Mini)"
+)
+
+# Adjust layout
+fig.update_layout(
+    title=dict(
+        text="Pearson Correlation: Price vs Time (Pasar Mini)",
+        x=0.5,
+        xanchor='center'
+    ),
+    coloraxis_colorbar=dict(title="Correlation"),
+    margin=dict(l=40, r=40, t=80, b=40)
+)
+
+# Display in Streamlit
+st.plotly_chart(fig, use_container_width=True)
 
 
 
