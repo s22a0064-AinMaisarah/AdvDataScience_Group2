@@ -68,26 +68,19 @@ with st.expander("📈 Dataset Summary Statistics (Numeric Columns)", expanded=F
 # -----------------------------
 # Diagnostic Summary Metrics
 # -----------------------------
-
 total_records = pasar_mini_df.shape[0]
 unique_items = pasar_mini_df['item_enc'].nunique()
 unique_categories = pasar_mini_df['item_category_enc'].nunique()
 average_price = round(pasar_mini_df['price'].mean(), 2)
 
 metrics = [
-    ("Total Records", total_records, 
-     "Total number of price observations collected from Pasar Mini."),
-    
-    ("Unique Items", unique_items, 
-     "Number of distinct items recorded in the Pasar Mini dataset."),
-    
-    ("Item Categories", unique_categories, 
-     "Number of unique product categories available in Pasar Mini."),
-    
-    ("Average Price (RM)", average_price, 
-     "Overall mean price calculated across all Pasar Mini records.")
+    ("Total Records", total_records, "Total number of price observations collected from the raw Pasar Mini dataset."),
+    ("Unique Items", unique_items, "Number of distinct items in the raw dataset."),
+    ("Item Categories", unique_categories, "Number of unique product categories in the raw dataset."),
+    ("Average Price (RM)", average_price, "Overall mean price calculated from the raw dataset.")
 ]
 
+# --- Display metrics in 4 columns ---
 cols = st.columns(4)
 
 for col, (label, value, info) in zip(cols, metrics):
@@ -96,21 +89,20 @@ for col, (label, value, info) in zip(cols, metrics):
     col.markdown(
         f"""
         <div style="
-            background: linear-gradient(135deg, #F9FAFB, #EEF2FF);
-            border: 1px solid #E5E7EB;
+            background: linear-gradient(135deg, #A78BFA, #F472B6, #FACC15, #3B82F6);
             border-radius: 14px;
             padding: 18px;
             text-align: center;
-            min-height: 125px;
+            min-height: 130px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+            color: #FFFFFF;
         ">
             <div style="
-                font-size: 15px;
+                font-size: 16px;
                 font-weight: 700;
-                color: #1E293B;
                 margin-bottom: 6px;
             ">
                 {label}
@@ -119,11 +111,11 @@ for col, (label, value, info) in zip(cols, metrics):
                     style="
                         margin-left: 6px;
                         font-weight: 800;
-                        color: #6366F1;
+                        color: #FFFFFF;
                         cursor: help;
                         border-radius: 50%;
                         padding: 2px 6px;
-                        background-color: #E0E7FF;
+                        background-color: rgba(255,255,255,0.3);
                     "
                 >?</span>
             </div>
@@ -131,7 +123,6 @@ for col, (label, value, info) in zip(cols, metrics):
             <div style="
                 font-size: 28px;
                 font-weight: 800;
-                color: #0F172A;
             ">
                 {value}
             </div>
@@ -263,7 +254,7 @@ with st.container():
     st.plotly_chart(fig, use_container_width=True)
 
     # Optional: show correlation table
-    with st.expander("📄 View Correlation Matrix (Table)", expanded=False):
+    with st.expander("📄 View Correlation Matrix", expanded=False):
         st.dataframe(spearman_corr, use_container_width=True)
 
 
@@ -305,9 +296,6 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 
-
-
-
 # Objective 2
 st.markdown("""
 <div class="objective-box-2">
@@ -319,6 +307,7 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 # -----------------------------
 # Segmentation Analysis (With Filters)
@@ -357,22 +346,35 @@ with st.container():
 
     st.plotly_chart(fig, use_container_width=True)
 
-# Show top segments with state filter
+# --- Create mapping from raw dataset ---
+state_mapping = (
+    pasar_mini_df[['state_enc', 'state']]
+    .drop_duplicates()
+    .sort_values('state_enc')
+    .set_index('state_enc')['state']
+    .to_dict()
+)
+
+# --- Add state column to segmentation table ---
+seg_state_item['state'] = seg_state_item['state_enc'].map(state_mapping)
+
+# --- Streamlit Expander with State Dropdown ---
 with st.expander("📋 View Top 10 State–Item Group Segments by Average Price"):
 
     # State dropdown
     selected_state = st.selectbox(
         "Select State",
-        options=sorted(seg_state_item['state_enc'].unique())
+        options=sorted(seg_state_item['state'].dropna().unique())
     )
 
     # Filter by selected state
     filtered_seg = seg_state_item[
-        seg_state_item['state_enc'] == selected_state
+        seg_state_item['state'] == selected_state
     ]
 
-    # Display table
+    # Display table with both state_enc and state
     st.dataframe(
-        filtered_seg.head(10),
+        filtered_seg[['state_enc', 'state', 'item_group_enc', 'price']].head(10),
         use_container_width=True
     )
+
