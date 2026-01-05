@@ -165,7 +165,7 @@ with st.container():
     fig.update_layout(title_x=0.5)
 
     # Display in Streamlit
-    st.plotly_chart(corr_fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
     # Optional: show correlation table
     with st.expander("📄 View Correlation Matrix (Table)", expanded=False):
