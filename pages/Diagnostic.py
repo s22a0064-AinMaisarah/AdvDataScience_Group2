@@ -10,7 +10,7 @@ def load_data():
     df = pd.read_csv(url)
     return df
 
-df = load_data()
+pasar_mini_df = load_data()
 
 # --------------------
 # Streamlit UI
