@@ -5,3 +5,5 @@ numpy
 gspread
 oauth2client
 altair
+statsmodels
+scikit-learn
