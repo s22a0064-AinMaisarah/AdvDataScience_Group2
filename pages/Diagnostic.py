@@ -153,16 +153,27 @@ with st.container():
 
     # Interactive heatmap
 
+    color_scale = ['#1f77b4', '#ff7f0e', '#e377c2', '#9467bd', '#bcbd22']  # blue, orange, pink, purple, yellow
+
     fig = px.imshow(
         spearman_corr,
-        text_auto=True,
-        color_continuous_scale="RdBu_r",
+        text_auto=".2f",
+        color_continuous_scale=color_scale,
         zmin=-1,
         zmax=1,
         title="Spearman Correlation: Price vs Factors (Pasar Mini)"
     )
 
-    fig.update_layout(title_x=0.5)
+    # Adjust layout for title
+    fig.update_layout(
+        title=dict(
+            text="Spearman Correlation: Price vs Factors (Pasar Mini)",
+            x=0.5,          # 0 = left, 0.5 = center, 1 = right
+            xanchor='center' # ensures correct positioning
+        ),
+        coloraxis_colorbar=dict(title="Correlation"),
+        margin=dict(l=40, r=40, t=80, b=40)
+    )
 
     # Display in Streamlit
     st.plotly_chart(fig, use_container_width=True)
@@ -170,7 +181,6 @@ with st.container():
     # Optional: show correlation table
     with st.expander("📄 View Correlation Matrix (Table)", expanded=False):
         st.dataframe(spearman_corr, use_container_width=True)
-
 
 
 
