@@ -271,6 +271,73 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 
+# -----------------------------
+# Segmentation Analysis (With Filters)
+# -----------------------------
+
+with st.container():
+    st.subheader("🧩 Market Segmentation by State and Item Group")
+    st.caption(
+        "This segmentation groups Pasar Mini data by state and item group, "
+        "and computes the average price to identify regional and product-based "
+        "pricing patterns."
+    )
+
+    # ---- Filter Section ----
+    col1, col2 = st.columns(2)
+
+    with col1:
+        selected_states = st.multiselect(
+            "Select State(s)",
+            options=sorted(pasar_mini_df['state_enc'].unique()),
+            default=sorted(pasar_mini_df['state_enc'].unique())
+        )
+
+    with col2:
+        selected_items = st.multiselect(
+            "Select Item Group(s)",
+            options=sorted(pasar_mini_df['item_group_enc'].unique()),
+            default=sorted(pasar_mini_df['item_group_enc'].unique())
+        )
+
+    # Filter data
+    filtered_df = pasar_mini_df[
+        (pasar_mini_df['state_enc'].isin(selected_states)) &
+        (pasar_mini_df['item_group_enc'].isin(selected_items))
+    ]
+
+    # Aggregate average price
+    seg_state_item = (
+        filtered_df
+        .groupby(['state_enc', 'item_group_enc'], as_index=False)['price']
+        .mean()
+        .sort_values('price', ascending=False)
+    )
+
+    # Display table
+    st.markdown("**Top Segments by Average Price**")
+    st.dataframe(seg_state_item, use_container_width=True)
+
+    # Visualization
+    fig = px.bar(
+        seg_state_item,
+        x='state_enc',
+        y='price',
+        color='item_group_enc',
+        barmode='group',
+        title='Average Price by State and Item Group (Pasar Mini)',
+        labels={
+            'state_enc': 'State',
+            'price': 'Average Price',
+            'item_group_enc': 'Item Group'
+        }
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+
+
+
 # Objective 2
 st.markdown("""
 <div class="objective-box-2">
