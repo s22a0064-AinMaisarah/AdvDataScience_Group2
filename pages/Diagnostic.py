@@ -68,95 +68,47 @@ with st.expander("📈 Dataset Summary Statistics (Numeric Columns)", expanded=F
 # Summary Box
 # --------------------
 
-st.markdown("---")
-st.subheader("📌 Key Diagnostic Summary")
+import streamlit as st
 
-# 2 rows, 2 columns each for 4 summary boxes
-row1_col1, row1_col2 = st.columns(2)
-row2_col1, row2_col2 = st.columns(2)
+# --- Calculate Diagnostic Metrics ---
+total_records = pasar_mini_df.shape[0]  # total rows
+unique_items = pasar_mini_df['item_enc'].nunique()  # total unique items
+unique_categories = pasar_mini_df['item_category_enc'].nunique()  # unique item categories
+average_price = round(pasar_mini_df['price'].mean(), 2)  # average price
 
-# ---------- Box 1 ----------
-with row1_col1:
-    st.markdown(
-        """
+# --- Metric Setup ---
+metrics = [
+    ("Total Records", total_records, "Total number of Pasar Mini price records in the dataset."),
+    ("Unique Items", unique_items, "Number of distinct items sold in Pasar Mini."),
+    ("Unique Item Categories", unique_categories, "Number of distinct item categories."),
+    ("Average Price (RM)", average_price, "Mean price across all records in Pasar Mini.")
+]
+
+# --- Display Metrics in 4 Columns ---
+cols = st.columns(4)
+for col, (label, value, help_text) in zip(cols, metrics):
+    col.markdown(f"""
         <div style="
-            background: linear-gradient(135deg, #1f77b4, #6baed6);
-            color: white;
-            padding: 1.2rem 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            background-color:#F8F9FA; 
+            border:1px solid #DDD; 
+            border-radius:10px; 
+            padding:15px; 
+            text-align:center;
+            min-height:120px;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
         ">
-            <h3 style='margin-bottom:0.5rem;'>🎯 Objective 1</h3>
-            <p style='font-size:1rem; margin:0;'>
-            Identify and quantify key price drivers in Pasar Mini using correlation and regression.
-            </p>
+            <div style="font-size:16px; font-weight:700; color:#1E293B; margin-bottom:8px; line-height:1.2em;">
+                {label} <span title="{help_text}" style="cursor:help; color:#2563EB;">🛈</span>
+            </div>
+            <div style="font-size:26px; font-weight:800; color:#111;">{value}</div>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
 
-# ---------- Box 2 ----------
-with row1_col2:
-    st.markdown(
-        """
-        <div style="
-            background: linear-gradient(135deg, #b22222, #ef8a62);
-            color: white;
-            padding: 1.2rem 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        ">
-            <h3 style='margin-bottom:0.5rem;'>🎯 Objective 2</h3>
-            <p style='font-size:1rem; margin:0;'>
-            Investigate root causes and temporal patterns behind price trends and anomalies.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-# ---------- Box 3 ----------
-with row2_col1:
-    st.markdown(
-        """
-        <div style="
-            background: linear-gradient(135deg, #2ca02c, #98df8a);
-            color: white;
-            padding: 1.2rem 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        ">
-            <h3 style='margin-bottom:0.5rem;'>📊 Diagnostic Scope</h3>
-            <p style='font-size:1rem; margin:0;'>
-            Analyze correlation, segmentation, statistical testing, and regression across items and premises.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-# ---------- Box 4 ----------
-with row2_col2:
-    st.markdown(
-        """
-        <div style="
-            background: linear-gradient(135deg, #9467bd, #c5b0d5);
-            color: white;
-            padding: 1.2rem 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        ">
-            <h3 style='margin-bottom:0.5rem;'>🌱 Root Cause Analysis</h3>
-            <p style='font-size:1rem; margin:0;'>
-            Perform drill-down and RCA to identify key factors influencing price variations in Pasar Mini.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
 
 st.markdown("---")
-
 
 # --------------------
 # Objectives
@@ -247,27 +199,29 @@ with st.container():
 
     
     # Interactive heatmap with cool-warm palette
-    color_scale = ["#4575b4", "#91bfdb", "#e0f3f8", "#fddbc7", "#fc8d59", "#d73027"] 
 
     fig = px.imshow(
-        spearman_corr,
-        text_auto=".2f",
-        color_continuous_scale=color_scale,  # cool-warm diverging palette
-        zmin=-1,
-        zmax=1,
-        title="Spearman Correlation: Price vs Factors (Pasar Mini)"
+    spearman_corr,
+    text_auto=".2f",
+    color_continuous_scale=["#6a0dad", "#ff1493", "#ffea00", "#1f77b4"
+    ],
+    zmin=-1,
+    zmax=1,
+    title="Spearman Correlation: Price vs Factors (Pasar Mini)"
     )
 
-    # Adjust layout for centered title
+    # Adjust title position
+    
     fig.update_layout(
-        title=dict(
-            text="Spearman Correlation: Price vs Factors (Pasar Mini)",
-            x=0.5,          # 0 = left, 0.5 = center, 1 = right
-            xanchor='center'
-        ),
-        coloraxis_colorbar=dict(title="Correlation"),
-        margin=dict(l=40, r=40, t=80, b=40)
+    title=dict(
+        text="Spearman Correlation: Price vs Factors (Pasar Mini)",
+        x=0.5,         # 0 = left, 0.5 = center
+        xanchor='center'
+    ),
+    coloraxis_colorbar=dict(title="Correlation"),
+    margin=dict(l=40, r=40, t=80, b=40)
     )
+
     # Display in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
