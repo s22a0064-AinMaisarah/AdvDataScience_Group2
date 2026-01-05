@@ -234,7 +234,7 @@ with st.container():
     ],
     zmin=-1,
     zmax=1,
-    title="Spearman Correlation: Price vs Factors (Pasar Mini)"
+    title="Spearman Correlation: Price vs Factors (Pasar Mini-Numerical)"
     )
 
     # Adjust title position
@@ -281,7 +281,7 @@ fig = px.imshow(
     ],
     zmin=-1,
     zmax=1,
-    title="Pearson Correlation: Price vs Time (Pasar Mini)"
+    title="Pearson Correlation: Price vs Time (Pasar Mini-Categorical)"
 )
 
 fig.update_layout(
@@ -293,7 +293,7 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 
-
+st.markdown("---")
 
 # Objective 2
 st.markdown("""
