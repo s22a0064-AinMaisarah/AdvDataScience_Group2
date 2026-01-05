@@ -100,36 +100,35 @@ for col, (label, value, info) in zip(cols, metrics):
             box-shadow: 0 6px 20px rgba(0,0,0,0.12);
             color: #FFFFFF;
         ">
-            <div style="
-                font-size: 16px;
-                font-weight: 700;
-                margin-bottom: 6px;
-            ">
-                {label}
-                <span 
-                    title="{safe_info}"
-                    style="
-                        margin-left: 6px;
-                        font-weight: 800;
-                        color: #FFFFFF;
-                        cursor: help;
-                        border-radius: 50%;
-                        padding: 2px 6px;
-                        background-color: rgba(255,255,255,0.3);
-                    "
-                >?</span>
-            </div>
-
-            <div style="
-                font-size: 28px;
-                font-weight: 800;
-            ">
-                {value}
-            </div>
+        <div style="
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        ">
+        {label}
+        <span 
+        title="{safe_info}"
+        style="
+        margin-left: 6px;
+        font-weight: 800;
+        color: #FFFFFF;
+        cursor: help;
+        border-radius: 50%;
+        padding: 2px 6px;
+        background-color: rgba(255,255,255,0.3);
+        "
+        >?</span>
+        </div>
+        <div style="
+        font-size: 28px;
+        font-weight: 800;
+        ">
+        {value}
+        </div>
         </div>
         """,
         unsafe_allow_html=True
-    )
+        )
 
 st.markdown("---")
 
