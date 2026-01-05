@@ -203,7 +203,7 @@ with st.container():
     fig = px.imshow(
     spearman_corr,
     text_auto=".2f",
-    color_continuous_scale=["#3b4cc0", "#9bbcff", "#f4987a", "#b40426"],
+    color_continuous_scale="Viridis",
     zmin=-1,
     zmax=1,
     title="Spearman Correlation: Price vs Factors (Pasar Mini)"
