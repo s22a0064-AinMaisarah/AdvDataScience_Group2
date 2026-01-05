@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import html
 
 # --------------------
 # Load CSV from GitHub Raw
@@ -90,6 +91,8 @@ metrics = [
 cols = st.columns(4)
 
 for col, (label, value, info) in zip(cols, metrics):
+    safe_info = html.escape(info)
+
     col.markdown(
         f"""
         <div style="
@@ -112,7 +115,7 @@ for col, (label, value, info) in zip(cols, metrics):
             ">
                 {label}
                 <span 
-                    title="{info}"
+                    title="{safe_info}"
                     style="
                         margin-left: 6px;
                         font-weight: 800;
@@ -136,7 +139,6 @@ for col, (label, value, info) in zip(cols, metrics):
         """,
         unsafe_allow_html=True
     )
-
 
 st.markdown("---")
 
@@ -301,6 +303,23 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 
+
+
+
+
+
+# Objective 2
+st.markdown("""
+<div class="objective-box-2">
+    <div class="objective-title">Objective 2: Root Cause & Trend Investigation</div>
+    <div class="objective-text">
+        To investigate the underlying root causes and temporal patterns behind observed 
+        price trends and anomalies in Pasar Mini through segmentation, drill-down analysis, 
+        and root cause decomposition techniques.
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
 # -----------------------------
 # Segmentation Analysis (With Filters)
 # -----------------------------
@@ -338,24 +357,22 @@ with st.container():
 
     st.plotly_chart(fig, use_container_width=True)
 
-# Show top segments in a dropdown
+# Show top segments with state filter
 with st.expander("📋 View Top 10 State–Item Group Segments by Average Price"):
-    st.dataframe(
-        seg_state_item.head(10),
-        use_container_width=True
+
+    # State dropdown
+    selected_state = st.selectbox(
+        "Select State",
+        options=sorted(seg_state_item['state_enc'].unique())
     )
 
+    # Filter by selected state
+    filtered_seg = seg_state_item[
+        seg_state_item['state_enc'] == selected_state
+    ]
 
-
-
-# Objective 2
-st.markdown("""
-<div class="objective-box-2">
-    <div class="objective-title">Objective 2: Root Cause & Trend Investigation</div>
-    <div class="objective-text">
-        To investigate the underlying root causes and temporal patterns behind observed 
-        price trends and anomalies in Pasar Mini through segmentation, drill-down analysis, 
-        and root cause decomposition techniques.
-    </div>
-</div>
-""", unsafe_allow_html=True)
+    # Display table
+    st.dataframe(
+        filtered_seg.head(10),
+        use_container_width=True
+    )
