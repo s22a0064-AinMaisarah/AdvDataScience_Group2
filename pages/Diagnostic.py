@@ -141,7 +141,7 @@ st.markdown("""
 .objective-box {
     padding: 1.4rem 1.6rem;
     border-radius: 14px;
-    background: linear-gradient(135deg, #1f77b4, #6baed6);
+    background: linear-gradient(135deg, #b22222, #ef8a62);
     color: white;
     box-shadow: 0 6px 16px rgba(0,0,0,0.15);
     margin-bottom: 1.5rem;
@@ -149,7 +149,7 @@ st.markdown("""
 .objective-box-2 {
     padding: 1.4rem 1.6rem;
     border-radius: 14px;
-    background: linear-gradient(135deg, #b22222, #ef8a62);
+    background: linear-gradient(135deg, #1f77b4, #6baed6);
     color: white;
     box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
@@ -335,7 +335,7 @@ with st.container():
         y='price',
         color='item_group_enc',
         barmode='group',
-        title='Average Price by State and Item Group (Pasar Mini)',
+        title='Average Price by State and Item Group (Pasar Mini-Numerical)',
         labels={
             'state_enc': 'State',
             'price': 'Average Price',
@@ -377,3 +377,34 @@ with st.expander("📋 View Top 10 State–Item Group Segments by Average Price"
         use_container_width=True
     )
 
+
+# --- Aggregate by item category ---
+seg_category = (
+    pasar_mini_df.groupby('item_category_enc')['price']
+    .agg(['mean', 'count'])
+    .reset_index()
+    .sort_values('count', ascending=False)
+)
+
+# --- Plotly bar chart ---
+fig = px.bar(
+    seg_category,
+    x='item_category_enc',
+    y='mean',
+    title='Average Price by Item Category (Pasar Mini-Categorical)',
+    color_discrete_sequence=['darkblue'],  # single color
+    labels={
+        'item_category_enc': 'Item Category',
+        'mean': 'Average Price (RM)'
+    }
+)
+
+# --- Display chart in Streamlit ---
+st.plotly_chart(fig, use_container_width=True)
+
+# --- Optional: Show top categories in an expander ---
+with st.expander("📋 Top 10 Item Categories by Average Price"):
+    st.dataframe(
+        seg_category.head(10),
+        use_container_width=True
+    )
