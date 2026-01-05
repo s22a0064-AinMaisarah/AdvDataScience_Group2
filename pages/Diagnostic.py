@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import html
+from statsmodels.formula.api import ols
+import statsmodels.api as sm
 
 # --------------------
 # Load CSV from GitHub Raw
@@ -291,6 +293,41 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
+# -----------------------------
+# One-Way Anova Analysis 
+# -----------------------------
+
+# --- Perform ANOVA on price across item categories ---
+anova_model = ols('price ~ C(item_category_enc)', data=pasar_mini_df).fit()
+anova_result = sm.stats.anova_lm(anova_model, typ=2)
+
+# --- Display ANOVA result in Streamlit ---
+st.subheader("📊 ANOVA: Price Differences Across Item Categories")
+st.caption(
+    "ANOVA test examines whether the average prices differ significantly "
+    "between item categories in Pasar Mini."
+)
+st.dataframe(anova_result, use_container_width=True)
+
+# --- Boxplot of price by item category ---
+st.subheader("📦 Price Distribution by Item Category")
+st.caption("Visual representation of price spread for each item category.")
+
+fig = px.box(
+    pasar_mini_df,
+    x='item_category_enc',
+    y='price',
+    color='item_category_enc',
+    color_discrete_sequence=px.colors.diverging.RdBu,
+    title='Price Distribution by Item Category (Pasar Mini)',
+    labels={
+        'item_category_enc': 'Item Category',
+        'price': 'Price (RM)'
+    }
+)
+
+# Display in Streamlit
+st.plotly_chart(fig, use_container_width=True)
 
 
 st.markdown("---")
