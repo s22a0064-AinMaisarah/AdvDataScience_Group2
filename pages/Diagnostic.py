@@ -65,6 +65,102 @@ with st.expander("📈 Dataset Summary Statistics (Numeric Columns)", expanded=F
     )
 
 # --------------------
+# Summary Box
+# --------------------
+
+st.markdown("---")
+st.subheader("📌 Key Diagnostic Summary")
+
+# 2 rows, 2 columns each for 4 summary boxes
+row1_col1, row1_col2 = st.columns(2)
+row2_col1, row2_col2 = st.columns(2)
+
+# ---------- Box 1 ----------
+with row1_col1:
+    st.markdown(
+        """
+        <div style="
+            background: linear-gradient(135deg, #1f77b4, #6baed6);
+            color: white;
+            padding: 1.2rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        ">
+            <h3 style='margin-bottom:0.5rem;'>🎯 Objective 1</h3>
+            <p style='font-size:1rem; margin:0;'>
+            Identify and quantify key price drivers in Pasar Mini using correlation and regression.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+# ---------- Box 2 ----------
+with row1_col2:
+    st.markdown(
+        """
+        <div style="
+            background: linear-gradient(135deg, #b22222, #ef8a62);
+            color: white;
+            padding: 1.2rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        ">
+            <h3 style='margin-bottom:0.5rem;'>🎯 Objective 2</h3>
+            <p style='font-size:1rem; margin:0;'>
+            Investigate root causes and temporal patterns behind price trends and anomalies.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+# ---------- Box 3 ----------
+with row2_col1:
+    st.markdown(
+        """
+        <div style="
+            background: linear-gradient(135deg, #2ca02c, #98df8a);
+            color: white;
+            padding: 1.2rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        ">
+            <h3 style='margin-bottom:0.5rem;'>📊 Diagnostic Scope</h3>
+            <p style='font-size:1rem; margin:0;'>
+            Analyze correlation, segmentation, statistical testing, and regression across items and premises.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+# ---------- Box 4 ----------
+with row2_col2:
+    st.markdown(
+        """
+        <div style="
+            background: linear-gradient(135deg, #9467bd, #c5b0d5);
+            color: white;
+            padding: 1.2rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        ">
+            <h3 style='margin-bottom:0.5rem;'>🌱 Root Cause Analysis</h3>
+            <p style='font-size:1rem; margin:0;'>
+            Perform drill-down and RCA to identify key factors influencing price variations in Pasar Mini.
+            </p>
+        </div>
+        """,
+        .divider {
+        border-top: 3px solid #1f77b4;
+        margin: 1.2rem 0 2rem 0;
+    }
+    unsafe_allow_html=True
+    )
+
+
+# --------------------
 # Objectives
 # --------------------
 
@@ -119,8 +215,8 @@ st.markdown("---")
 
 st.markdown(
     """
-    <h2 style='text-align:center;'>📊 Diagnostic Analysis Visualizations</h2>
-    <p style='text-align:center; color: gray;'>
+    <h2 style='text-align:left;'>📊 Diagnostic Analysis Visualizations</h2>
+    <p style='text-align:left; color: gray;'>
     This section presents visual evidence supporting the diagnostic objectives,
     including correlation analysis, segmentation, statistical testing, and root cause analysis.
     </p>
@@ -151,30 +247,29 @@ with st.container():
     # Compute Spearman correlation
     spearman_corr = pasar_mini_df[corr_cols].corr(method='spearman')
 
-    # Interactive heatmap
-
-    color_scale = ['#1f77b4', '#ff7f0e', '#e377c2', '#9467bd', '#bcbd22']  # blue, orange, pink, purple, yellow
+    
+    # Interactive heatmap with cool-warm palette
+    color_scale = ["#4575b4", "#91bfdb", "#e0f3f8", "#fddbc7", "#fc8d59", "#d73027"] 
 
     fig = px.imshow(
         spearman_corr,
         text_auto=".2f",
-        color_continuous_scale=color_scale,
+        color_continuous_scale=color_scale,  # cool-warm diverging palette
         zmin=-1,
         zmax=1,
         title="Spearman Correlation: Price vs Factors (Pasar Mini)"
     )
 
-    # Adjust layout for title
+    # Adjust layout for centered title
     fig.update_layout(
         title=dict(
             text="Spearman Correlation: Price vs Factors (Pasar Mini)",
             x=0.5,          # 0 = left, 0.5 = center, 1 = right
-            xanchor='center' # ensures correct positioning
+            xanchor='center'
         ),
         coloraxis_colorbar=dict(title="Correlation"),
         margin=dict(l=40, r=40, t=80, b=40)
     )
-
     # Display in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
