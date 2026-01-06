@@ -108,16 +108,38 @@ avg_price = pasar_mini_df.groupby('date')['price'].mean().reset_index()
 
 st.markdown("""
 <div style="background: linear-gradient(90deg, #FF4081 0%, #764ba2 100%); padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>🎯 Chart Objective:</strong> To examine trends and changes in average item prices over time.
+    <strong>Objective:</strong> To examine trends and changes in average item prices over time.
 </div>
 """, unsafe_allow_html=True)
 
-with st.expander("📈 CLICK TO VIEW: AVERAGE PRICE OVER TIME ANALYSIS", expanded=False):
+with st.expander(" AVERAGE PRICE OVER TIME ANALYSIS", expanded=False):
+    # --- Line Chart ---
     fig_line = px.line(avg_price, x='date', y='price', markers=True,
                   labels={'date': 'Date', 'price': 'Average Price (RM)'},
                   line_shape='spline', color_discrete_sequence=['#FF4081'])
-    fig_line.update_layout(hovermode='x unified', paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color="#FF4081"))
+    
+    fig_line.update_layout(
+        hovermode='x unified', 
+        paper_bgcolor='rgba(0,0,0,0)', 
+        plot_bgcolor='rgba(0,0,0,0)', 
+        font=dict(color="#FF4081"),
+        margin=dict(t=20, b=20)
+    )
     st.plotly_chart(fig_line, use_container_width=True)
+
+    # --- Trend Summary Points ---
+    st.markdown("### Temporal Trend Insights")
+    
+    st.info("""
+    * **Overall Movement:** December 2025 shows a **fluctuating yet downward trend**, starting at **RM 12.29** (Dec 1st) and ending at **RM 11.25** (Dec 31st).
+    * **Weekly Peaks:** Data reveals a **cyclical pattern** with peaks every 7 days (1st, 8th, 15th, and 22nd). The monthly high was **RM 12.61** on December 22nd.
+    * **Rapid Adjustments:** Following each peak, prices drop abruptly by ~1.0 unit. A clear example is the shift from **RM 12.29** (Dec 1st) to **RM 11.08** (Dec 2nd).
+    * **Volatility Range:** Most prices oscillate within a narrow band of **RM 11.50 to RM 12.00**, with the lowest point reached on December 26th (**RM 10.94**).
+    * **Temporal Rhythm:** The consistent 7-day surge cycle identifies a recurring reporting rhythm or specific weekly adjustment behavior in the Pasar Mini structure.
+    """)
+
+    # --- Data Table ---
+    st.markdown("#### Daily Price Summary (First 10 Days)")
     st.dataframe(avg_price.head(10), use_container_width=True)
 
 # --------------------
