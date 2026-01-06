@@ -15,8 +15,7 @@ def load_data():
     url = "https://raw.githubusercontent.com/s22a0064-AinMaisarah/AdvDataScience_Group2/refs/heads/main/dataset/pasar_mini_data_updated.csv"
     df = pd.read_csv(url)
     return df
-
-pasar_mini_df = load_data()
+    pasar_mini_df = load_data()
 # --------------------
 # Header & Divider 
 # --------------------
@@ -356,7 +355,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- The Expander with Prominent Icon ---
-with st.expander("📈 CLICK TO VIEW: AVERAGE PRICE OVER TIME ANALYSIS", expanded=True):
+with st.expander("AVERAGE PRICE OVER TIME ANALYSIS", expanded=True):
     
     # Create the Plotly figure
     fig = px.line(
