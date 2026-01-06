@@ -21,13 +21,56 @@ pasar_mini_df = load_data()
 # --------------------
 # Streamlit UI
 # --------------------
+# --------------------
+# Header & Divider Styling
+# --------------------
+
+st.markdown("""
+<style>
+/* Main Title Styling */
+.center-title {
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.2rem;
+    letter-spacing: -1px;
+}
+
+/* Subtitle Styling */
+.subtitle {
+    text-align: center;
+    font-size: 1rem;
+    color: #666;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+}
+
+/* Modern Gradient Divider */
+.divider {
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #4facfe, #764ba2, transparent);
+    margin: 10px auto 30px auto;
+    width: 80%;
+    border-radius: 50%;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --------------------
+# Header Section
+# --------------------
+
 st.markdown(
-    '<div class="center-title"> Pasar Mini Decriptive Analytics Dashboard</div>',
+    '<div class="center-title">Pasar Mini Descriptive Analytics Dashboard</div>',
     unsafe_allow_html=True
 )
 
 st.markdown(
-    '<div class="subtitle">Descriptive Analysis of Price Patterns</div>',
+    '<div class="subtitle">Nurul Ain Maisarah Binti Hamidin | S22A0064</div>',
     unsafe_allow_html=True
 )
 
@@ -144,7 +187,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("### 📊 Key Dataset Metrics")
+st.markdown("### Key Dataset Metrics")
 
 # Use columns to lay out the custom cards
 col1, col2, col3, col4 = st.columns(4)
@@ -154,7 +197,7 @@ with col1:
     <div class="metric-card m-max">
         <div class="metric-label">Max Price</div>
         <div class="metric-value">RM 498.00</div>
-        <div class="metric-help">Bawang Besar Import (India)<br>2025-12-19</div>
+        <div class="metric-help">Bawang Besar Import (India) (1kg)<br>2025-12-19</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -179,7 +222,7 @@ with col3:
 with col4:
     st.markdown("""
     <div class="metric-card m-cat">
-        <div class="metric-label">Top Group</div>
+        <div class="metric-label">Top Item Category</div>
         <div class="metric-value">67,098</div>
         <div class="metric-help">Barangan Berbungkus</div>
     </div>
