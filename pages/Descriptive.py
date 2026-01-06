@@ -85,65 +85,110 @@ metrics = [
 ]
 
 # --- Display metrics in 4 columns ---
-cols = st.columns(4)
+# ---------------------------------------------------------
+# KPI METRICS
+# --------------------------------------------------------
+st.markdown("""
+<style>
+/* Container for the metrics */
+.metric-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
 
-for col, (label, value, info) in zip(cols, metrics):
-    safe_info = html.escape(info)
+/* Stylish Card Design */
+.metric-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 15px;
+    flex: 1;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border-bottom: 4px solid #ddd; /* Placeholder color */
+    transition: transform 0.2s ease;
+}
 
-    col.markdown(
-        f"""
-        <div style="
-            background: linear-gradient(135deg, #A78BFA, #F472B6, #FACC15, #3B82F6);
-            border-radius: 14px;
-            padding: 18px;
-            text-align: center;
-            min-height: 130px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-            color: #FFFFFF;
-        ">
-        <div style="
-        font-size: 16px;
-        font-weight: 700;
-        margin-bottom: 6px;
-        ">
-        {label}
-        <span 
-        title="{safe_info}"
-        style="
-        margin-left: 6px;
-        font-weight: 800;
-        color: #FFFFFF;
-        cursor: help;
-        border-radius: 50%;
-        padding: 2px 6px;
-        background-color: rgba(255,255,255,0.3);
-        "
-        >?</span>
-        </div>
-        <div style="
-        font-size: 28px;
-        font-weight: 800;
-        ">
-        {value}
-        </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-        )
+.metric-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
 
-st.markdown("---")
+/* Individual accent colors */
+.m-max { border-color: #FF4B4B; } /* Red */
+.m-min { border-color: #00CC96; } /* Green */
+.m-top { border-color: #636EFA; } /* Blue */
+.m-cat { border-color: #AB63FA; } /* Purple */
 
-import streamlit as st
+.metric-label {
+    font-size: 0.8rem;
+    color: #666;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
 
-import streamlit as st
+.metric-value {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #31333F;
+}
 
-import streamlit as st
+.metric-help {
+    font-size: 0.75rem;
+    color: #999;
+    margin-top: 8px;
+    font-style: italic;
+    line-height: 1.2;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("### 📊 Key Dataset Metrics")
+
+# Use columns to lay out the custom cards
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    st.markdown("""
+    <div class="metric-card m-max">
+        <div class="metric-label">Max Price</div>
+        <div class="metric-value">RM 498.00</div>
+        <div class="metric-help">Bawang Besar Import (India)<br>2025-12-19</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col2:
+    st.markdown("""
+    <div class="metric-card m-min">
+        <div class="metric-label">Min Price</div>
+        <div class="metric-value">RM 0.50</div>
+        <div class="metric-help">Serbuk Kari Adabi<br>2025-12-08</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col3:
+    st.markdown("""
+    <div class="metric-card m-top">
+        <div class="metric-label">Top Premise</div>
+        <div class="metric-value">1,641</div>
+        <div class="metric-help">Kifarah Fresh Mart</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col4:
+    st.markdown("""
+    <div class="metric-card m-cat">
+        <div class="metric-label">Top Group</div>
+        <div class="metric-value">67,098</div>
+        <div class="metric-help">Barangan Berbungkus</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("<br>", unsafe_allow_html=True)
 
 # --------------------
-# Compact Objectives Styling
+# Objectives 
 # --------------------
 
 st.markdown("""
@@ -187,37 +232,17 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.subheader("🎯 Project Objectives")
+st.subheader("Decriptive Objectives")
 
-# --- Objective 1 ---
+# --- Objective ---
 st.markdown("""
 <div class="tiny-card bg-purple">
-    <div class="tiny-title">📊 Objective 1: Pricing Analysis</div>
     <div class="tiny-text">
-        Analyse price patterns, distribution, and category variations across time and location.
+        To descriptively summarize price patterns, distribution characteristics, across time, location, and item classifications among Pasar Mini.
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# --- Objective 2 ---
-st.markdown("""
-<div class="tiny-card bg-blue">
-    <div class="tiny-title">📍 Objective 2: Spatial Trends</div>
-    <div class="tiny-text">
-        Identify geographical price disparities and market accessibility across regions.
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# --- Objective 3 ---
-st.markdown("""
-<div class="tiny-card bg-orange">
-    <div class="tiny-title">📈 Objective 3: Historical Flow</div>
-    <div class="tiny-text">
-        Summarize short-term historical trends for essential commodity distribution.
-    </div>
-</div>
-""", unsafe_allow_html=True)
 # --------------------
 # Visualization Sections
 # --------------------
