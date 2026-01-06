@@ -17,12 +17,8 @@ def load_data():
     return df
 
 pasar_mini_df = load_data()
-
 # --------------------
-# Streamlit UI
-# --------------------
-# --------------------
-# Header & Divider Styling
+# Header & Divider 
 # --------------------
 
 st.markdown("""
@@ -65,7 +61,7 @@ st.markdown("""
 # --------------------
 
 st.markdown(
-    '<div class="center-title">Pasar Mini Descriptive Analytics Dashboard</div>',
+    '<div class="center-title">Descriptive Analytics</div>',
     unsafe_allow_html=True
 )
 
@@ -101,32 +97,33 @@ st.markdown("""
 # --------------------
 # Dataset Summary
 # --------------------
+st.markdown("""
+<style>
+/* Style the expander header */
+.stExpander {
+    border: 1px solid rgba(151, 166, 195, 0.2) !important;
+    border-radius: 12px !important;
+    background-color: #f9f9f9;
+}
 
-with st.expander("🔍 Preview of the Dataset", expanded=False):
+/* Make the dataframe look cleaner */
+.stDataFrame {
+    border-radius: 10px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --------------------
+# Data Expander
+# --------------------
+with st.expander(" View Raw Dataset (First 5 Rows)"):
+    st.write("Below is a preview of the Pasar Mini pricing dataset:")
+    
+    # Displaying the dataframe with full width
     st.dataframe(pasar_mini_df.head(), use_container_width=True)
-
-with st.expander("📈 Dataset Summary Statistics (Numeric Columns)", expanded=False):
-    numeric_df = pasar_mini_df.select_dtypes(include=['int64', 'float64'])
-    st.dataframe(
-        numeric_df.describe(),
-        use_container_width=True
-    )
-
-# -----------------------------
-# Diagnostic Summary Metrics
-# -----------------------------
-total_records = pasar_mini_df.shape[0]
-unique_items = pasar_mini_df['item_enc'].nunique()
-unique_categories = pasar_mini_df['item_category_enc'].nunique()
-average_price = round(pasar_mini_df['price'].mean(), 2)
-
-metrics = [
-    ("Total Records", total_records, "Total number of price observations collected from the raw Pasar Mini dataset."),
-    ("Unique Items", unique_items, "Number of distinct items in the raw dataset."),
-    ("Item Categories", unique_categories, "Number of unique product categories in the raw dataset."),
-    ("Average Price (RM)", average_price, "Overall mean price calculated from the raw dataset.")
-]
-
+    
+    # Optional: Tiny footer inside expander
+    st.caption(f"Showing 5 of {len(pasar_mini_df)} total records.")
 # --- Display metrics in 4 columns ---
 # ---------------------------------------------------------
 # KPI METRICS
@@ -281,7 +278,7 @@ st.subheader("Decriptive Objectives")
 st.markdown("""
 <div class="tiny-card bg-purple">
     <div class="tiny-text">
-        To descriptively summarize price patterns, distribution characteristics, across time, location, and item classifications among Pasar Mini.
+        To descriptively price patterns, distribution characteristics, across time, location, and item classifications among Pasar Mini.
     </div>
 </div>
 """, unsafe_allow_html=True)
