@@ -270,15 +270,12 @@ with st.expander("MEASURES OF CENTRAL TENDENCY FOR PRICE", expanded=False):
     st.info(f"""
     * **Data Volume:** A total of **{price_count:,}** price points were analyzed.
     * **Typical Values:** The **Mean** price is **RM {price_mean:.2f}**, which is higher than the **Median (RM {price_median:.2f})** and **Mode (RM {price_mode:.2f})**.
-    * **Distribution Shape:** A **Skewness of {price_skew:.2f}** indicates a **Right-Skewed** distribution. This means a few expensive items pull the average up, while most items are priced below RM 10.00.
-    * **Price Extremes:** A high **Kurtosis of {price_kurt:.2f}** confirms a "heavy-tailed" distribution with significant outliers, reaching a maximum value of **RM {max_price:.2f}**.
-    """)
 
     # --- Data Table ---
     st.markdown("#### Detailed Metrics")
     ct_df = pd.DataFrame({
-        'Measure': ['Total Count', 'Mean', 'Median', 'Mode', 'Skewness', 'Kurtosis'],
-        'Value': [f"{price_count:,}", f"RM {price_mean:.2f}", f"RM {price_median:.2f}", f"RM {price_mode:.2f}", f"{price_skew:.2f}", f"{price_kurt:.2f}"]
+        'Measure': ['Total Count', 'Mean', 'Median', 'Mode'],
+        'Value': [f"{price_count:,}", f"RM {price_mean:.2f}", f"RM {price_median:.2f}", f"RM {price_mode:.2f}"]
     })
     st.table(ct_df)
 # --------------------
@@ -345,5 +342,150 @@ with st.expander("Statistical Measures for Price Dispersion", expanded=False):
     # Data Table
     st.markdown("#### Dispersion Metric Details")
     st.table(price_stats_df)
+# --------------------
+# 10. Visualisation: Cumulative Frequency Analysis
+# --------------------
+
+# Data Processing for Cumulative Plot
+price_data = pasar_mini_df['price'].sort_values().reset_index(drop=True)
+total_count = len(price_data)
+cumulative_counts = price_data.value_counts(sort=False).sort_index().cumsum()
+cumulative_percentages = (cumulative_counts / total_count) * 100
+
+cumulative_df = pd.DataFrame({
+    'price': cumulative_percentages.index,
+    'cumulative_percentage': cumulative_percentages.values
+})
+
+# Recalculate key stats for annotations
+p_min, p_max = price_data.min(), price_data.max()
+p_med = pasar_mini_df['price'].median()
+p_q1 = pasar_mini_df['price'].quantile(0.25)
+p_q3 = pasar_mini_df['price'].quantile(0.75)
+
+# Section Objective Header
+st.markdown("""
+<div style="background: linear-gradient(90deg, #FF69B4 0%, #764ba2 100%); 
+            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
+    <strong>Objective:</strong> To provide a comprehensive statistical overview of item prices using descriptive summary statistics.
+</div>
+""", unsafe_allow_html=True)
+
+# Expander with Prominent Icon
+with st.expander(" Detailed Summary Statistics & Cumulative Analysis", expanded=False):
+    
+    # Create the Plotly figure
+    fig_cum = go.Figure()
+
+    # Add the cumulative frequency line
+    fig_cum.add_trace(go.Scatter(
+        x=cumulative_df['price'], y=cumulative_df['cumulative_percentage'],
+        mode='lines', name='Cumulative %', line=dict(color='#FF69B4', width=3)
+    ))
+
+    # Add horizontal/vertical indicator lines for Median
+    fig_cum.add_shape(type="line", x0=p_min, y0=50, x1=p_med, y1=50, line=dict(color="white", width=1, dash="dash"))
+    fig_cum.add_shape(type="line", x0=p_med, y0=0, x1=p_med, y1=50, line=dict(color="white", width=1, dash="dash"))
+
+    fig_cum.update_layout(
+        title_text='Cumulative Price Distribution',
+        xaxis_title='Price (RM)',
+        yaxis_title='Cumulative Percentage (%)',
+        hovermode='x unified',
+        title_x=0.5,
+        font=dict(family="Arial, sans-serif", size=12, color="#FF69B4"),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        height=500
+    )
+
+    # Annotations for key points
+    fig_cum.add_annotation(x=p_med, y=50, text=f"Median: RM{p_med:.2f}", showarrow=True, arrowhead=1, ax=-40, ay=-40)
+    fig_cum.add_annotation(x=p_q1, y=25, text=f"Q1: RM{p_q1:.2f}", showarrow=True, arrowhead=1)
+    fig_cum.add_annotation(x=p_q3, y=75, text=f"Q3: RM{p_q3:.2f}", showarrow=True, arrowhead=1)
+
+    st.plotly_chart(fig_cum, use_container_width=True)
+
+    # --- Insight Summary ---
+    st.markdown("### Cumulative Analysis Insights")
+    
+    st.info(f"""
+    * **Distribution Concentration:** The analysis reveals a distribution heavily concentrated at the lower end, confirming a **significant positive skew** (2.298).
+    * **Median Threshold:** The rapid accumulation aligns with the **Median price of {p_med:.2f}**, indicating that 50% of all items are priced at or below this RM 9.00 threshold.
+    * **Market Character:** The data demonstrates that lower price points possess higher individual counts. This suggests the "Pasar Mini" sector primarily services **high-volume, low-cost essential goods**.
+    * **Extreme Outliers:** While the scale reaches RM {p_max:.2f}, these higher points appear with a frequency of only one, characterizing them as extreme outliers rather than representative market trends.
+    """)
+
+    # --- Summary Statistics Table ---
+    st.markdown("#### Summary Statistics Table")
+    st.dataframe(pasar_mini_df['price'].describe().to_frame().T, use_container_width=True)
+# --------------------
+# 11. Visualisation: Measures of Distribution Shape
+# --------------------
+
+# Calculate measures
+price_skewness = pasar_mini_df['price'].skew()
+price_kurtosis = pasar_mini_df['price'].kurt()
+
+# Create a DataFrame for display
+distribution_shape_df = pd.DataFrame({
+    'Measure': ['Skewness', 'Kurtosis'],
+    'Value': [price_skewness, price_kurtosis]
+})
+
+# Section Objective Header (Using a distinct gradient)
+st.markdown("""
+<div style="background: linear-gradient(90deg, #d62728 0%, #764ba2 100%); 
+            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
+    <strong>Objective:</strong> To assess the shape of the price distribution in order to identify skewness and concentration of prices.
+</div>
+""", unsafe_allow_html=True)
+
+# Expander with Prominent Icon (Closed by default)
+with st.expander("Measures of Distribution Shape for Price", expanded=False):
+    
+    # Create the interactive bar chart
+    fig_shape = px.bar(
+        distribution_shape_df,
+        x='Measure',
+        y='Value',
+        color='Measure',
+        color_discrete_sequence=['#ff7f0e', '#d62728'], # High contrast colors
+        title="Distribution Shape (Skewness & Kurtosis)",
+        text='Value'
+    )
+
+    fig_shape.update_traces(texttemplate='%{text:.3f}', textposition='outside')
+    fig_shape.update_layout(
+        title_x=0.5,
+        font=dict(family="Arial, sans-serif", size=12, color="#7f7f7f"),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        margin=dict(t=50, b=20)
+    )
+
+    st.plotly_chart(fig_shape, use_container_width=True)
+
+    # --- Insight Summary ---
+    st.markdown("### Distribution Shape Insights")
+    st.info(f"""
+    * **Right-Skewed Distribution:** A **Skewness of {price_skewness:.2f}** indicates a significant right-skewed pattern. This confirms that while most goods are priced below **RM 10.00**, a few high-priced items pull the average upward.
+    * **Heavy-Tailed Extremes:** A high **Kurtosis of {price_kurtosis:.2f}** suggests a "heavy-tailed" distribution. This statistically confirms the presence of extreme price outliers within the dataset.
+    * **Outlier Impact:** The most prominent outlier identified is the maximum recorded value of **RM 498.00**, which significantly influences the tail of the distribution compared to the typical item price.
+    """)
+
+    # Data Table
+    st.markdown("#### Detailed Shape Metrics")
+    st.table(distribution_shape_df.style.format({"Value": "{:.3f}"}))
+
+st.markdown("---")
+
+
+
+
+
+
+
+
 
 st.markdown("---")
