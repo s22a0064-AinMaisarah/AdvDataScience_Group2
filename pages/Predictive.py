@@ -130,28 +130,29 @@ models = {
 }
 
 # --------------------
-# SUMMARY METRICS
+# SUMMARY METRICS 
 # --------------------
-st.subheader("📊 Model Performance Summary")
+with st.expander("📊 Model Performance Summary"):
+    metrics = []
+    for name, preds in models.items():
+        metrics.append([
+            name,
+            mean_absolute_error(y_test, preds),
+            np.sqrt(mean_squared_error(y_test, preds)),
+            r2_score(y_test, preds)
+        ])
 
-metrics = []
-for name, preds in models.items():
-    metrics.append([
-        name,
-        mean_absolute_error(y_test, preds),
-        np.sqrt(mean_squared_error(y_test, preds)),
-        r2_score(y_test, preds)
-    ])
+    metrics_df = pd.DataFrame(metrics, columns=["Model","MAE","RMSE","R²"])
+    st.dataframe(metrics_df, use_container_width=True)
 
-metrics_df = pd.DataFrame(metrics, columns=["Model","MAE","RMSE","R²"])
-st.dataframe(metrics_df, use_container_width=True)
+    # Identify best model (lowest RMSE)
+    best_model = metrics_df.sort_values("RMSE").iloc[0]
 
-best_model = metrics_df.sort_values("RMSE").iloc[0]
-
-col1, col2, col3 = st.columns(3)
-col1.metric("Best Model", best_model["Model"])
-col2.metric("Lowest RMSE", f"{best_model['RMSE']:.3f}")
-col3.metric("Highest R²", f"{best_model['R²']:.3f}")
+    st.markdown("### ✅ Best Model Summary")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Best Model", best_model["Model"])
+    col2.metric("Lowest RMSE", f"{best_model['RMSE']:.3f}")
+    col3.metric("Highest R²", f"{best_model['R²']:.3f}")
 
 # --------------------
 # FORECAST 2025 (RF)
