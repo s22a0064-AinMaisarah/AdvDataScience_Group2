@@ -228,7 +228,7 @@ with st.expander(" AVERAGE PRICE OVER TIME ANALYSIS", expanded=False):
     st.dataframe(avg_price.head(10), use_container_width=True)
 
 # --------------------
-# 8. Visualisation: Central Tendency 
+# Central Tendency 
 # --------------------
 price_mean = pasar_mini_df['price'].mean()
 price_median = pasar_mini_df['price'].median()
@@ -281,10 +281,8 @@ with st.expander("MEASURES OF CENTRAL TENDENCY FOR PRICE", expanded=False):
         'Value': [f"{price_count:,}", f"RM {price_mean:.2f}", f"RM {price_median:.2f}", f"RM {price_mode:.2f}", f"{price_skew:.2f}", f"{price_kurt:.2f}"]
     })
     st.table(ct_df)
-
-st.markdown("---")
 # --------------------
-# 9. Visualisation: Measures of Dispersion
+# Measures of Dispersion
 # --------------------
 
 # Calculations for Dispersion
