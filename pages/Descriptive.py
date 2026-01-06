@@ -15,7 +15,7 @@ def load_data():
     url = "https://raw.githubusercontent.com/s22a0064-AinMaisarah/AdvDataScience_Group2/refs/heads/main/dataset/pasar_mini_data_updated.csv"
     df = pd.read_csv(url)
     return df
-    pasar_mini_df = load_data()
+pasar_mini_df = load_data()
 # --------------------
 # Header & Divider 
 # --------------------
