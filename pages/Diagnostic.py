@@ -504,6 +504,11 @@ with st.expander("📋 Top 10 Item Categories by Average Price"):
 
 st.subheader("🔎 Drill-Down Analysis: Top Items in Johor (Pasar Mini)")
 
+st.caption(
+    "This analysis examines whether the distribution of item categories "
+    "is independent of state using the Chi-Square Test of Independence."
+)
+
 # Drill-down for Johor
 drill_johor = (
     pasar_mini_df[pasar_mini_df['state'] == 'JOHOR']
