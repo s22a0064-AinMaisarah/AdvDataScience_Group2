@@ -1042,7 +1042,7 @@ with st.expander("Average Price by Item Group and State Heatmap", expanded=False
     st.markdown("#### Cross-tabulation: Average Price (RM)")
     st.dataframe(pivot_table_avg_price.style.format("{:.2f}").highlight_null(color='lightgrey'), use_container_width=True)
 
-st.markdown("---")
+
 
 
 
