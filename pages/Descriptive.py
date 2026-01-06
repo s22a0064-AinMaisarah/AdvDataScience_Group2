@@ -90,7 +90,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.subheader("📊 Key Dataset Metrics")
+st.subheader("Key Dataset Metrics")
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.markdown('<div class="metric-card m-max"><div class="metric-label">Max Price</div><div class="metric-value">RM 498.00</div><div class="metric-help">Bawang Besar Import<br>2025-12-19</div></div>', unsafe_allow_html=True)
@@ -105,7 +105,7 @@ with col4:
 # 5. Objectives
 # --------------------
 st.markdown("<br>", unsafe_allow_html=True)
-st.subheader("🎯 Descriptive Objectives")
+st.subheader("Descriptive Objectives")
 st.markdown("""
 <div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); padding: 1.2rem; border-radius: 12px; color: white;">
     To descriptively analyze price patterns, distribution characteristics across time, location, and item classifications among Pasar Mini.
@@ -116,7 +116,7 @@ st.markdown("""
 # 6. Visualisation: Average Price Over Time
 # --------------------
 st.markdown("---")
-st.markdown("### 📈 Visual Analysis")
+st.markdown("### Visual Analysis")
 
 # Data Processing
 avg_price = pasar_mini_df.groupby('date')['price'].mean().reset_index()
@@ -128,7 +128,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-with st.expander("📈 CLICK TO VIEW: AVERAGE PRICE OVER TIME ANALYSIS", expanded=True):
+with st.expander("AVERAGE PRICE OVER TIME ANALYSIS", expanded=True):
     fig = px.line(avg_price, x='date', y='price', markers=True,
                  labels={'date': 'Date', 'price': 'Average Price (RM)'},
                  line_shape='spline', color_discrete_sequence=['#FF4081'])
@@ -140,3 +140,99 @@ with st.expander("📈 CLICK TO VIEW: AVERAGE PRICE OVER TIME ANALYSIS", expande
     
     st.markdown("#### 📋 Top 10 Date Summaries")
     st.dataframe(avg_price.head(10), use_container_width=True)
+    import streamlit as st
+import plotly.graph_objects as go
+import pandas as pd
+
+# --------------------
+# 1. Calculation Logic
+# --------------------
+price_mean = pasar_mini_df['price'].mean()
+price_median = pasar_mini_df['price'].median()
+price_mode = pasar_mini_df['price'].mode()[0] if not pasar_mini_df['price'].mode().empty else 0
+
+# Prepare data for plotting
+measures = ['Mean', 'Median', 'Mode']
+values = [price_mean, price_median, price_mode]
+colors = ['#4facfe', '#764ba2', '#00f2fe'] # Matching your dashboard palette
+
+# --------------------
+# 2. Visual Style for this Section
+# --------------------
+st.markdown("""
+<style>
+/* Section-specific glowing expander */
+.ct-expander {
+    border: 2px solid #764ba2 !important; 
+    border-radius: 15px !important;
+}
+
+@keyframes pulse-purple {
+    0% { box-shadow: 0 0 5px #764ba2; }
+    50% { box-shadow: 0 0 15px #764ba2; }
+    100% { box-shadow: 0 0 5px #764ba2; }
+}
+
+.ct-glow {
+    animation: pulse-purple 4s infinite;
+    border-radius: 15px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --------------------
+# 3. Objective Header
+# --------------------
+st.markdown("""
+<div style="background: linear-gradient(90deg, #764ba2 0%, #4facfe 100%); 
+            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
+    <strong> Objective:</strong> To determine the central tendency of item prices 
+    in order to identify typical price levels within the dataset.
+</div>
+""", unsafe_allow_html=True)
+
+# --------------------
+# 4. Implementation with Expander
+# --------------------
+with st.container():
+    # Adding the specific sentence and icon you requested
+    with st.expander(" Measures of Central Tendency for Price", expanded=True):
+        
+        # Create the interactive bar chart
+        fig = go.Figure(data=[go.Bar(
+            x=measures,
+            y=values,
+            marker_color=colors,
+            text=[f'RM {val:.2f}' for val in values],
+            textposition='auto',
+            hoverinfo='text',
+            hovertext=[f'<b>{m}</b><br>Value: RM {v:.2f}' for m, v in zip(measures, values)]
+        )])
+
+        fig.update_layout(
+            title_text="Central Tendency Analysis",
+            xaxis_title="Statistical Measure",
+            yaxis_title="Price (RM)",
+            title_x=0.5,
+            font=dict(family="Inter, sans-serif", size=13, color="#764ba2"),
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            margin=dict(l=20, r=20, t=60, b=20),
+            height=350
+        )
+
+        fig.update_xaxes(showline=True, linewidth=1, linecolor='rgba(150,150,150,0.3)')
+        fig.update_yaxes(showline=True, linewidth=1, linecolor='rgba(150,150,150,0.3)')
+
+        # Display chart
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Display the Summary Table
+        st.markdown("#### Summary Statistics Table")
+        central_tendency_df = pd.DataFrame({
+            'Measure': ['Mean (Average)', 'Median (Middle Value)', 'Mode (Most Frequent)'],
+            'Value (RM)': [f"RM {price_mean:.2f}", f"RM {price_median:.2f}", f"RM {price_mode:.2f}"]
+        })
+        st.table(central_tendency_df)
+
+st.markdown("---")
