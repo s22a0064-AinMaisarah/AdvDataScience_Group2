@@ -99,56 +99,48 @@ st.markdown("""
 # --------------------
 st.markdown("""
 <style>
-/* Customizing the Expander Header */
+/* Make the expander header look like a clickable button */
 .stExpander {
-    border-radius: 12px !important;
-    border: 1px solid #e0e0e0 !important;
-    background-color: #ffffff !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    background-color: #1E1E1E !important; /* Dark background to match your theme */
+    border: 2px solid #4facfe !important; /* Bright blue border */
+    border-radius: 15px !important;
 }
 
-/* Adding a hover effect to the expander */
+/* Style the title text inside the expander */
+.stExpander summary {
+    color: #4facfe !important; /* Bright blue text */
+    font-weight: bold !important;
+    font-size: 1.1rem !important;
+}
+
+/* Add a glowing pulse effect to tell users 'Click Me' */
+@keyframes glow {
+    0% { box-shadow: 0 0 5px #4facfe; }
+    50% { box-shadow: 0 0 20px #00f2fe; }
+    100% { box-shadow: 0 0 5px #4facfe; }
+}
+
+.stExpander {
+    animation: glow 3s infinite;
+}
+
+/* Change color when user hovers */
 .stExpander:hover {
-    border-color: #4facfe !important;
-}
-
-/* Style for the text inside the expander label */
-.expander-label {
-    font-weight: 600;
-    color: #31333F;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* A subtle bounce animation for the arrow */
-@keyframes bounceRight {
-    0%, 100% { transform: translateX(0); }
-    50% { transform: translateX(3px); }
-}
-
-.arrow-icon {
-    display: inline-block;
-    animation: bounceRight 2s infinite;
-    color: #4facfe;
+    background-color: #252525 !important;
+    transform: scale(1.01);
+    transition: 0.3s;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # --------------------
-# Implementation
+# Implementation with Attention-Grabbing Arrow
 # --------------------
 
-# We use a markdown string with an arrow icon for the expander title
-expander_title = " Click to Preview Raw Data  "
-
-with st.expander(expander_title):
-    st.markdown('<p style="font-size: 0.85rem; color: #666;">Previewing the first 5 records of the dataset:</p>', unsafe_allow_html=True)
-    
-    # use_container_width makes it fit the "tiny" compact style
+# We use 🔽 to show it can be opened and 🔎 for the action
+with st.expander("🔽 🔎 CLICK TO REVEAL DATASET PREVIEW", expanded=False):
+    st.write("### Previewing First 5 Rows")
     st.dataframe(pasar_mini_df.head(), use_container_width=True)
-    
-    st.markdown(f"**Total Records:** `{len(pasar_mini_df):,}`")
 # --- Display metrics in 4 columns ---
 # ---------------------------------------------------------
 # KPI METRICS
