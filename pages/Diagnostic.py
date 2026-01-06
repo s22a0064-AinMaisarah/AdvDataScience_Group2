@@ -293,9 +293,10 @@ fig.update_layout(
     coloraxis_colorbar=dict(title="Correlation")
 )
 
+
 # Optional: show correlation table
 with st.expander("📄 View Correlation Matrix", expanded=False):
-st.dataframe(spearman_corr, use_container_width=True)
+    st.dataframe(spearman_corr, use_container_width=True)
 
 st.plotly_chart(fig, use_container_width=True)
 
