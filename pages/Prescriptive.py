@@ -3,7 +3,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 
 st.set_page_config(page_title="Pasar Mini Prescriptive Analysis", layout="wide")
