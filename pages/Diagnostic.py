@@ -4,6 +4,8 @@ import plotly.express as px
 import html
 from statsmodels.formula.api import ols
 import statsmodels.api as sm
+import scipy.stats as stats
+
 
 # --------------------
 # Load CSV from GitHub Raw
@@ -291,23 +293,20 @@ fig.update_layout(
     coloraxis_colorbar=dict(title="Correlation")
 )
 
+# Optional: show correlation table
+with st.expander("📄 View Correlation Matrix", expanded=False):
+st.dataframe(spearman_corr, use_container_width=True)
+
 st.plotly_chart(fig, use_container_width=True)
 
+
 # -----------------------------
-# One-Way Anova Analysis 
+# Statistical Testing 
 # -----------------------------
 
 # --- Perform ANOVA on price across item categories ---
 anova_model = ols('price ~ C(item_category_enc)', data=pasar_mini_df).fit()
 anova_result = sm.stats.anova_lm(anova_model, typ=2)
-
-# --- Display ANOVA result in Streamlit ---
-st.subheader("📊 ANOVA: Price Differences Across Item Categories")
-st.caption(
-    "ANOVA test examines whether the average prices differ significantly "
-    "between item categories in Pasar Mini."
-)
-st.dataframe(anova_result, use_container_width=True)
 
 # --- Boxplot of price by item category ---
 st.subheader("📦 Price Distribution by Item Category")
@@ -326,8 +325,61 @@ fig = px.box(
     }
 )
 
+# --- Display ANOVA result in Streamlit ---
+st.subheader("📊 ANOVA: Price Differences Across Item Categories")
+st.caption(
+    "ANOVA test examines whether the average prices differ significantly "
+    "between item categories in Pasar Mini."
+
+st.dataframe(anova_result, use_container_width=True)    
+)
+
 # Display in Streamlit
 st.plotly_chart(fig, use_container_width=True)
+
+
+
+st.subheader("🔍 Chi-Square Test: State vs Item Category")
+
+st.caption(
+    "This analysis examines whether the distribution of item categories "
+    "is independent of state using the Chi-Square Test of Independence."
+)
+
+# Create contingency table
+contingency_table = pd.crosstab(
+    pasar_mini_df['state'],
+    pasar_mini_df['item_category']
+)
+
+# Display contingency table
+st.markdown("### 📊 Contingency Table")
+st.dataframe(contingency_table, use_container_width=True)
+
+# Perform Chi-Square test
+chi2, p_value, dof, expected = stats.chi2_contingency(contingency_table)
+
+# Display statistical results
+st.markdown("### 📈 Chi-Square Test Results")
+
+col1, col2, col3 = st.columns(3)
+col1.metric("Chi-Square Statistic", round(chi2, 2))
+col2.metric("Degrees of Freedom", dof)
+col3.metric("p-value", round(p_value, 5))
+
+st.markdown("### 🧠 Chi-Square Interpretation")
+
+if p_value < 0.05:
+    st.success(
+        "The p-value is less than 0.05, indicating a statistically significant "
+        "association between state and item category. This suggests that item "
+        "distribution patterns vary across states."
+    )
+else:
+    st.info(
+        "The p-value is greater than 0.05, indicating no statistically significant "
+        "association between state and item category."
+    )
 
 
 st.markdown("---")
@@ -346,7 +398,7 @@ st.markdown("""
 
 
 # -----------------------------
-# Segmentation Analysis (With Filters)
+# Segmentation Analysis 
 # -----------------------------
 
 with st.container():
@@ -445,3 +497,66 @@ with st.expander("📋 Top 10 Item Categories by Average Price"):
         seg_category.head(10),
         use_container_width=True
     )
+
+# -----------------------------
+# Drill-Down Analysis 
+# -----------------------------
+
+st.subheader("🔎 Drill-Down Analysis: Top Items in Johor (Pasar Mini)")
+
+# Drill-down for Johor
+drill_johor = (
+    pasar_mini_df[pasar_mini_df['state'] == 'JOHOR']
+    .groupby(['district', 'item'])['price']
+    .agg(['mean', 'count'])
+    .reset_index()
+    .sort_values('count', ascending=False)
+)
+
+fig = px.bar(
+    drill_johor.head(10),
+    x='item',
+    y='count',
+    title='Top Items in Johor by Transaction Volume (Pasar Mini)',
+    labels={
+        'item': 'Item',
+        'count': 'Number of Records'
+    },
+    color_discrete_sequence=['#1E3A8A']  # Deep blue
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# Display top 10 items
+st.markdown("### 📋 Top 10 Items by Transaction Count (Johor)")
+st.dataframe(
+    drill_johor.head(10),
+    use_container_width=True
+)
+
+with st.container():
+    st.markdown(
+        """
+        <div style="
+            background-color: #FFF1E6;
+            border-left: 6px solid #FB923C;
+            padding: 18px 22px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        ">
+            <h4 style="margin-top: 0; color: #7C2D12;">
+                🧠 Diagnostic Interpretation
+            </h4>
+            <p style="font-size: 15px; color: #3F2A1D;">
+                The results indicate that a small number of items dominate transaction volumes in Johor, 
+                suggesting strong and consistent consumer demand for essential goods. 
+                This concentration reflects localized consumption patterns influenced by daily necessities 
+                rather than price variability alone. 
+                Such trends highlight how regional purchasing behavior acts as a key driver of observed price 
+                stability and frequency in Pasar Mini markets.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
