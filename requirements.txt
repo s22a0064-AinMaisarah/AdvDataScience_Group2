@@ -7,6 +7,5 @@ oauth2client
 altair
 statsmodels
 scikit-learn
-matplotlib
 pyarrow
 fastparquet
