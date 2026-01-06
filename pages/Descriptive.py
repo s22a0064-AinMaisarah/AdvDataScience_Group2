@@ -183,16 +183,31 @@ st.markdown("""
 # --------------------
 # 3. Objective Header
 # --------------------
-st.markdown("""<div style="background: linear-gradient(90deg, #764ba2 0%, #4facfe 100%); padding: 10px; border-radius: 10px; color: white; margin-bottom: 10px;">
-    <strong>🎯 Objective:</strong> Identify typical price levels (Mean, Median, Mode).</div>""", unsafe_allow_html=True)
+st.markdown("""
 
-with st.expander("📊 CLICK TO VIEW: MEASURES OF CENTRAL TENDENCY", expanded=False):
-    p_mean, p_median = pasar_mini_df['price'].mean(), pasar_mini_df['price'].median()
-    p_mode = pasar_mini_df['price'].mode()[0]
-    
-    fig2 = go.Figure(data=[go.Bar(x=['Mean', 'Median', 'Mode'], y=[p_mean, p_median, p_mode], marker_color=['#4facfe', '#764ba2', '#00f2fe'])])
-    fig2.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color="white"))
-    st.plotly_chart(fig2, use_container_width=True)
+<div style="background: linear-gradient(90deg, #764ba2 0%, #4facfe 100%); 
+
+            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
+
+    <strong> Objective:</strong> To determine the central tendency of item prices 
+
+    in order to identify typical price levels within the dataset.
+
+</div>
+
+""", unsafe_allow_html=True)
+
+
+
+# --------------------
+# 4. Implementation with Expander
+# --------------------
+
+with st.container():
+
+    # Adding the specific sentence and icon you requested
+
+    with st.expander(" Measures of Central Tendency for Price", expanded=True):
         
         # Create the interactive bar chart
         fig = go.Figure(data=[go.Bar(
