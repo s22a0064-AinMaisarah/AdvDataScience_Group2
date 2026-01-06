@@ -121,19 +121,24 @@ with st.expander("📈 CLICK TO VIEW: AVERAGE PRICE OVER TIME ANALYSIS", expande
     st.dataframe(avg_price.head(10), use_container_width=True)
 
 # --------------------
-# 8. Visualisation: Central Tendency (CLOSED BY DEFAULT)
+# 8. Visualisation: Central Tendency 
 # --------------------
 price_mean = pasar_mini_df['price'].mean()
 price_median = pasar_mini_df['price'].median()
 price_mode = pasar_mini_df['price'].mode()[0] if not pasar_mini_df['price'].mode().empty else 0
+price_skew = pasar_mini_df['price'].skew()
+price_kurt = pasar_mini_df['price'].kurt()
+price_count = len(pasar_mini_df)
+max_price = pasar_mini_df['price'].max()
 
 st.markdown("""
 <div style="background: linear-gradient(90deg, #764ba2 0%, #4facfe 100%); padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>🎯 Objective:</strong> To identify typical price levels (Mean, Median, Mode) within the dataset.
+    <strong> Objective:</strong> To identify typical price levels (Mean, Median, Mode) within the dataset.
 </div>
 """, unsafe_allow_html=True)
 
-with st.expander("📊 CLICK TO VIEW: MEASURES OF CENTRAL TENDENCY FOR PRICE", expanded=False):
+with st.expander("MEASURES OF CENTRAL TENDENCY FOR PRICE", expanded=False):
+    # --- Chart Section ---
     measures = ['Mean', 'Median', 'Mode']
     values = [price_mean, price_median, price_mode]
     
@@ -142,12 +147,31 @@ with st.expander("📊 CLICK TO VIEW: MEASURES OF CENTRAL TENDENCY FOR PRICE", e
         marker_color=['#4facfe', '#764ba2', '#00f2fe'],
         text=[f'RM {v:.2f}' for v in values], textposition='auto'
     )])
-    fig_bar.update_layout(title_text="Central Tendency Analysis", title_x=0.5, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+    fig_bar.update_layout(
+        title_text="Central Tendency Analysis", 
+        title_x=0.5, 
+        paper_bgcolor='rgba(0,0,0,0)', 
+        plot_bgcolor='rgba(0,0,0,0)',
+        font=dict(color="white")
+    )
     st.plotly_chart(fig_bar, use_container_width=True)
     
+    # --- Summary Section ---
+    st.markdown("### Statistical Summary")
+    
+    # Using a container for the point summary
+    st.info(f"""
+    * **Data Volume:** A total of **{price_count:,}** price points were analyzed.
+    * **Typical Values:** The **Mean** price is **RM {price_mean:.2f}**, which is higher than the **Median (RM {price_median:.2f})** and **Mode (RM {price_mode:.2f})**.
+    * **Distribution Shape:** A **Skewness of {price_skew:.2f}** indicates a **Right-Skewed** distribution. This means a few expensive items pull the average up, while most items are priced below RM 10.00.
+    * **Price Extremes:** A high **Kurtosis of {price_kurt:.2f}** confirms a "heavy-tailed" distribution with significant outliers, reaching a maximum value of **RM {max_price:.2f}**.
+    """)
+
+    # --- Data Table ---
+    st.markdown("#### Detailed Metrics")
     ct_df = pd.DataFrame({
-        'Measure': ['Mean (Average)', 'Median (Middle)', 'Mode (Frequent)'],
-        'Value (RM)': [f"RM {price_mean:.2f}", f"RM {price_median:.2f}", f"RM {price_mode:.2f}"]
+        'Measure': ['Total Count', 'Mean', 'Median', 'Mode', 'Skewness', 'Kurtosis'],
+        'Value': [f"{price_count:,}", f"RM {price_mean:.2f}", f"RM {price_median:.2f}", f"RM {price_mode:.2f}", f"{price_skew:.2f}", f"{price_kurt:.2f}"]
     })
     st.table(ct_df)
 
