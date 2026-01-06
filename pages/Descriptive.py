@@ -727,13 +727,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Expander (Closed by default)
-with st.expander("Cumulative Frequency Visualization for Item Group", expanded=False):
+with st.expander("Cumulative Frequency Visualization for item_group", expanded=False):
     
     # Create the Interactive Bar Chart
     fig_group = px.bar(
         item_group_counts, 
         x='item_group', y='count', color='item_group',
-        title='Item Group Frequency Distribution',
+        title='Item Group Frequency and Cumulative Percentage',
         labels={'item_group': 'Item Group', 'count': 'Number of Entries'},
         hover_data={
             'percentage': ':.2f%',
@@ -748,7 +748,8 @@ with st.expander("Cumulative Frequency Visualization for Item Group", expanded=F
         font=dict(family="Arial, sans-serif", size=12, color="#4CAF50"),
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
-        xaxis_tickangle=-45
+        xaxis_tickangle=-45,
+        height=500
     )
 
     st.plotly_chart(fig_group, use_container_width=True)
@@ -756,10 +757,12 @@ with st.expander("Cumulative Frequency Visualization for Item Group", expanded=F
     # --- Insight Summary ---
     st.markdown("### Item Group Insights")
     st.info("""
-    * **Category Dominance:** 'Barangan berbungkus' (packaged goods) is the dominant category with **43.96%** of total observations.
-    * **Major Pairs:** Together with 'Barangan segar' (fresh produce), these two groups represent a massive **78.48%** of all records.
-    * **Core Retail Baseline:** Coverage expands to **98.03%** when dry goods and baby products are included, defining the primary focus of the Pasar Mini inventory.
-    * **Marginal Proportions:** Beverages and cleaning products account for only **1.51%** and **0.45%** respectively, remaining statistically secondary in the observation volume.
+    The Cumulative Frequency Analysis of the item_group dimension reveals a significant concentration of data within a highly condensed set of categories.
+    
+    * **Dominant Categories:** 'Barangan berbungkus' (packaged goods) is the dominant category with 67,098 entries (**43.96%**), followed by 'barangan segar' (fresh produce) at **34.52%**.
+    * **Core Market Baseline:** Collectively, these two groups represent **78.48%** of all records, indicating monitoring is heavily weighted toward essential staples.
+    * **Broad Coverage:** Inclusion of 'barangan kering' and 'susu dan barangan bayi' brings cumulative coverage to **98.03%**.
+    * **Marginal Groups:** Categories like 'minuman' (**1.51%**) and 'produk kebersihan' (**0.45%**) remain statistically secondary in volume.
     """)
 
     # Data Table
