@@ -99,31 +99,56 @@ st.markdown("""
 # --------------------
 st.markdown("""
 <style>
-/* Style the expander header */
+/* Customizing the Expander Header */
 .stExpander {
-    border: 1px solid rgba(151, 166, 195, 0.2) !important;
     border-radius: 12px !important;
-    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-/* Make the dataframe look cleaner */
-.stDataFrame {
-    border-radius: 10px;
+/* Adding a hover effect to the expander */
+.stExpander:hover {
+    border-color: #4facfe !important;
+}
+
+/* Style for the text inside the expander label */
+.expander-label {
+    font-weight: 600;
+    color: #31333F;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* A subtle bounce animation for the arrow */
+@keyframes bounceRight {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(3px); }
+}
+
+.arrow-icon {
+    display: inline-block;
+    animation: bounceRight 2s infinite;
+    color: #4facfe;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # --------------------
-# Data Expander
+# Implementation
 # --------------------
-with st.expander(" View Raw Dataset (First 5 Rows)"):
-    st.write("Below is a preview of the Pasar Mini pricing dataset:")
+
+# We use a markdown string with an arrow icon for the expander title
+expander_title = " Click to Preview Raw Data  "
+
+with st.expander(expander_title):
+    st.markdown('<p style="font-size: 0.85rem; color: #666;">Previewing the first 5 records of the dataset:</p>', unsafe_allow_html=True)
     
-    # Displaying the dataframe with full width
+    # use_container_width makes it fit the "tiny" compact style
     st.dataframe(pasar_mini_df.head(), use_container_width=True)
     
-    # Optional: Tiny footer inside expander
-    st.caption(f"Showing 5 of {len(pasar_mini_df)} total records.")
+    st.markdown(f"**Total Records:** `{len(pasar_mini_df):,}`")
 # --- Display metrics in 4 columns ---
 # ---------------------------------------------------------
 # KPI METRICS
