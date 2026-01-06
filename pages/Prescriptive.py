@@ -152,5 +152,85 @@ st.subheader("Priority Index by State")
 st.bar_chart(state_stats_sorted["priority_index"])
 
 st.caption(
-    "Higher values indicate states with fewer outlets, higher average staple pr
+    "Higher values indicate states with fewer outlets, higher average staple prices, "
+    "and/or stronger demand, and therefore higher priority for intervention."
+)
 
+st.subheader("Component Scores (Access, Price, Demand)")
+st.bar_chart(
+    state_stats_sorted[["access_score", "price_score", "demand_score"]]
+)
+
+# -------------------------------------------------------------------
+# 7. Tiers and outlet expansion scenario
+# -------------------------------------------------------------------
+st.subheader("Tiers and Outlet Expansion Scenario")
+
+top_n_tier1 = st.number_input("Number of Tier 1 states", 1, 8, 5)
+top_n_tier2 = st.number_input("Number of Tier 2 states", 1, 8, 5)
+
+state_stats_sorted["rank"] = state_stats_sorted["priority_index"].rank(
+    ascending=False, method="first"
+)
+
+def assign_tier(rank):
+    if rank <= top_n_tier1:
+        return "Tier 1"
+    elif rank <= top_n_tier1 + top_n_tier2:
+        return "Tier 2"
+    else:
+        return "Tier 3"
+
+state_stats_sorted["tier"] = state_stats_sorted["rank"].apply(assign_tier)
+
+st.write("States with assigned tiers:")
+st.dataframe(
+    state_stats_sorted[
+        [
+            "premise_count",
+            "avg_basket_price",
+            "txn_count",
+            "priority_index",
+            "tier",
+        ]
+    ]
+)
+
+N_new_outlets = st.number_input(
+    "Number of additional outlets per Tier 1 state (scenario)", 0, 100, 20
+)
+
+scenario = state_stats_sorted.copy()
+tier1_states = scenario[scenario["tier"] == "Tier 1"].index
+
+scenario.loc[tier1_states, "premise_count"] += N_new_outlets
+
+scenario["premise_norm"] = scaler.fit_transform(
+    scenario[["premise_count"]]
+)
+scenario["access_score"] = 1 - scenario["premise_norm"]
+
+scenario["priority_index_new"] = (
+    w_access_n * scenario["access_score"]
+    + w_price_n * scenario["price_score"]
+    + w_demand_n * scenario["demand_score"]
+)
+
+scenario["delta_priority"] = scenario["priority_index_new"] - scenario["priority_index"]
+
+st.write("Scenario impact (negative delta = improvement):")
+st.dataframe(
+    scenario[["priority_index", "priority_index_new", "delta_priority", "tier"]]
+    .sort_values("delta_priority")
+)
+
+st.subheader("Before vs After Outlet Expansion Scenario")
+scenario_sorted = scenario.sort_values("priority_index", ascending=False)[
+    ["priority_index", "priority_index_new"]
+]
+st.bar_chart(scenario_sorted)
+
+st.success(
+    "Use these results to support recommendations such as expanding Pasar Mini in Tier 1 "
+    "states and improving logistics in high-priority regions."
+)
