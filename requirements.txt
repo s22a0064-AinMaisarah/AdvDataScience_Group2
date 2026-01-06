@@ -9,3 +9,4 @@ statsmodels
 scikit-learn
 pyarrow
 fastparquet
+scipy
