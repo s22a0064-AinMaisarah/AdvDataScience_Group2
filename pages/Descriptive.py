@@ -18,10 +18,7 @@ try:
 except Exception as e:
     st.error(f"Error loading data: {e}")
     st.stop()
-
-# --------------------
-# 2. Global Styling
-# --------------------
+    
 st.markdown("""
 <style>
     .center-title {
@@ -69,7 +66,7 @@ st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 # --------------------
 # 4. Dataset Preview (CLOSED BY DEFAULT)
 # --------------------
-with st.expander("🔍 CLICK TO REVEAL DATASET PREVIEW", expanded=False):
+with st.expander("DATASET PREVIEW", expanded=False):
     st.write("### Previewing First 5 Rows")
     st.dataframe(pasar_mini_df.head(), use_container_width=True)
 
@@ -79,14 +76,42 @@ with st.expander("🔍 CLICK TO REVEAL DATASET PREVIEW", expanded=False):
 st.subheader("Key Dataset Metrics")
 col1, col2, col3, col4 = st.columns(4)
 with col1:
-    st.markdown('<div class="metric-card" style="border-color:#FF4B4B"><small>Max Price</small><br><b>RM 498.00</b></div>', unsafe_allow_html=True)
-with col2:
-    st.markdown('<div class="metric-card" style="border-color:#00CC96"><small>Min Price</small><br><b>RM 0.50</b></div>', unsafe_allow_html=True)
-with col3:
-    st.markdown('<div class="metric-card" style="border-color:#636EFA"><small>Top Premise</small><br><b>1,641</b></div>', unsafe_allow_html=True)
-with col4:
-    st.markdown('<div class="metric-card" style="border-color:#AB63FA"><small>Top Category</small><br><b>67,098</b></div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="metric-card m-max">
+        <div class="metric-label">Max Price</div>
+        <div class="metric-value">RM 498.00</div>
+        <div class="metric-help">Bawang Besar Import (India) (1kg)<br>2025-12-19</div>
+    </div>
+    """, unsafe_allow_html=True)
 
+with col2:
+    st.markdown("""
+    <div class="metric-card m-min">
+        <div class="metric-label">Min Price</div>
+        <div class="metric-value">RM 0.50</div>
+        <div class="metric-help">Serbuk Kari Adabi<br>2025-12-08</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col3:
+    st.markdown("""
+    <div class="metric-card m-top">
+        <div class="metric-label">Top Premise</div>
+        <div class="metric-value">1,641</div>
+        <div class="metric-help">Kifarah Fresh Mart</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col4:
+    st.markdown("""
+    <div class="metric-card m-cat">
+        <div class="metric-label">Top Item Category</div>
+        <div class="metric-value">67,098</div>
+        <div class="metric-help">Barangan Berbungkus</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("<br>", unsafe_allow_html=True)
 # --------------------
 # 6. Main Objective
 # --------------------
