@@ -140,110 +140,81 @@ import streamlit as st
 
 import streamlit as st
 
+import streamlit as st
+
 # --------------------
-# Objectives
+# Compact Objectives Styling
 # --------------------
 
 st.markdown("""
 <style>
-/* Main Container Styling */
-.objective-container {
-    font-family: 'Inter', sans-serif;
-}
-
-/* Base card with Glassmorphism and Gradient */
-.objective-card {
-    padding: 2rem;
-    border-radius: 24px;
-    margin-bottom: 20px;
+/* Smaller, sleek card container */
+.tiny-card {
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    margin-bottom: 10px;
     color: white;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 12px 20px -10px rgba(0, 0, 0, 0.3);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.objective-card:hover {
-    transform: scale(1.02);
-    box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.4);
+.tiny-card:hover {
+    transform: translateX(5px); /* Slides slightly right instead of growing */
 }
 
-/* Dynamic Gradients */
-/* Box 1: Electric Violet to Royal Blue */
-.box-1 {
-    background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%);
-}
+/* Compact Gradients */
+.bg-blue { background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); }
+.bg-purple { background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); }
+.bg-orange { background: linear-gradient(90deg, #f6d365 0%, #fda085 100%); }
 
-/* Box 2: Sunset Orange to Deep Red */
-.box-2 {
-    background: linear-gradient(135deg, #FF512F 0%, #DD2476 100%);
-}
-
-/* Box 3: Ocean Teal to Bright Green (Optional) */
-.box-3 {
-    background: linear-gradient(135deg, #02AAB0 0%, #00CDAC 100%);
-}
-
-/* Typography Enhancements */
-.objective-title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    margin-bottom: 0.75rem;
+.tiny-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 4px;
     display: flex;
     align-items: center;
+    gap: 8px;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
-.objective-subtitle {
-    font-size: 0.85rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    opacity: 0.8;
-    margin-bottom: 4px;
-    letter-spacing: 2px;
-}
-
-.objective-text {
-    font-size: 1.15rem;
-    line-height: 1.6;
-    font-weight: 300;
+.tiny-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    font-weight: 400;
     opacity: 0.95;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 15px;
-    border-radius: 12px;
-    border-left: 4px solid rgba(255, 255, 255, 0.5);
-}
-
-/* Icon styling */
-.icon {
-    margin-right: 12px;
-    font-size: 1.8rem;
 }
 </style>
 """, unsafe_allow_html=True)
 
-st.subheader("🎯 Descriptive Analytics Objectives")
+st.subheader("🎯 Project Objectives")
 
 # --- Objective 1 ---
 st.markdown("""
-<div class="objective-card box-1">
-    <div class="objective-subtitle">Primary Goal</div>
-    <div class="objective-title"><span class="icon">📊</span> Pricing Analysis</div>
-    <div class="objective-text">
-        To descriptively <b>analyse price patterns</b>, distribution characteristics, and category-based variations of items across <b>time, location,</b> and item classifications.
+<div class="tiny-card bg-purple">
+    <div class="tiny-title">📊 Objective 1: Pricing Analysis</div>
+    <div class="tiny-text">
+        Analyse price patterns, distribution, and category variations across time and location.
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# --- Objective 2 (Example of adding a second one) ---
+# --- Objective 2 ---
 st.markdown("""
-<div class="objective-card box-2">
-    <div class="objective-subtitle">Secondary Goal</div>
-    <div class="objective-title"><span class="icon">📍</span> Spatial Trends</div>
-    <div class="objective-text">
-        To identify <b>geographical outliers</b> and regional price disparities to ensure market transparency and consumer protection across all Mini Markets.
+<div class="tiny-card bg-blue">
+    <div class="tiny-title">📍 Objective 2: Spatial Trends</div>
+    <div class="tiny-text">
+        Identify geographical price disparities and market accessibility across regions.
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# --- Objective 3 ---
+st.markdown("""
+<div class="tiny-card bg-orange">
+    <div class="tiny-title">📈 Objective 3: Historical Flow</div>
+    <div class="tiny-text">
+        Summarize short-term historical trends for essential commodity distribution.
     </div>
 </div>
 """, unsafe_allow_html=True)
