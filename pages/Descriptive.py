@@ -283,3 +283,69 @@ with st.expander("MEASURES OF CENTRAL TENDENCY FOR PRICE", expanded=False):
     st.table(ct_df)
 
 st.markdown("---")
+# --------------------
+# 9. Visualisation: Measures of Dispersion
+# --------------------
+
+# Calculations for Dispersion
+price_std = pasar_mini_df['price'].std()
+price_min = pasar_mini_df['price'].min()
+price_max = pasar_mini_df['price'].max()
+price_range = price_max - price_min
+q1 = pasar_mini_df['price'].quantile(0.25)
+q3 = pasar_mini_df['price'].quantile(0.75)
+iqr = q3 - q1
+
+# Create a summary DataFrame for the Dispersion Metrics
+price_stats_df = pd.DataFrame({
+    'Measure': ['Std Deviation', 'Range', '25th Percentile (Q1)', '75th Percentile (Q3)', 'IQR'],
+    'Value': [price_std, price_range, q1, q3, iqr]
+})
+
+# Section Objective Header
+st.markdown("""
+<div style="background: linear-gradient(90deg, #1f77b4 0%, #2ca02c 100%); 
+            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
+    <strong>Objective:</strong> To summarise the variability and range of item prices to understand the extent of price dispersion.
+</div>
+""", unsafe_allow_html=True)
+
+# Expander with Prominent Icon
+with st.expander("Statistical Measures for Price Dispersion", expanded=False):
+    
+    # Create Interactive Bar Chart
+    fig_disp = px.bar(
+        price_stats_df,
+        x='Measure',
+        y='Value',
+        color='Measure',
+        color_discrete_sequence=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'],
+        title="Dispersion Analysis (Spread of Prices)",
+        text='Value'
+    )
+
+    fig_disp.update_traces(texttemplate='%{text:.2f}', textposition='outside')
+    fig_disp.update_layout(
+        title_x=0.5,
+        font=dict(family="Arial, sans-serif", size=12, color="#7f7f7f"),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        margin=dict(t=50, b=20)
+    )
+
+    st.plotly_chart(fig_disp, use_container_width=True)
+
+    # --- Insight Summary ---
+    st.markdown("### Dispersion Insights")
+    st.info(f"""
+    * **Price Volatility:** To understand price volatility, measures of dispersion were employed. The **Standard Deviation of {price_std:.2f}** and a **Range of {price_range:.2f}** highlight a wide variety in the pricing of consumer goods.
+    * **Market Diversity:** This wide range is likely due to the inclusion of both small units (e.g., timun) and bulk or premium items reaching a maximum of **RM {price_max:.2f}**.
+    * **Stable Baseline:** The **Interquartile Range (IQR) of {iqr:.2f}** provides a more stable baseline, showing that the middle 50% of all items fall between **RM {q1:.2f} (25th percentile)** and **RM {q3:.2f} (75th percentile)**.
+    * **Typical Spending:** This middle range represents the typical expenditure for a standard consumer unit in mini-markets.
+    """)
+
+    # Data Table
+    st.markdown("#### Dispersion Metric Details")
+    st.table(price_stats_df)
+
+st.markdown("---")
