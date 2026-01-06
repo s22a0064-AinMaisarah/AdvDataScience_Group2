@@ -328,12 +328,11 @@ fig = px.box(
 
 # --- Display ANOVA result in Streamlit ---
 st.subheader("📊 ANOVA: Price Differences Across Item Categories")
-st.caption(
-    "ANOVA test examines whether the average prices differ significantly "
+st.caption(" ANOVA test examines whether the average prices differ significantly "
     "between item categories in Pasar Mini."
+) 
 
 st.dataframe(anova_result, use_container_width=True)    
-)
 
 # Display in Streamlit
 st.plotly_chart(fig, use_container_width=True)
