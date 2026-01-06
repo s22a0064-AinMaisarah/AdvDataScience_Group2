@@ -73,41 +73,101 @@ with st.expander("DATASET PREVIEW", expanded=False):
 # --------------------
 # 5. KPI Metrics
 # --------------------
+# --------------------
+# KPI Metrics Styling
+# --------------------
+st.markdown("""
+<style>
+/* Card Styling */
+.metric-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-top: 5px solid #ddd; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* Individual accent colors using your palette */
+.m-max { border-top-color: #FF4B4B; background: linear-gradient(to bottom, #fff5f5, #ffffff); } 
+.m-min { border-top-color: #00CC96; background: linear-gradient(to bottom, #f0fff4, #ffffff); } 
+.m-top { border-top-color: #636EFA; background: linear-gradient(to bottom, #f0f3ff, #ffffff); } 
+.m-cat { border-top-color: #AB63FA; background: linear-gradient(to bottom, #f9f0ff, #ffffff); }
+
+.metric-label {
+    font-size: 0.75rem;
+    color: #555;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.metric-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #1f1f1f;
+    margin: 2px 0;
+}
+
+.metric-help {
+    font-size: 0.7rem;
+    color: #888;
+    line-height: 1.2;
+    margin-top: 8px;
+    border-top: 1px solid #eee;
+    padding-top: 8px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.subheader("Key Dataset Metrics")
+
 col1, col2, col3, col4 = st.columns(4)
+
 with col1:
     st.markdown("""
     <div class="metric-card m-max">
-        <div class="metric-label">Max Price</div>
+        <div class="metric-label">🔺 Max Price</div>
         <div class="metric-value">RM 498.00</div>
-        <div class="metric-help">Bawang Besar Import (India) (1kg)<br>2025-12-19</div>
+        <div class="metric-help">Bawang Besar Import (India) 1 kg<br><b>2025-12-19</b></div>
     </div>
     """, unsafe_allow_html=True)
 
 with col2:
     st.markdown("""
     <div class="metric-card m-min">
-        <div class="metric-label">Min Price</div>
+        <div class="metric-label">🔻 Min Price</div>
         <div class="metric-value">RM 0.50</div>
-        <div class="metric-help">Serbuk Kari Adabi<br>2025-12-08</div>
+        <div class="metric-help">Serbuk Kari Adabi<br><b>2025-12-08</b></div>
     </div>
     """, unsafe_allow_html=True)
 
 with col3:
     st.markdown("""
     <div class="metric-card m-top">
-        <div class="metric-label">Top Premise</div>
+        <div class="metric-label">🏢 Top Premise</div>
         <div class="metric-value">1,641</div>
-        <div class="metric-help">Kifarah Fresh Mart</div>
+        <div class="metric-help">Kifarah Fresh Mart<br>Records Count</div>
     </div>
     """, unsafe_allow_html=True)
 
 with col4:
     st.markdown("""
     <div class="metric-card m-cat">
-        <div class="metric-label">Top Item Category</div>
+        <div class="metric-label">📦 Top Item Category</div>
         <div class="metric-value">67,098</div>
-        <div class="metric-help">Barangan Berbungkus</div>
+        <div class="metric-help">Barangan Berbungkus<br>Total Items</div>
     </div>
     """, unsafe_allow_html=True)
 
