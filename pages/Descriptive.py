@@ -138,54 +138,88 @@ st.markdown("---")
 
 import streamlit as st
 
+import streamlit as st
+
 # --------------------
-# Objectives Styling
+# Objectives
 # --------------------
 
 st.markdown("""
 <style>
-/* Base styling for all objective boxes */
+/* Main Container Styling */
+.objective-container {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Base card with Glassmorphism and Gradient */
 .objective-card {
-    padding: 1.8rem;
-    border-radius: 20px;
-    margin-bottom: 1.5rem;
+    padding: 2rem;
+    border-radius: 24px;
+    margin-bottom: 20px;
     color: white;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 12px 20px -10px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Hover effect to make it interactive */
 .objective-card:hover {
-    transform: translateY(-5px);
+    transform: scale(1.02);
+    box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.4);
 }
 
-/* Gradient for Objective 1: Deep Blue to Purple */
+/* Dynamic Gradients */
+/* Box 1: Electric Violet to Royal Blue */
 .box-1 {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-left: 8px solid #ffffff44;
+    background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%);
 }
 
-/* Gradient for Objective 2: Teal to Emerald */
+/* Box 2: Sunset Orange to Deep Red */
 .box-2 {
-    background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
-    border-left: 8px solid #ffffff44;
+    background: linear-gradient(135deg, #FF512F 0%, #DD2476 100%);
 }
 
+/* Box 3: Ocean Teal to Bright Green (Optional) */
+.box-3 {
+    background: linear-gradient(135deg, #02AAB0 0%, #00CDAC 100%);
+}
+
+/* Typography Enhancements */
 .objective-title {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 800;
-    margin-bottom: 0.8rem;
-    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
     display: flex;
     align-items: center;
-    gap: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.objective-subtitle {
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-bottom: 4px;
+    letter-spacing: 2px;
 }
 
 .objective-text {
-    font-size: 1.1rem;
-    line-height: 1.7;
-    font-weight: 400;
+    font-size: 1.15rem;
+    line-height: 1.6;
+    font-weight: 300;
     opacity: 0.95;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 12px;
+    border-left: 4px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Icon styling */
+.icon {
+    margin-right: 12px;
+    font-size: 1.8rem;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -195,23 +229,24 @@ st.subheader("🎯 Descriptive Analytics Objectives")
 # --- Objective 1 ---
 st.markdown("""
 <div class="objective-card box-1">
-    <div class="objective-title">📊 Objective 1: Pricing Analysis</div>
+    <div class="objective-subtitle">Primary Goal</div>
+    <div class="objective-title"><span class="icon">📊</span> Pricing Analysis</div>
     <div class="objective-text">
-        To <b>quantify</b> the current state of essential commodity pricing in Pasar Mini and identify <b>short-term historical trends</b>, while summarizing how products are distributed, sold, and priced across different regions and time periods.
+        To descriptively <b>analyse price patterns</b>, distribution characteristics, and category-based variations of items across <b>time, location,</b> and item classifications.
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# --- Objective 2 ---
+# --- Objective 2 (Example of adding a second one) ---
 st.markdown("""
 <div class="objective-card box-2">
-    <div class="objective-title">📈 Objective 2: Market Distribution</div>
+    <div class="objective-subtitle">Secondary Goal</div>
+    <div class="objective-title"><span class="icon">📍</span> Spatial Trends</div>
     <div class="objective-text">
-        To provide a comprehensive overview of <b>supply chain efficiency</b> and regional price variations to better understand market volatility and consumer accessibility.
+        To identify <b>geographical outliers</b> and regional price disparities to ensure market transparency and consumer protection across all Mini Markets.
     </div>
 </div>
 """, unsafe_allow_html=True)
-
 # --------------------
 # Visualization Sections
 # --------------------
