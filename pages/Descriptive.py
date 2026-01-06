@@ -138,7 +138,7 @@ st.markdown("""
 # --------------------
 
 # We use 🔽 to show it can be opened and 🔎 for the action
-with st.expander("🔽 🔎 CLICK TO REVEAL DATASET PREVIEW", expanded=False):
+with st.expander("CLICK TO REVEAL DATASET PREVIEW", expanded=False):
     st.write("### Previewing First 5 Rows")
     st.dataframe(pasar_mini_df.head(), use_container_width=True)
 # --- Display metrics in 4 columns ---
@@ -308,11 +308,85 @@ st.markdown("---")
 
 st.markdown(
     """
-    <h2 style='text-align:left;'>📊 Diagnostic Analysis Visualizations</h2>
+    <h1 style='text-align:left;'> Descriptive Analysis Table and Visualizations</h2>
     <p style='text-align:left; color: gray;'>
-    This section presents visual evidence supporting the diagnostic objectives,
-    including correlation analysis, segmentation, statistical testing, and root cause analysis.
+    This section presents tables and visual evidence supporting the descriptive objectives.
     </p>
     """,
     unsafe_allow_html=True
 )
+# -------------------- ---------------------
+# Visualisation 1 : Average Price Over Time
+# -------------------- ---------------------
+
+# --- Data Processing ---
+# Calculate the average price per date
+average_price_per_date = pasar_mini_df.groupby('date')['price'].mean().reset_index()
+
+# --- Custom Styling for the Expander ---
+st.markdown("""
+<style>
+/* High-visibility glow for the Chart Expander */
+.chart-expander {
+    border: 2px solid #FF4081 !important; 
+    border-radius: 15px !important;
+    background-color: #1E1E1E !important;
+}
+
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 5px #FF4081; }
+    50% { box-shadow: 0 0 15px #FF4081; }
+    100% { box-shadow: 0 0 5px #FF4081; }
+}
+
+.stExpander {
+    animation: pulse-glow 4s infinite;
+    border-radius: 15px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --- Objective Card (Compact Style) ---
+st.markdown("""
+<div style="background: linear-gradient(90deg, #FF4081 0%, #764ba2 100%); 
+            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
+    <strong>🎯 Objective:</strong> To examine trends and changes in average item prices 
+    over time in order to identify temporal price patterns.
+</div>
+""", unsafe_allow_html=True)
+
+# --- The Expander with Prominent Icon ---
+with st.expander("📈 CLICK TO VIEW: AVERAGE PRICE OVER TIME ANALYSIS", expanded=True):
+    
+    # Create the Plotly figure
+    fig = px.line(
+        average_price_per_date,
+        x='date',
+        y='price',
+        markers=True,
+        title='Interactive Average Price Over Time',
+        labels={'date': 'Date', 'price': 'Average Price (RM)'},
+        line_shape='spline', # Smoother line for a modern look
+        color_discrete_sequence=['#FF4081'], # Matching your pink theme
+        hover_data={'date': '|%Y-%m-%d', 'price': ':.2f'}
+    )
+
+    fig.update_layout(
+        hovermode='x unified',
+        title_x=0.5,
+        font=dict(family="Arial, sans-serif", size=12, color="#FF4081"),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        margin=dict(l=20, r=20, t=50, b=20),
+        height=400
+    )
+
+    fig.update_xaxes(showgrid=True, gridwidth=0.5, gridcolor='rgba(200,200,200,0.2)')
+    fig.update_yaxes(showgrid=True, gridwidth=0.5, gridcolor='rgba(200,200,200,0.2)')
+
+    # Display in Streamlit
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Display the Table (Top 10)
+    st.markdown("### 📋 Top 10 Date Summaries")
+    st.dataframe(average_price_per_date.head(10), use_container_width=True)
