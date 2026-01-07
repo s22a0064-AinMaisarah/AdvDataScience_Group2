@@ -296,6 +296,8 @@ for name, y_pred in models.items():
 
         st.plotly_chart(fig, use_container_width=True)
 
+# Add a **single interpretation expander** at the end
+with st.expander("🔹 Overall Interpretation of Residual Analysis"):
         st.markdown("""
 ### 🔹 Residual Analysis
 - **Random Forest:** Errors are small and centered around zero, showing accurate and balanced predictions for complex patterns.  
