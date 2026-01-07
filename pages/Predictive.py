@@ -169,80 +169,6 @@ for Pasar Mini markets in 2025. Visualizations provide both trend analysis and c
 # --------------------
 st.subheader("1. 📈 Forecasted Monthly Food Prices in Pasar Mini for 2025")
 
-future_2025 = pd.DataFrame({
-    "year": [2025]*12,
-    "month": list(range(1,13)),
-    "state_enc": monthly_price["state_enc"].mode()[0],
-    "district_enc": monthly_price["district_enc"].mode()[0],
-    "item_group_enc": monthly_price["item_group_enc"].mode()[0],
-    "item_category_enc": monthly_price["item_category_enc"].mode()[0],
-})
-
-future_2025["predicted_price"] = rf_model.predict(future_2025[features])
-
-# --------------------
-# Forecasted Line Chart (Trend Over Time)
-# --------------------
-
-with st.expander("📉 Forecast Trend: Monthly Food Prices (2025)", expanded=True):
-
-    st.subheader("📉 Forecasted Price Trend (Line Chart)")
-
-    fig_line = px.line(
-        future_2025,
-        x="month",
-        y="predicted_price",
-        markers=True,
-        title="Forecasted Monthly Food Prices in Pasar Mini (2025)",
-        labels={
-            "month": "Month",
-            "predicted_price": "Predicted Price (RM)"
-        }
-    )
-
-    st.plotly_chart(fig_line, use_container_width=True)
-
-    st.caption(
-        "📌 This line chart illustrates the overall trend and seasonal movement of "
-        "forecasted food prices in Pasar Mini markets for the year 2025."
-    )
-
-# --------------------
-# Monthly Forecast Bar Chart (Month to Month Comparison)
-# --------------------
-with st.expander("📊 Monthly Price Comparison (Bar Chart)", expanded=False):
-
-    st.subheader("📊 Monthly Forecast Comparison")
-
-    fig_bar = px.bar(
-        future_2025,
-        x="month",
-        y="predicted_price",
-        text="predicted_price",
-        title="Predicted Food Prices by Month in Pasar Mini (2025)",
-        labels={
-            "month": "Month",
-            "predicted_price": "Predicted Price (RM)"
-        }
-    )
-
-    fig_bar.update_traces(
-        texttemplate="RM %{text:.2f}",
-        textposition="outside"
-    )
-
-    st.plotly_chart(fig_bar, use_container_width=True)
-
-    st.caption(
-        "📌 This bar chart provides a clear month-to-month comparison of predicted "
-        "food prices, allowing users to identify higher or lower pricing periods."
-    )
-
-# --------------------
-# STATIC FORECAST TABLE (2025)
-# --------------------
-st.subheader("📋 Predicted Monthly Food Prices (2025) – Static Table")
-
 # Create DataFrame from your provided results
 forecast_results = pd.DataFrame({
     "Year": [2025]*12,
@@ -260,18 +186,50 @@ forecast_results = pd.DataFrame({
 # Display table in Streamlit
 st.dataframe(forecast_results, use_container_width=True)
 
-# Optional: also show as bar chart for easier visualization
-st.subheader("📊 Predicted Price Bar Chart (2025) – Static Results")
-fig_static_bar = px.bar(
-    forecast_results,
-    x="Month",
-    y="Predicted Price (RM)",
-    text="Predicted Price (RM)",
-    labels={"Month": "Month", "Predicted Price (RM)": "Predicted Price (RM)"},
-    title="Predicted Monthly Food Prices in Pasar Mini for 2025 (Static Table)"
-)
-fig_static_bar.update_traces(texttemplate="RM %{text:.2f}", textposition="outside")
-st.plotly_chart(fig_static_bar, use_container_width=True)
+# --------------------
+# Forecasted Line Chart (Trend Over Time)
+# --------------------
+
+with st.expander("📉 Forecast Trend: Monthly Food Prices (2025)", expanded=True):
+    st.subheader("📉 Forecasted Price Trend (Line Chart)")
+    
+    fig_line = px.line(
+        forecast_results,
+        x="Month",
+        y="Predicted Price (RM)",
+        markers=True,
+        title="Forecasted Monthly Food Prices in Pasar Mini for 2025",
+        labels={
+            "Month": "Month",
+            "Predicted Price (RM)": "Predicted Price (RM)"
+        }
+    )
+    
+    st.plotly_chart(fig_line, use_container_width=True)
+    st.caption(
+        "📌 This line chart shows the overall trend of forecasted food prices in Pasar Mini markets for 2025."
+    )
+
+# --------------------
+# Monthly Forecast Bar Chart (Month to Month Comparison)
+# --------------------
+with st.expander("📊 Monthly Price Comparison (Bar Chart)", expanded=False):
+    st.subheader("📊 Predicted Price Comparison (Bar Chart)")
+    
+    fig_bar = px.bar(
+        forecast_results,
+        x="Month",
+        y="Predicted Price (RM)",
+        text="Predicted Price (RM)",
+        labels={"Month": "Month", "Predicted Price (RM)": "Predicted Price (RM)"},
+        title="Predicted Monthly Food Prices in Pasar Mini for 2025"
+    )
+    fig_bar.update_traces(texttemplate="RM %{text:.2f}", textposition="outside")
+    
+    st.plotly_chart(fig_bar, use_container_width=True)
+    st.caption(
+        "📌 This bar chart provides a clear month-to-month comparison of predicted food prices."
+    )
 
 
 # --------------------
