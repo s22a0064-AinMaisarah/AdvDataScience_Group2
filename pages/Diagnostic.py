@@ -260,6 +260,25 @@ with st.container():
     with st.expander("📄 View Correlation Matrix", expanded=False):
         st.dataframe(spearman_corr, use_container_width=True)
 
+# Interpretation
+    st.markdown(
+        """
+        <div style="
+            background-color:#FFF7ED;
+            border-left:6px solid #FB923C;
+            padding:16px;
+            border-radius:10px;
+        ">
+        <b>Interpretation:</b><br>
+        The correlation heatmap shows how price relates to various factors numerically. 
+        Positive correlations (red shades) suggest that higher values of a factor are associated 
+        with higher prices, while negative correlations (blue shades) indicate an inverse relationship. 
+        For example, strong correlations with item_group_enc or item_category_enc highlight key drivers 
+        influencing price trends in Pasar Mini.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 # 2. Calculate Pearson correlation
 
@@ -377,6 +396,7 @@ with st.container():
         unsafe_allow_html=True
     )
 
+st.markdown("---")
 
 
 # -----------------------------
@@ -402,21 +422,15 @@ fig = px.box(
         }
     )
 
-summary_table = (
-    pasar_mini_df
-    .groupby('item_category')['price']
-    .agg(
-        Mean_Price='mean',
-        Median_Price='median',
-        Min_Price='min',
-        Max_Price='max',
-        Transaction_Count='count'
-    )
-    .reset_index()
-)
 
-st.markdown("### 📋 Price Summary by Item Category")
-st.dataframe(summary_table, use_container_width=True)
+# Fit ANOVA model
+anova_model = ols('price ~ C(item_category)', data=pasar_mini_df).fit()
+
+# Perform ANOVA
+anova_result = sm.stats.anova_lm(anova_model, typ=2)
+
+
+st.dataframe(anova_result, use_container_width=True)
 
 st.markdown(
     """
@@ -455,7 +469,7 @@ st.markdown("""
 
 
 # -----------------------------
-# Segmentation Analysis 
+# 1. Segmentation Analysis 
 # -----------------------------
 
 with st.container():
@@ -555,6 +569,64 @@ with st.expander("📋 Top 10 Item Categories by Average Price"):
         seg_category.head(10),
         use_container_width=True
     )
+
+
+# -----------------------------
+# 2. Segmentation Analysis
+# -----------------------------
+with st.container():
+    st.subheader("📊 Average Price by Item Category")
+    st.caption(
+        "This analysis shows the average price and transaction count for each item category "
+        "in Pasar Mini, helping identify high-demand and high-priced categories."
+    )
+
+    # 1. Aggregate data
+    seg_category = (
+        pasar_mini_df.groupby('item_category')['price']
+        .agg(['mean', 'count'])
+        .reset_index()
+        .sort_values('count', ascending=False)
+    )
+
+    # 2. Bar chart
+    fig = px.bar(
+        seg_category,
+        x='item_category',
+        y='mean',
+        title='Average Price by Item Category (Pasar Mini)',
+        color_discrete_sequence=['darkblue'],
+        labels={
+            'item_category': 'Item Category',
+            'mean': 'Average Price (RM)'
+        }
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+    # 3. Table in dropdown (expander)
+    with st.expander("📄 View Item Category Table", expanded=False):
+        st.dataframe(seg_category, use_container_width=True)
+
+    # 4. Interpretation
+    st.markdown(
+        """
+        <div style="
+            background-color:#FFF7ED;
+            border-left:6px solid #FB923C;
+            padding:16px;
+            border-radius:10px;
+            margin-top:12px;
+        ">
+        <b>Interpretation:</b><br>
+        The bar chart shows that some item categories have higher average prices than others, 
+        reflecting differences in product types and demand levels. Categories with more transactions 
+        indicate popular items, while the average price highlights high-value categories. 
+        Together, this helps identify key product categories influencing price trends in Pasar Mini.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 
 # -----------------------------
 # Drill-Down Analysis 
