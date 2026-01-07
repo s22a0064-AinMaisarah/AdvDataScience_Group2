@@ -288,15 +288,20 @@ with st.container():
 # -----------------------------
 # Pearson Correlation: Price vs Time
 # -----------------------------
+
 with st.container():
     st.subheader("🔗 Pearson Correlation: Price vs Time")
     st.caption(
-        "This analysis examines the linear relationship between price and time "
-        "to understand how price changes over the recorded dates in Pasar Mini."
+        "This analysis examines the linear relationship between price and time."
+        "to understand how prices change over the recorded dates in Pasar Mini."
     )
 
+    # --- Convert date to datetime and then numeric ---
+    pasar_mini_df['date_dt'] = pd.to_datetime(pasar_mini_df['date'], errors='coerce')
+    pasar_mini_df['date_num'] = pasar_mini_df['date_dt'].map(pd.Timestamp.toordinal)
+
     # 1. Compute Pearson correlation
-    pearson_corr = pasar_mini_df[['price', 'date']].corr(method='pearson')
+    pearson_corr = pasar_mini_df[['price', 'date_num']].corr(method='pearson')
 
     # 2. Heatmap
     fig = px.imshow(
@@ -334,11 +339,11 @@ with st.container():
             margin-top:12px;
         ">
         <b>Interpretation:</b><br>
-        The Pearson correlation shows the linear relationship between price and date. 
-        A positive correlation indicates that prices tend to increase over time, 
+        After converting dates to numeric values, the Pearson correlation measures 
+        the linear trend of prices over time. 
+        A positive correlation indicates that prices increase as time progresses, 
         while a negative correlation suggests a decreasing trend. 
-        In this dataset, the correlation value highlights whether time has a significant effect 
-        on price variations in Pasar Mini.
+        This helps identify whether time is a key driver of price changes in Pasar Mini.
         </div>
         """,
         unsafe_allow_html=True
