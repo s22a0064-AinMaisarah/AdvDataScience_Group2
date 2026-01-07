@@ -5,14 +5,14 @@ from sklearn.preprocessing import MinMaxScaler
 
 st.set_page_config(page_title="Pasar Mini Prescriptive Analysis", layout="wide")
 
-st.title("Prescriptive Analysis")
+st.title("Prescriptive Analysis – Pasar Mini")
 st.write(
-    "This page provides **actionable recommendations** for Pasar Mini based on "
-    "PriceCatcher data, focusing on future food price risks, outlet access, and demand."
+    "This page provides data-driven recommendations for Pasar Mini outlet expansion "
+    "and logistics support using the PriceCatcher dataset (December 2025)."
 )
 
 # -------------------------------------------------------------------
-# 1. Load data
+# 1. Load and join data
 # -------------------------------------------------------------------
 @st.cache_data
 def load_data():
@@ -25,29 +25,24 @@ def load_data():
     item_df = pd.read_parquet(URL_ITEM)
 
     df = (
-        price_df.merge(premise_df, on="premise_code", how="left")
-                .merge(item_df, on="item_code", how="left")
+        price_df.merge(premise_df, on='premise_code', how='left')
+                .merge(item_df, on='item_code', how='left')
     )
+    df["date"] = pd.to_datetime(df["date"])
     return df
 
-with st.spinner("Loading PriceCatcher and lookup data..."):
+with st.spinner("Loading PriceCatcher and lookup tables..."):
     df = load_data()
 
-st.success("Data loaded successfully.")
-
-# -------------------------------------------------------------------
-# 2. Filter Pasar Mini data
-# -------------------------------------------------------------------
 pm_df = df[df["premise_type"] == "Pasar Mini"].copy()
 
-st.subheader("Pasar Mini Data Overview")
-st.write("Sample of joined Pasar Mini records:")
+st.subheader("Pasar Mini Data Sample")
 st.dataframe(pm_df.head())
 
 # -------------------------------------------------------------------
-# 3. Staple basket selection
+# 2. Staple basket selection
 # -------------------------------------------------------------------
-st.subheader("Staple Basket Selection")
+st.subheader("Staple Basket for Price Risk")
 
 all_items = sorted(pm_df["item"].dropna().str.lower().unique())
 default_basket = [
@@ -59,59 +54,54 @@ default_basket = [
 default_basket = [i for i in default_basket if i in all_items]
 
 basket_items = st.multiselect(
-    "Select staple items for the basket (used to compute average prices):",
+    "Select staple items (used to compute average basket price):",
     options=all_items,
-    default=default_basket,
+    default=default_basket
 )
 
 if len(basket_items) == 0:
-    st.warning("Please select at least one staple item to continue.")
+    st.warning("Please select at least one staple item.")
     st.stop()
 
-basket = pm_df[pm_df["item"].str.lower().isin(basket_items)].copy()
+pm_df["item_lower"] = pm_df["item"].str.lower()
+basket_df = pm_df[pm_df["item_lower"].isin(basket_items)].copy()
 
 # -------------------------------------------------------------------
-# 4. State-level metrics
+# 3. State-level metrics
 # -------------------------------------------------------------------
-st.subheader("State-level Metrics")
+st.subheader("State-Level Metrics")
 
 state_premises = pm_df.groupby("state")["premise"].nunique().rename("premise_count")
 state_txn = pm_df.groupby("state")["price"].count().rename("txn_count")
-state_basket_price = basket.groupby("state")["price"].mean().rename("avg_basket_price")
+state_basket_price = basket_df.groupby("state")["price"].mean().rename("avg_basket_price")
 
 state_stats = pd.concat(
     [state_premises, state_txn, state_basket_price], axis=1
 ).dropna()
 
-st.write("Raw state-level summary:")
+st.write("Summary table:")
 st.dataframe(state_stats)
 
 # -------------------------------------------------------------------
-# 5. Priority Index
+# 4. Priority Index construction
 # -------------------------------------------------------------------
 st.subheader("Priority Index Construction")
 
-w_access = st.slider("Weight for access (inverse outlet density)", 0.0, 1.0, 0.4, 0.05)
-w_price = st.slider("Weight for price risk (avg basket price)", 0.0, 1.0, 0.3, 0.05)
-w_demand = st.slider("Weight for demand (transaction volume)", 0.0, 1.0, 0.3, 0.05)
+w_access = st.slider("Weight: Access (inverse outlet density)", 0.0, 1.0, 0.4, 0.05)
+w_price  = st.slider("Weight: Price risk (avg basket price)",   0.0, 1.0, 0.3, 0.05)
+w_demand = st.slider("Weight: Demand (transaction volume)",    0.0, 1.0, 0.3, 0.05)
 
 state_stats = state_stats.copy()
 state_stats = state_stats.fillna(state_stats.median(numeric_only=True))
 
 scaler = MinMaxScaler()
 
-state_stats["premise_norm"] = scaler.fit_transform(
-    state_stats[["premise_count"]]
-)
-state_stats["price_norm"] = scaler.fit_transform(
-    state_stats[["avg_basket_price"]]
-)
-state_stats["txn_norm"] = scaler.fit_transform(
-    state_stats[["txn_count"]]
-)
+state_stats["premise_norm"] = scaler.fit_transform(state_stats[["premise_count"]])
+state_stats["price_norm"]   = scaler.fit_transform(state_stats[["avg_basket_price"]])
+state_stats["txn_norm"]     = scaler.fit_transform(state_stats[["txn_count"]])
 
 state_stats["access_score"] = 1 - state_stats["premise_norm"]
-state_stats["price_score"] = state_stats["price_norm"]
+state_stats["price_score"]  = state_stats["price_norm"]
 state_stats["demand_score"] = state_stats["txn_norm"]
 
 w_sum = w_access + w_price + w_demand
@@ -119,7 +109,7 @@ if w_sum == 0:
     w_access_n = w_price_n = w_demand_n = 0
 else:
     w_access_n = w_access / w_sum
-    w_price_n = w_price / w_sum
+    w_price_n  = w_price  / w_sum
     w_demand_n = w_demand / w_sum
 
 state_stats["priority_index"] = (
@@ -130,39 +120,32 @@ state_stats["priority_index"] = (
 
 state_stats_sorted = state_stats.sort_values("priority_index", ascending=False)
 
-st.write("State Priority Table:")
+st.write("Priority table (higher = higher intervention priority):")
 st.dataframe(
     state_stats_sorted[
-        [
-            "premise_count",
-            "txn_count",
-            "avg_basket_price",
-            "access_score",
-            "price_score",
-            "demand_score",
-            "priority_index",
-        ]
+        ["premise_count","txn_count","avg_basket_price",
+         "access_score","price_score","demand_score","priority_index"]
     ]
 )
 
 # -------------------------------------------------------------------
-# 6. Visualisations (Streamlit charts)
+# 5. Visualisations
 # -------------------------------------------------------------------
 st.subheader("Priority Index by State")
 st.bar_chart(state_stats_sorted["priority_index"])
 
 st.caption(
-    "Higher values indicate states with fewer outlets, higher average staple prices, "
-    "and/or stronger demand, and therefore higher priority for intervention."
+    "States with higher Priority Index have fewer Pasar Mini outlets, higher staple prices, "
+    "and/or stronger demand, and are therefore higher priority for intervention."
 )
 
 st.subheader("Component Scores (Access, Price, Demand)")
 st.bar_chart(
-    state_stats_sorted[["access_score", "price_score", "demand_score"]]
+    state_stats_sorted[["access_score","price_score","demand_score"]]
 )
 
 # -------------------------------------------------------------------
-# 7. Tiers and outlet expansion scenario
+# 6. Tiering and scenario analysis
 # -------------------------------------------------------------------
 st.subheader("Tiers and Outlet Expansion Scenario")
 
@@ -183,31 +166,23 @@ def assign_tier(rank):
 
 state_stats_sorted["tier"] = state_stats_sorted["rank"].apply(assign_tier)
 
-st.write("States with assigned tiers:")
+st.write("States and tiers:")
 st.dataframe(
     state_stats_sorted[
-        [
-            "premise_count",
-            "avg_basket_price",
-            "txn_count",
-            "priority_index",
-            "tier",
-        ]
+        ["premise_count","avg_basket_price","txn_count","priority_index","tier"]
     ]
 )
 
 N_new_outlets = st.number_input(
-    "Number of additional outlets per Tier 1 state (scenario)", 0, 100, 20
+    "Additional outlets per Tier 1 state (scenario)", 0, 100, 20
 )
 
 scenario = state_stats_sorted.copy()
 tier1_states = scenario[scenario["tier"] == "Tier 1"].index
-
 scenario.loc[tier1_states, "premise_count"] += N_new_outlets
 
-scenario["premise_norm"] = scaler.fit_transform(
-    scenario[["premise_count"]]
-)
+# recompute access and priority_index_new
+scenario["premise_norm"] = scaler.fit_transform(scenario[["premise_count"]])
 scenario["access_score"] = 1 - scenario["premise_norm"]
 
 scenario["priority_index_new"] = (
@@ -220,17 +195,18 @@ scenario["delta_priority"] = scenario["priority_index_new"] - scenario["priority
 
 st.write("Scenario impact (negative delta = improvement):")
 st.dataframe(
-    scenario[["priority_index", "priority_index_new", "delta_priority", "tier"]]
+    scenario[["priority_index","priority_index_new","delta_priority","tier"]]
     .sort_values("delta_priority")
 )
 
 st.subheader("Before vs After Outlet Expansion Scenario")
 scenario_sorted = scenario.sort_values("priority_index", ascending=False)[
-    ["priority_index", "priority_index_new"]
+    ["priority_index","priority_index_new"]
 ]
 st.bar_chart(scenario_sorted)
 
 st.success(
-    "Use these results to support recommendations such as expanding Pasar Mini in Tier 1 "
-    "states and improving logistics in high-priority regions."
+    "Use the Priority Index and scenario results above to justify recommendations such as "
+    "expanding Pasar Mini in Tier 1 states and focusing logistics optimisation in Tier 2."
 )
+
