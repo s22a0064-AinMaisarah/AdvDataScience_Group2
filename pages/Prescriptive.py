@@ -10,6 +10,19 @@ st.write(
     "This page provides data-driven recommendations for Pasar Mini outlet expansion "
     "and logistics support using the PriceCatcher dataset (December 2025)."
 )
+st.subheader("Objectives of Prescriptive Analysis")
+
+st.markdown(
+    """
+    - **Objective 1:** Generate data-driven, actionable recommendations for Pasar Mini
+      outlet expansion and logistics support across Malaysian states.
+    - **Objective 2:** Optimise the allocation of limited outlets and support resources
+      using a Priority Index based on access, price risk, and demand.
+    - **Objective 3:** Evaluate alternative policy scenarios (e.g., outlet expansion in
+      Tier 1 states) and identify strategies that maximise improvements in food access
+      and affordability.
+    """
+)
 
 # -------------------------------------------------------------------
 # 1. Load and join data
