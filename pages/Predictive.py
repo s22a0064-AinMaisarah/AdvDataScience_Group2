@@ -332,6 +332,13 @@ with st.expander("View Linear Regression Coefficients Chart"):
     # Optional: display raw dataframe
     st.write("Data used for chart:")
     st.dataframe(coef_df)
+    
+    st.markdown("""
+Food prices in Pasar Mini markets fluctuate due to seasonal trends, geographic variation, and product characteristics.
+Without predictive insights, retailers and policymakers may struggle to anticipate price changes and plan effectively.
+This study applies predictive analytics to historical PriceCatcher data to forecast future food prices and support
+data-driven decision-making.
+""")
 
 # --------------------
 # INTERPRETATION
