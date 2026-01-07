@@ -190,58 +190,30 @@ st.dataframe(manual_forecast, use_container_width=True)
 # --------------------
 
 with st.expander("📉 Forecast Trend: Monthly Food Prices (2025)", expanded=True):
-
-    st.subheader("📉 Forecasted Price Trend (Line Chart)")
-
     fig_line = px.line(
-        future_2025,
+        manual_forecast,
         x="month",
         y="predicted_price",
         markers=True,
-        title="Forecasted Monthly Food Prices in Pasar Mini (2025)",
-        labels={
-            "month": "Month",
-            "predicted_price": "Predicted Price (RM)"
-        }
+        title="Forecasted Monthly Food Prices in Pasar Mini (2025) - Example Data",
+        labels={"month": "Month", "predicted_price": "Predicted Price (RM)"}
     )
-
     st.plotly_chart(fig_line, use_container_width=True)
-
-    st.caption(
-        "📌 This line chart illustrates the overall trend and seasonal movement of "
-        "forecasted food prices in Pasar Mini markets for the year 2025."
-    )
 
 # --------------------
 # Monthly Forecast Bar Chart (Month to Month Comparison)
 # --------------------
 with st.expander("📊 Monthly Price Comparison (Bar Chart)", expanded=False):
-
-    st.subheader("📊 Monthly Forecast Comparison")
-
     fig_bar = px.bar(
-        future_2025,
+        manual_forecast,
         x="month",
         y="predicted_price",
         text="predicted_price",
-        title="Predicted Food Prices by Month in Pasar Mini (2025)",
-        labels={
-            "month": "Month",
-            "predicted_price": "Predicted Price (RM)"
-        }
+        title="Predicted Food Prices by Month in Pasar Mini (2025) - Example Data",
+        labels={"month": "Month", "predicted_price": "Predicted Price (RM)"}
     )
-
-    fig_bar.update_traces(
-        texttemplate="RM %{text:.2f}",
-        textposition="outside"
-    )
-
+    fig_bar.update_traces(texttemplate="RM %{text:.2f}", textposition="outside")
     st.plotly_chart(fig_bar, use_container_width=True)
-
-    st.caption(
-        "📌 This bar chart provides a clear month-to-month comparison of predicted "
-        "food prices, allowing users to identify higher or lower pricing periods."
-    )
 
 # --------------------
 # ACTUAL VS PREDICTED
