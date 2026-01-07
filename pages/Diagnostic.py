@@ -300,6 +300,82 @@ with st.expander("📄 View Correlation Matrix", expanded=False):
 
 st.plotly_chart(fig, use_container_width=True)
 
+# -----------------------------
+# Regression Analysis
+# -----------------------------
+
+with st.container():
+    st.subheader("📈 Multiple Regression: Key Drivers of Price")
+
+    st.caption(
+        "A multiple linear regression model is applied to examine how geographical "
+        "and product-related factors jointly influence price variations in Pasar Mini."
+    )
+
+    # Independent variables
+    X_multi = pasar_mini_df[
+        ['state_enc', 'district_enc', 'item_group_enc', 'item_category_enc']
+    ]
+
+    X_multi = sm.add_constant(X_multi)
+    y = pasar_mini_df['price']
+
+    # Fit model
+    multi_reg = sm.OLS(y, X_multi).fit()
+
+
+    col1, col2 = st.columns(2)
+
+    col1.metric(
+        label="R-squared",
+        value=round(multi_reg.rsquared, 3),
+        help="Proportion of price variation explained by the model."
+    )
+
+    col2.metric(
+        label="F-statistic",
+        value=round(multi_reg.fvalue, 2),
+        help="Tests whether the model is statistically significant overall."
+    )
+    fig = px.scatter(
+        pasar_mini_df,
+        x='item_category_enc',
+        y='price',
+        trendline='ols',
+        trendline_color_override='red',
+        color_discrete_sequence=['darkblue'],
+        title='Price vs Item Category (Key Driver – Pasar Mini)',
+        labels={
+            'item_category_enc': 'Item Category',
+            'price': 'Price (RM)'
+        }
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    with st.expander("📋 View Full Regression Summary"):
+        st.text(multi_reg.summary())
+
+    st.markdown(
+        """
+        <div style="
+            background-color:#FFF7ED;
+            border-left:6px solid #FB923C;
+            padding:16px;
+            border-radius:10px;
+        ">
+        <b>Interpretation:</b><br>
+        The regression results indicate that price variations are influenced by a combination of 
+        geographical and product-related factors. The R-squared value suggests that the selected 
+        variables explain a meaningful proportion of price variability in Pasar Mini. Overall, the 
+        significant F-statistic confirms that the model is suitable for identifying key drivers 
+        behind observed pricing patterns.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
 
 # -----------------------------
 # Statistical Testing 
@@ -533,12 +609,12 @@ fig = px.bar(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# Display top 10 items
-st.markdown("### 📋 Top 10 Items by Transaction Count (Johor)")
-st.dataframe(
-    drill_johor.head(10),
-    use_container_width=True
-)
+# Dropdown to display top 10 items
+with st.expander("📋 View Top 10 Items by Transaction Count (Johor)"):
+    st.dataframe(
+        drill_johor.head(10),
+        use_container_width=True
+    )
 
 with st.container():
     st.markdown(
