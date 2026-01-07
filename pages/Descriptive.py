@@ -14,7 +14,7 @@ def load_data():
     return df
 
 try:
-    pasar_mini_data = load_data()
+    pasar_mini_df = load_data()
 except Exception as e:
     st.error(f"Error loading data: {e}")
     st.stop()
