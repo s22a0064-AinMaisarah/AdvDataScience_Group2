@@ -239,6 +239,42 @@ with st.expander("📊 Monthly Price Comparison (Bar Chart)", expanded=False):
     )
 
 # --------------------
+# STATIC FORECAST TABLE (2025)
+# --------------------
+st.subheader("📋 Predicted Monthly Food Prices (2025) – Static Table")
+
+# Create DataFrame from your provided results
+forecast_results = pd.DataFrame({
+    "Year": [2025]*12,
+    "Month": list(range(1,13)),
+    "State": [0]*12,
+    "District": [10]*12,
+    "Item Group": [0]*12,
+    "Item Category": [5]*12,
+    "Predicted Price (RM)": [
+        3.80, 3.85, 3.90, 3.95, 4.00, 4.05,
+        4.10, 4.15, 4.20, 4.25, 4.30, 4.35
+    ]
+})
+
+# Display table in Streamlit
+st.dataframe(forecast_results, use_container_width=True)
+
+# Optional: also show as bar chart for easier visualization
+st.subheader("📊 Predicted Price Bar Chart (2025) – Static Results")
+fig_static_bar = px.bar(
+    forecast_results,
+    x="Month",
+    y="Predicted Price (RM)",
+    text="Predicted Price (RM)",
+    labels={"Month": "Month", "Predicted Price (RM)": "Predicted Price (RM)"},
+    title="Predicted Monthly Food Prices in Pasar Mini for 2025 (Static Table)"
+)
+fig_static_bar.update_traces(texttemplate="RM %{text:.2f}", textposition="outside")
+st.plotly_chart(fig_static_bar, use_container_width=True)
+
+
+# --------------------
 # ACTUAL VS PREDICTED
 # --------------------
 st.subheader("2. 🔍 Actual vs Predicted Comparison")
