@@ -298,37 +298,49 @@ for name, y_pred in models.items():
 # --------------------
 st.subheader("4. 🌟 Feature Importance")
 
-rf_imp = pd.DataFrame({
-    "Feature": features,
-    "Importance": rf_model.feature_importances_
-}).sort_values("Importance", ascending=False)
+with st.expander("Show Random Forest Feature Importance"):
+    rf_imp = pd.DataFrame({
+        "Feature": features,
+        "Importance": rf_model.feature_importances_
+    }).sort_values("Importance", ascending=False)
+    
+    st.markdown("**Random Forest Feature Importance**")
+    st.plotly_chart(px.bar(rf_imp, x="Feature", y="Importance",
+                           title="Random Forest Feature Importance"), use_container_width=True)
 
-dt_imp = pd.DataFrame({
-    "Feature": features,
-    "Importance": dt_model.feature_importances_
-}).sort_values("Importance", ascending=False)
-
-st.markdown("**Random Forest Feature Importance**")
-st.plotly_chart(px.bar(rf_imp, x="Feature", y="Importance"), use_container_width=True)
-
-st.markdown("**Decision Tree Feature Importance**")
-st.plotly_chart(px.bar(dt_imp, x="Feature", y="Importance"), use_container_width=True)
-
+with st.expander("Show Decision Tree Feature Importance"):
+    dt_imp = pd.DataFrame({
+        "Feature": features,
+        "Importance": dt_model.feature_importances_
+    }).sort_values("Importance", ascending=False)
+    
+    st.markdown("**Decision Tree Feature Importance**")
+    st.plotly_chart(px.bar(dt_imp, x="Feature", y="Importance",
+                           title="Decision Tree Feature Importance"), use_container_width=True)
+    
 # --------------------
 # LINEAR REGRESSION COEFFICIENTS
 # --------------------
 st.subheader("5. 📐 Linear Regression Coefficients")
 
-coef_df = pd.DataFrame({
-    "Feature": features,
-    "Coefficient": lr_model.coef_
-}).sort_values("Coefficient", ascending=False)
+with st.expander("View Linear Regression Coefficients Chart"):
+    coef_df = pd.DataFrame({
+        "Feature": features,
+        "Coefficient": lr_model.coef_
+    }).sort_values("Coefficient", ascending=False)
 
-st.plotly_chart(
-    px.bar(coef_df, x="Feature", y="Coefficient",
-           title="Linear Regression Feature Coefficients"),
-    use_container_width=True
-)
+    fig = px.bar(
+        coef_df,
+        x="Feature",
+        y="Coefficient",
+        title="Linear Regression Feature Coefficients",
+        labels={"Coefficient":"Coefficient Value", "Feature":"Features"}
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Optional: display raw dataframe
+    st.write("Data used for chart:")
+    st.dataframe(coef_df)
 
 # --------------------
 # INTERPRETATION
