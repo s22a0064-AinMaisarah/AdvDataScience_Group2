@@ -304,7 +304,6 @@ with st.expander("Show Random Forest Feature Importance"):
         "Importance": rf_model.feature_importances_
     }).sort_values("Importance", ascending=False)
     
-    st.markdown("**Random Forest Feature Importance**")
     st.plotly_chart(px.bar(rf_imp, x="Feature", y="Importance",
                            title="Random Forest Feature Importance"), use_container_width=True)
 
