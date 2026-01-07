@@ -239,11 +239,11 @@ price_count = len(pasar_mini_df)
 # Header with Gradient Background
 st.markdown("""
 <div style="background: linear-gradient(90deg, #764ba2 0%, #4facfe 100%); padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>🎯 Objective:</strong> To identify typical price levels (Mean, Median, Mode) within the dataset.
+    <strong>Objective:</strong> To identify typical price levels (Mean, Median, Mode) within the dataset.
 </div>
 """, unsafe_allow_html=True)
 
-with st.expander("📊 Measures of Central Tendency for Price", expanded=False):
+with st.expander("Measures of Central Tendency for Price", expanded=False):
     
     # --- Chart Section ---
     measures = ['Mean', 'Median', 'Mode']
@@ -297,11 +297,11 @@ price_kurtosis = pasar_mini_df['price'].kurt()
 st.markdown("""
 <div style="background: linear-gradient(90deg, #d62728 0%, #764ba2 100%); 
             padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>🎯 Objective:</strong> To assess the shape of the price distribution in order to identify skewness and concentration of prices.
+    <strong>Objective:</strong> To assess the shape of the price distribution in order to identify skewness and concentration of prices.
 </div>
 """, unsafe_allow_html=True)
 
-with st.expander("📉 Measures of Distribution Shape for Price", expanded=False):
+with st.expander("Measures of Distribution Shape for Price", expanded=False):
     
     # Create the interactive bar chart
     distribution_shape_df = pd.DataFrame({
