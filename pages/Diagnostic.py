@@ -312,11 +312,11 @@ with st.container():
         "#74add1",  # moderate negative (light blue)
         "#ffffbf",  # neutral / zero (pale yellow)
         "#f46d43",  # moderate positive (orange-red)
-        "#d73027"   # strong positive (dark red)
+        "#d73027",   # strong positive (dark red)
         zmin=-1,
         zmax=1,
         title='Pearson Correlation: Price vs Time (Pasar Mini)'
-        ]
+        ],
     )
 
     fig.update_layout(
