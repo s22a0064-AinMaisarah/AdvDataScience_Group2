@@ -240,7 +240,7 @@ with st.expander("📊 Monthly Price Comparison (Bar Chart)", expanded=False):
     )
 
 # --------------------
-# ACTUAL VS PREDICTED (ALL MODELS)
+# ACTUAL VS PREDICTED
 # --------------------
 st.subheader("2. 🔍 Actual vs Predicted Comparison")
 
@@ -266,31 +266,32 @@ for name, preds in models.items():
 # --------------------
 # RESIDUAL PLOTS (ALL MODELS)
 # --------------------
-st.subheader("3. 📉 Residual Distribution")
+with st.expander("3. 📉 Residual Distribution (All Models)", expanded=False):
+    st.write("This section displays the residual distribution (prediction errors) for all models on the test dataset.")
 
-for name, y_pred in models.items():
-    residuals = y_test.values - y_pred
+    for name, y_pred in models.items():
+        residuals = y_test.values - y_pred
 
-    res_df = pd.DataFrame({
-        "Residuals": residuals
-    })
+        res_df = pd.DataFrame({
+            "Residuals": residuals
+        })
 
-    fig = px.histogram(
-        res_df,
-        x="Residuals",
-        nbins=30,
-        opacity=0.75,
-        title=f"Residual Distribution – {name}",
-        labels={"Residuals": "Prediction Error (RM)"}
-    )
+        fig = px.histogram(
+            res_df,
+            x="Residuals",
+            nbins=30,
+            opacity=0.75,
+            title=f"Residual Distribution – {name}",
+            labels={"Residuals": "Prediction Error (RM)"}
+        )
 
-    fig.update_layout(
-        xaxis_title="Residuals",
-        yaxis_title="Frequency",
-        bargap=0.1
-    )
+        fig.update_layout(
+            xaxis_title="Residuals",
+            yaxis_title="Frequency",
+            bargap=0.1
+        )
 
-    st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True)
 
 # --------------------
 # FEATURE IMPORTANCE (RF & DT)
