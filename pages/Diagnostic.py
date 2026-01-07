@@ -36,25 +36,59 @@ st.markdown(
 
 st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 
-# ---------- Custom CSS ----------
+# ---------- Enhanced Custom CSS ----------
 st.markdown("""
 <style>
+
+/* ---------- Main Title ---------- */
 .center-title {
     text-align: center;
-    font-size: 2.4rem;
-    font-weight: 800;
-    margin-bottom: 0.3rem;
+    font-size: 2.6rem;
+    font-weight: 900;
+    margin-bottom: 0.4rem;
+    background: linear-gradient(90deg, #2563EB, #7C3AED);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: transform 0.3s ease;
 }
+
+.center-title:hover {
+    transform: scale(1.02);
+}
+
+/* ---------- Subtitle ---------- */
 .subtitle {
     text-align: center;
-    font-size: 1.1rem;
-    color: #6c757d;
-    margin-bottom: 1.2rem;
+    font-size: 1.15rem;
+    color: #64748B;
+    margin-bottom: 1.6rem;
+    letter-spacing: 0.3px;
 }
+
+/* ---------- Animated Divider ---------- */
 .divider {
-    border-top: 3px solid #1f77b4;
-    margin: 1.2rem 0 2rem 0;
+    height: 4px;
+    width: 100%;
+    background: linear-gradient(
+        90deg,
+        #2563EB,
+        #22C55E,
+        #F97316,
+        #7C3AED
+    );
+    background-size: 300% 100%;
+    border-radius: 6px;
+    animation: gradientMove 6s ease infinite;
+    margin: 1.4rem 0 2.2rem 0;
 }
+
+/* Divider animation */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -582,24 +616,24 @@ with st.expander("📋 View Top 10 State–Item Group Segments by Average Price"
     )
 
 # Interpretation
-    st.markdown(
-        """
-        <div style="
-            background-color:#FFF3E0;
-            border-left:6px solid #FB8C00;
-            padding:16px;
-            border-radius:10px;
-            margin-top:12px;
-        ">
-        <b>Interpretation:</b><br>
-        The table and chart show that certain states have consistently higher average prices 
-        across specific item groups. This suggests that both regional location and product category 
-        influence pricing trends in Pasar Mini. Retailers can use these insights to identify key 
-        areas where price adjustments or promotional strategies may be most effective.
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+st.markdown(
+    """
+    <div style="
+        background-color:#FFF3E0;
+        border-left:6px solid #FB8C00;
+        padding:16px;
+        border-radius:10px;
+        margin-top:12px;
+    ">
+    <b>Interpretation:</b><br>
+    The table and chart show that certain states have consistently higher average prices 
+    across specific item groups. This suggests that both regional location and product category 
+    influence pricing trends in Pasar Mini. Retailers can use these insights to identify key 
+    areas where price adjustments or promotional strategies may be most effective.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # -----------------------------
 # 2. Segmentation Analysis
@@ -657,6 +691,7 @@ with st.container():
         unsafe_allow_html=True
     )
 
+st.markdown("---")
 
 # -----------------------------
 # Drill-Down Analysis 
