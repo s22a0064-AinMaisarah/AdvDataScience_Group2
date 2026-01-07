@@ -328,6 +328,8 @@ with st.expander("Show Decision Tree Feature Importance"):
     st.plotly_chart(px.bar(dt_imp, x="Feature", y="Importance",
                            title="Decision Tree Feature Importance"), use_container_width=True)
 
+# Add a **single interpretation expander** at the end
+with st.expander("🔹 Overall Interpretation of Feature Importance RF & DT"):
     st.markdown("""
 ### 🔹 Feature Importance – Tree-Based Models
 - **Random Forest & Decision Tree:** Product-related features are most important; item category is the strongest, followed by item group.  
