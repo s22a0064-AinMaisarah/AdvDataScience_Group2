@@ -256,12 +256,12 @@ for name, preds in models.items():
         st.plotly_chart(fig, use_container_width=True)
         
         st.markdown("""
-    The scatter plots comparing actual versus predicted prices show that the Random Forest model performs best, with most points closely following the diagonal line, indicating strong predictive accuracy across low and mid-range prices and only minor deviations at higher prices. 
-    Decision Tree predictions also align fairly well with actual values, though they form horizontal clusters due to the model’s tendency to group similar prices together. 
-    Support Vector Regression (SVR) captures the overall trend but struggles with higher prices, showing more scatter and underestimation. 
-    Linear Regression, while showing a general linear trend, fails to adjust accurately for higher prices, leading to wider errors. 
-    Overall, these plots suggest that models like Random Forest and Decision Tree handle the complexity of food price prediction more effectively, while simpler models such as SVR and Linear Regression are limited in capturing extreme or non-linear patterns.
-    """)
+### 🔹 Actual vs Predicted Prices
+- **Random Forest:** Points closely follow the diagonal line, showing strong predictive accuracy for low and mid-range prices, with minor deviations at higher prices.  
+- **Decision Tree:** Predictions align fairly well but form horizontal clusters due to grouping of similar prices.  
+- **SVR & Linear Regression:** SVR captures the trend but struggles with high prices; Linear Regression shows a linear trend but wider errors at higher prices, indicating limited ability to capture non-linear patterns.  
+""")
+
 
 # --------------------
 # RESIDUAL PLOTS (ALL MODELS)
@@ -294,12 +294,11 @@ for name, y_pred in models.items():
         st.plotly_chart(fig, use_container_width=True)
 
         st.markdown("""
-    The residual distributions across the four models show how well each predicts food prices. 
-    The Random Forest model performs best, with errors mostly small and centered around zero, indicating accurate and balanced predictions while handling complex patterns effectively. 
-    SVR also predicts fairly well, but its residuals are slightly skewed, showing occasional underprediction. 
-    The Decision Tree makes very precise predictions for most cases, but a few extreme errors suggest potential overfitting. In contrast, Linear Regression shows wider and more skewed residuals, reflecting consistent errors and lower accuracy. 
-    Overall, models that capture non-linear relationships, like Random Forest, provide more reliable predictions than purely linear approaches.
-    """)
+### 🔹 Residual Analysis
+- **Random Forest:** Errors are small and centered around zero, showing accurate and balanced predictions for complex patterns.  
+- **SVR:** Residuals slightly skewed, indicating occasional underprediction.  
+- **Decision Tree & Linear Regression:** Decision Tree precise for most cases but shows some extreme errors; Linear Regression has wider, skewed residuals, reflecting consistent inaccuracies.  
+""")
 
 # --------------------
 # FEATURE IMPORTANCE (RF & DT)
@@ -325,11 +324,11 @@ with st.expander("Show Decision Tree Feature Importance"):
                            title="Decision Tree Feature Importance"), use_container_width=True)
 
     st.markdown("""
-    Both the Random Forest and Decision Tree models show that product-related features are the key drivers of food price predictions. 
-    In both cases, item category has the strongest influence, followed by item group, while geographic factors like state and district play a smaller role. 
-    Time-related features, such as month and year, have minimal impact. 
-    The Random Forest model balances influence across many trees, making predictions more stable, whereas the Decision Tree model relies on a single structure but leads to a similar conclusion: what the product is matters far more than when or where it is sold.
-    """)
+### 🔹 Feature Importance – Tree-Based Models
+- **Random Forest & Decision Tree:** Product-related features are most important; item category is the strongest, followed by item group.  
+- Geographic factors (state, district) play a minor role, while time (month, year) has minimal influence.  
+- Random Forest balances influence across trees for stability, while Decision Tree relies on a single structure but both indicate that **what the product is matters more than when or where it is sold**.  
+""")
 
 # --------------------
 # LINEAR REGRESSION COEFFICIENTS
@@ -356,9 +355,10 @@ with st.expander("View Linear Regression Coefficients Chart"):
     st.dataframe(coef_df)
     
     st.markdown("""
-The linear regression analysis shows that item-related features are the main drivers of predictions, with item group having the strongest positive effect. 
-This means that the way items are categorized significantly influences the model’s output. Other features like state have a minor positive effect, while district, year, and month contribute almost nothing, indicating that location and time play very little role in this model. Item category shows a slight negative effect, suggesting that certain categories slightly reduce predicted values. 
-Overall, both the bar chart and the coefficient table tell the same story: the model relies mostly on the characteristics of the item itself, and improving how items are grouped or classified would likely improve prediction accuracy, whereas adding more temporal or geographic data would have limited impact unless captured through more complex modeling.
+### 🔹 Feature Importance – Linear Regression
+- Item-related features dominate predictions, with **item group** having the strongest positive effect.  
+- Location and time (state, district, year, month) have little impact; item category slightly reduces predicted values.  
+- Overall, the model relies mainly on **item characteristics**, suggesting that improving item grouping or classification would enhance accuracy, while adding temporal or geographic data provides limited benefit.  
 """)
 
 # --------------------
