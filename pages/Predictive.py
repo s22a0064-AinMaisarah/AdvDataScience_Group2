@@ -230,12 +230,6 @@ with st.expander("📊 Monthly Price Comparison (Bar Chart)", expanded=False):
     st.caption(
         "📌 This bar chart provides a clear month-to-month comparison of predicted food prices."
     )
-    st.markdown("""
-    The forecast reveals a gradual upward trend in food prices throughout the year, increasing from approximately RM 3.80 in January to RM 4.35 in December.
-    This pattern reflects moderate seasonal variation and aligns with historical pricing behaviour observed in the training data. 
-    The steady increase toward the final quarter suggests heightened demand or cost accumulation toward year-end, which is consistent with common retail and consumption cycles.
-    """)
-
 
 # --------------------
 # ACTUAL VS PREDICTED
