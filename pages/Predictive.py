@@ -64,7 +64,7 @@ data-driven decision-making.
 # DATASET PREVIEW
 # --------------------
 with st.expander("🔍 Dataset Preview"):
-    st.dataframe(monthly_price.head(), use_container_width=True)
+    st.dataframe(df.head(), use_container_width=True)
 
 # --------------------
 # FEATURE ENGINEERING
