@@ -305,18 +305,19 @@ with st.container():
 
     # 2. Heatmap
     fig = px.imshow(
-        pearson_corr,
-        text_auto=".2f",
-        color_continuous_scale=[
-        "#313695",  # strong negative (dark blue)
-        "#74add1",  # moderate negative (light blue)
-        "#ffffbf",  # neutral / zero (pale yellow)
-        "#f46d43",  # moderate positive (orange-red)
-        "#d73027",   # strong positive (dark red)
-        zmin=-1,
-        zmax=1,
-        title='Pearson Correlation: Price vs Time (Pasar Mini)'
-        ],
+       
+    spearman_corr,
+    text_auto=".2f",
+    color_continuous_scale=[
+        "#313695",  # strong negative
+        "#74add1",  # moderate negative
+        "#ffffbf",  # neutral
+        "#f46d43",  # moderate positive
+        "#d73027"   # strong positive
+    ],
+    zmin=-1,
+    zmax=1,
+    title="Spearman Correlation: Price vs Factors (Pasar Mini-Numerical)"
     )
 
     fig.update_layout(
