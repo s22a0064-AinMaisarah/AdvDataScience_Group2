@@ -5,6 +5,9 @@ import html
 from statsmodels.formula.api import ols
 import statsmodels.api as sm
 import scipy.stats as stats
+from sklearn.preprocessing import StandardScaler
+import plotly.graph_objects as go
+
 
 
 # --------------------
@@ -282,42 +285,65 @@ with st.container():
 
 # 2. Calculate Pearson correlation
 
-# Ensure date is datetime
-pasar_mini_df['date'] = pd.to_datetime(pasar_mini_df['date'])
+# -----------------------------
+# Pearson Correlation: Price vs Time
+# -----------------------------
+with st.container():
+    st.subheader("🔗 Pearson Correlation: Price vs Time")
+    st.caption(
+        "This analysis examines the linear relationship between price and time "
+        "to understand how price changes over the recorded dates in Pasar Mini."
+    )
 
-# Convert date to numeric (ordinal)
-pasar_mini_df['date_numeric'] = pasar_mini_df['date'].map(pd.Timestamp.toordinal)
+    # 1. Compute Pearson correlation
+    pearson_corr = pasar_mini_df[['price', 'date']].corr(method='pearson')
 
-# Calculate Pearson correlation
-pearson_corr = pasar_mini_df[['price', 'date_numeric']].corr(method='pearson')
+    # 2. Heatmap
+    fig = px.imshow(
+        pearson_corr,
+        text_auto=".2f",
+        color_continuous_scale='RdBu_r',  # red-blue diverging palette
+        zmin=-1,
+        zmax=1,
+        title='Pearson Correlation: Price vs Time (Pasar Mini)'
+    )
 
-# Plot heatmap with your red-positive / blue-negative palette
-fig = px.imshow(
-    pearson_corr,
-    text_auto=".2f",
-    color_continuous_scale=[
-        "#313695",  # strong negative (blue)
-        "#74add1",  # moderate negative
-        "#ffffbf",  # neutral
-        "#f46d43",  # moderate positive
-        "#d73027"   # strong positive (red)
-    ],
-    zmin=-1,
-    zmax=1,
-    title="Pearson Correlation: Price vs Time (Pasar Mini-Categorical)"
-)
+    fig.update_layout(
+        title=dict(
+            text='Pearson Correlation: Price vs Time (Pasar Mini)',
+            x=0.5,
+            xanchor='center'
+        ),
+        coloraxis_colorbar=dict(title="Correlation"),
+        margin=dict(l=40, r=40, t=80, b=40)
+    )
 
-fig.update_layout(
-    title=dict(x=0.5, xanchor="center"),
-    coloraxis_colorbar=dict(title="Correlation")
-)
+    st.plotly_chart(fig, use_container_width=True)
 
+    # 3. Show correlation table
+    st.dataframe(pearson_corr, use_container_width=True)
 
-# Optional: show correlation table
-with st.expander("📄 View Correlation Matrix", expanded=False):
-    st.dataframe(spearman_corr, use_container_width=True)
+    # 4. Interpretation
+    st.markdown(
+        """
+        <div style="
+            background-color:#FFF3E0;
+            border-left:6px solid #FB8C00;
+            padding:16px;
+            border-radius:10px;
+            margin-top:12px;
+        ">
+        <b>Interpretation:</b><br>
+        The Pearson correlation shows the linear relationship between price and date. 
+        A positive correlation indicates that prices tend to increase over time, 
+        while a negative correlation suggests a decreasing trend. 
+        In this dataset, the correlation value highlights whether time has a significant effect 
+        on price variations in Pasar Mini.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")
 
@@ -408,6 +434,8 @@ st.subheader("📊 ANOVA: Price Differences Across Item Categories")
 st.caption(" ANOVA test examines whether the average prices differ significantly "
     "between item categories in Pasar Mini."
 ) 
+# Fit ANOVA model
+anova_model = ols('price ~ C(item_category)', data=pasar_mini_df).fit()
 
 fig = px.box(
         pasar_mini_df,
@@ -422,9 +450,6 @@ fig = px.box(
         }
     )
 
-
-# Fit ANOVA model
-anova_model = ols('price ~ C(item_category)', data=pasar_mini_df).fit()
 
 # Perform ANOVA
 anova_result = sm.stats.anova_lm(anova_model, typ=2)
@@ -534,42 +559,28 @@ with st.expander("📋 View Top 10 State–Item Group Segments by Average Price"
 
     # Display table with both state_enc and state
     st.dataframe(
-        filtered_seg[['state_enc', 'state', 'item_group_enc', 'price']].head(10),
+        filtered_seg[['state_enc', 'state', 'item_group_enc', 'item_group','price']].head(10),
         use_container_width=True
     )
-
-
-# --- Aggregate by item category ---
-seg_category = (
-    pasar_mini_df.groupby('item_category_enc')['price']
-    .agg(['mean', 'count'])
-    .reset_index()
-    .sort_values('count', ascending=False)
-)
-
-# --- Plotly bar chart ---
-fig = px.bar(
-    seg_category,
-    x='item_category_enc',
-    y='mean',
-    title='Average Price by Item Category (Pasar Mini-Categorical)',
-    color_discrete_sequence=['darkblue'],  # single color
-    labels={
-        'item_category_enc': 'Item Category',
-        'mean': 'Average Price (RM)'
-    }
-)
-
-# --- Display chart in Streamlit ---
-st.plotly_chart(fig, use_container_width=True)
-
-# --- Optional: Show top categories in an expander ---
-with st.expander("📋 Top 10 Item Categories by Average Price"):
-    st.dataframe(
-        seg_category.head(10),
-        use_container_width=True
+# Interpretation
+    st.markdown(
+        """
+        <div style="
+            background-color:#FFF3E0;
+            border-left:6px solid #FB8C00;
+            padding:16px;
+            border-radius:10px;
+            margin-top:12px;
+        ">
+        <b>Interpretation:</b><br>
+        The table and chart show that certain states have consistently higher average prices 
+        across specific item groups. This suggests that both regional location and product category 
+        influence pricing trends in Pasar Mini. Retailers can use these insights to identify key 
+        areas where price adjustments or promotional strategies may be most effective.
+        </div>
+        """,
+        unsafe_allow_html=True
     )
-
 
 # -----------------------------
 # 2. Segmentation Analysis
@@ -594,7 +605,7 @@ with st.container():
         seg_category,
         x='item_category',
         y='mean',
-        title='Average Price by Item Category (Pasar Mini)',
+        title='Average Price by Item Category (Pasar Mini-Categorical)',
         color_discrete_sequence=['darkblue'],
         labels={
             'item_category': 'Item Category',
@@ -635,8 +646,8 @@ with st.container():
 st.subheader("🔎 Drill-Down Analysis: Top Items in Johor (Pasar Mini)")
 
 st.caption(
-    "This analysis examines whether the distribution of item categories "
-    "is independent of state using the Chi-Square Test of Independence."
+    "This drill-down analysis focuses on Johor to identify the top-selling items."
+    "and examine their contribution to price trends and transaction volumes in Pasar Mini."
 )
 
 # Drill-down for Johor
@@ -692,3 +703,278 @@ with st.container():
 
 st.markdown("---")
 
+# -----------------------------
+# Root Cause Analysis: Standardized Regression
+# -----------------------------
+with st.container():
+    st.subheader("🧩 Root Cause Analysis: Standardized Regression")
+    st.caption(
+        "This analysis identifies key factors driving price variations in Pasar Mini "
+        "using standardized regression coefficients."
+    )
+
+    # 1. Prepare features
+    features = pasar_mini_df[['state_enc', 'district_enc', 'item_group_enc', 'item_category_enc']]
+    feature_names = ['state_enc', 'district_enc', 'item_group_enc', 'item_category_enc']
+
+    # 2. Standardize features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(features)
+    X_scaled = sm.add_constant(X_scaled)  # add constant for regression
+
+    # 3. Fit OLS regression
+    rca_reg = sm.OLS(pasar_mini_df['price'], X_scaled).fit()
+
+    # 4. Prepare coefficient dataframe
+    coef_df = pd.DataFrame({
+        'Feature': feature_names,
+        'Impact': rca_reg.params[1:]  # skip constant
+    }).sort_values(by='Impact', key=abs, ascending=False)
+
+    # 5. Display table of impacts
+    st.markdown("### 📄 Standardized Regression Coefficients")
+    st.dataframe(coef_df, use_container_width=True)
+
+    # 6. Plot bar chart
+    fig = px.bar(
+        coef_df,
+        x='Feature',
+        y='Impact',
+        title='Root Cause Impact Strength (Standardized Regression)',
+        color_discrete_sequence=['darkblue']
+    )
+    fig.add_hline(y=0, line_dash="dash", line_color="black")  # zero reference line
+    st.plotly_chart(fig, use_container_width=True)
+
+    # 7. Interpretation
+    st.markdown(
+        """
+        <div style="
+            background-color:#FFF7ED;
+            border-left:6px solid #FB923C;
+            padding:16px;
+            border-radius:10px;
+            margin-top:12px;
+        ">
+        <b>Interpretation:</b><br>
+        The standardized regression highlights which factors have the strongest impact on price. 
+        Positive coefficients indicate that higher values of a feature increase the price, 
+        while negative coefficients decrease it. In this dataset, the analysis shows that certain 
+        features, such as item category or state, are key drivers behind price variations in Pasar Mini.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+# -----------------------------
+# Pareto Analysis: Top Items Driving Price
+# -----------------------------
+with st.container():
+    st.subheader("📊 Pareto Analysis: Top Items Driving Price (Pasar Mini)")
+    st.caption(
+        "This analysis identifies which items contribute the most to the overall price, "
+        "allowing a focus on the few items driving the majority of revenue."
+    )
+
+    # 1. Prepare Pareto dataframe
+    pareto_df = (
+        pasar_mini_df
+        .groupby('item')['price']
+        .mean()
+        .reset_index()
+        .sort_values('price', ascending=False)
+    )
+    pareto_df['cum_pct'] = pareto_df['price'].cumsum() / pareto_df['price'].sum()
+
+    # 2. Plot Pareto chart
+    fig = go.Figure()
+
+    # Bar for individual item contribution
+    fig.add_trace(go.Bar(
+        x=pareto_df.head(15)['item'],
+        y=pareto_df.head(15)['price'],
+        name='Average Price',
+        marker_color='darkblue'
+    ))
+
+    # Line for cumulative percentage
+    fig.add_trace(go.Scatter(
+        x=pareto_df.head(15)['item'],
+        y=pareto_df.head(15)['cum_pct'],
+        mode='lines+markers',
+        name='Cumulative %',
+        marker=dict(color='orange'),
+        yaxis='y2'
+    ))
+
+    # Create secondary y-axis for cumulative %
+    fig.update_layout(
+        title='Pareto Analysis: Top Items Driving Price (Pasar Mini)',
+        xaxis_title='Item',
+        yaxis_title='Average Price',
+        yaxis2=dict(
+            title='Cumulative %',
+            overlaying='y',
+            side='right',
+            range=[0, 1]
+        ),
+        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
+        margin=dict(l=40, r=40, t=80, b=40)
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    # 3. Dropdown table for top items
+    with st.expander("📋 View Top 10 Items (Dropdown)"):
+        selected_n = st.slider("Select number of top items", min_value=5, max_value=15, value=10)
+        st.dataframe(
+            pareto_df.head(selected_n)[['item', 'price', 'cum_pct']],
+            use_container_width=True
+        )
+
+    # 4. Interpretation
+    st.markdown(
+        """
+        <div style="
+            background-color:#FFF4E5;
+            border-left:6px solid #FB923C;
+            padding:16px;
+            border-radius:10px;
+            margin-top:12px;
+        ">
+        <b>Interpretation:</b><br>
+        The Pareto chart shows that a small number of items contribute the majority of the total price. 
+        The cumulative percentage line highlights which items are most influential. 
+        This helps prioritize monitoring and pricing strategies for items that drive the largest revenue in Pasar Mini.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+# -----------------------------
+# Outlier Detection
+# -----------------------------
+with st.container():
+    st.subheader("🔎 Outlier Detection in Pasar Mini Prices")
+    st.caption(
+        "This analysis identifies unusually high prices using the IQR method and highlights extreme outliers."
+    )
+
+    # 1. Compute IQR and identify outliers
+    Q1 = pasar_mini_df['price'].quantile(0.25)
+    Q3 = pasar_mini_df['price'].quantile(0.75)
+    IQR = Q3 - Q1
+
+    outliers = pasar_mini_df[pasar_mini_df['price'] > Q3 + 1.5 * IQR]
+
+    # 2. Box plot
+    fig = px.box(
+        pasar_mini_df,
+        y='price',
+        title='Outlier Detection in Pasar Mini Prices',
+        color_discrete_sequence=['darkblue']
+    )
+
+    # 3. Overlay extreme outliers
+    fig.add_scatter(
+        y=outliers['price'],
+        x=[0]*len(outliers),  # align with box
+        mode='markers',
+        marker=dict(
+            color='red',
+            size=8,
+            symbol='x'
+        ),
+        name='Extreme Outliers'
+    )
+
+    fig.update_layout(
+        height=600,
+        width=800,
+        margin=dict(l=40, r=40, t=80, b=40)
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    # 4. Dropdown table for top outliers
+    with st.expander("📋 View Top Outliers (Dropdown)"):
+        top_n = st.slider("Select number of top outliers to display", min_value=5, max_value=20, value=10)
+        st.dataframe(
+            outliers[['state', 'item_category', 'item', 'price']].head(top_n),
+            use_container_width=True
+        )
+
+    # 5. Interpretation
+    st.markdown(
+        """
+        <div style="
+            background-color:#FFF4E5;
+            border-left:6px solid #FB923C;
+            padding:16px;
+            border-radius:10px;
+            margin-top:12px;
+        ">
+        <b>Interpretation:</b><br>
+        The box plot identifies the overall price distribution, with extreme prices highlighted in red. 
+        These outliers represent unusually high prices in Pasar Mini markets and may indicate exceptional demand, 
+        limited supply, or pricing errors. Monitoring these outliers helps understand unusual pricing trends and informs better decision-making.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+# -----------------------------
+# Root Cause Drill-Down
+# -----------------------------
+with st.container():
+    st.subheader("🌞 Root Cause Drill-Down by State (Pasar Mini)")
+    st.caption(
+        "This analysis explores the key drivers behind pricing by examining the hierarchy of state, district, premise, and item."
+    )
+
+    # 1. Aggregate data for drill-down
+    rca_chain = (
+        pasar_mini_df
+        .groupby(['premise', 'state', 'district', 'item'])['price']
+        .agg(['mean', 'count'])
+        .reset_index()
+        .sort_values('count', ascending=False)
+    )
+
+    # 2. Sunburst chart
+    fig = px.sunburst(
+        rca_chain.head(50),
+        path=['state', 'district', 'premise', 'item'],
+        values='count',
+        color='state',
+        color_discrete_sequence=px.colors.sequential.Viridis,
+        title='Root Cause Drill-Down by State in Pasar Mini'
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+    # 3. Dropdown table for top 10
+    with st.expander("📋 View Top 10 Root Cause Records (Dropdown)"):
+        top_n = st.slider("Select number of top records to view", min_value=5, max_value=20, value=10)
+        st.dataframe(
+            rca_chain.head(top_n)[['state', 'district', 'premise', 'item', 'mean', 'count']],
+            use_container_width=True
+        )
+
+    # 4. Interpretation
+    st.markdown(
+        """
+        <div style="
+            background-color:#FFF4E5;
+            border-left:6px solid #FB923C;
+            padding:16px;
+            border-radius:10px;
+            margin-top:12px;
+        ">
+        <b>Interpretation:</b><br>
+        The sunburst chart reveals how pricing contributions cascade from state to district, premise, and item. 
+        States with the largest counts dominate the distribution, highlighting which regions and premises drive most transactions. 
+        This hierarchical insight helps identify critical areas to investigate further for price variations in Pasar Mini markets.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
