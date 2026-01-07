@@ -266,16 +266,16 @@ for name, preds in models.items():
 # --------------------
 # RESIDUAL PLOTS (ALL MODELS)
 # --------------------
-with st.expander("3. 📉 Residual Distribution (All Models)", expanded=False):
-    st.write("This section displays the residual distribution (prediction errors) for all models on the test dataset.")
+st.subheader("3. 📉 Residual Distribution")
 
     for name, y_pred in models.items():
-        residuals = y_test.values - y_pred
+    residuals = y_test.values - y_pred
 
-        res_df = pd.DataFrame({
-            "Residuals": residuals
-        })
+    # Create a DataFrame for residuals
+    res_df = pd.DataFrame({"Residuals": residuals})
 
+    # Create an expander for each model
+    with st.expander(f"Residual Plot – {name}", expanded=False):
         fig = px.histogram(
             res_df,
             x="Residuals",
@@ -292,7 +292,6 @@ with st.expander("3. 📉 Residual Distribution (All Models)", expanded=False):
         )
 
         st.plotly_chart(fig, use_container_width=True)
-
 # --------------------
 # FEATURE IMPORTANCE (RF & DT)
 # --------------------
