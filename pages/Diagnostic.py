@@ -289,73 +289,70 @@ with st.container():
 # Pearson Correlation: Price vs Time
 # -----------------------------
 
+# Ensure date is datetime
+pasar_mini_df['date'] = pd.to_datetime(pasar_mini_df['date'], errors='coerce')
+
+# Convert datetime to numeric for correlation
+pasar_mini_df['date_numeric'] = pasar_mini_df['date'].map(pd.Timestamp.toordinal)
+
 with st.container():
     st.subheader("🔗 Pearson Correlation: Price vs Time")
     st.caption(
         "This analysis examines the linear relationship between price and time."
         "to understand how prices change over the recorded dates in Pasar Mini."
     )
-
-    # --- Convert date to datetime and then numeric ---
-    pasar_mini_df['date_dt'] = pd.to_datetime(pasar_mini_df['date'], errors='coerce')
-    pasar_mini_df['date_num'] = pasar_mini_df['date_dt'].map(pd.Timestamp.toordinal)
-
+    
     # 1. Compute Pearson correlation
-    pearson_corr = pasar_mini_df[['price', 'date_num']].corr(method='pearson')
+    pearson_corr = pasar_mini_df[['price', 'date_numeric']].corr(method='pearson')
 
-    # 2. Heatmap
+    # Rename for readability
+    pearson_corr.rename(
+        index={'date_numeric': 'Date'},
+        columns={'date_numeric': 'Date'},
+        inplace=True
+    )
+
+    # Heatmap
     fig = px.imshow(
-       
-    spearman_corr,
-    text_auto=".2f",
-    color_continuous_scale=[
-        "#313695",  # strong negative
-        "#74add1",  # moderate negative
-        "#ffffbf",  # neutral
-        "#f46d43",  # moderate positive
-        "#d73027"   # strong positive
-    ],
-    zmin=-1,
-    zmax=1,
-    title="Spearman Correlation: Price vs Factors (Pasar Mini-Numerical)"
+        pearson_corr,
+        text_auto=".2f",
+        color_continuous_scale='RdBu_r',
+        zmin=-1,
+        zmax=1,
+        title='Pearson Correlation: Price vs Time (Pasar Mini)'
     )
 
     fig.update_layout(
-        title=dict(
-            text='Pearson Correlation: Price vs Time (Pasar Mini)',
-            x=0.5,
-            xanchor='center'
-        ),
+        title=dict(x=0.5),
         coloraxis_colorbar=dict(title="Correlation"),
         margin=dict(l=40, r=40, t=80, b=40)
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
-    # 3. Show correlation table
+    # Display correlation table (NO dropdown)
     st.dataframe(pearson_corr, use_container_width=True)
 
-    # 4. Interpretation
+    # Interpretation
     st.markdown(
         """
         <div style="
-            background-color:#FFF3E0;
-            border-left:6px solid #FB8C00;
+            background-color:#FFF7ED;
+            border-left:6px solid #FB923C;
             padding:16px;
             border-radius:10px;
             margin-top:12px;
         ">
         <b>Interpretation:</b><br>
-        After converting dates to numeric values, the Pearson correlation measures 
-        the linear trend of prices over time. 
-        A positive correlation indicates that prices increase as time progresses, 
-        while a negative correlation suggests a decreasing trend. 
-        This helps identify whether time is a key driver of price changes in Pasar Mini.
+        The Pearson correlation measures the strength of the linear relationship 
+        between price and time. A positive correlation suggests that prices tend 
+        to increase over the observed period, while a negative value indicates a 
+        declining trend. The magnitude of the coefficient reflects how strongly 
+        time influences price movements in Pasar Mini.
         </div>
         """,
         unsafe_allow_html=True
     )
-
 
 st.markdown("---")
 
@@ -552,29 +549,38 @@ state_mapping = (
     .to_dict()
 )
 
-# --- Add state column to segmentation table ---
+# --- Item group encoding mapping ---
+item_group_mapping = (
+    pasar_mini_df[['item_group_enc', 'item_group']]
+    .drop_duplicates()
+    .sort_values('item_group_enc')
+    .set_index('item_group_enc')['item_group']
+    .to_dict()
+)
+
+# --- Add decoded columns ---
 seg_state_item['state'] = seg_state_item['state_enc'].map(state_mapping)
-seg_item_group_item['item_group'] = seg_item_group_item['item_group_enc'].map(state_mapping)
+seg_state_item['item_group'] = seg_state_item['item_group_enc'].map(item_group_mapping)
 
 # --- Streamlit Expander with State Dropdown ---
 with st.expander("📋 View Top 10 State–Item Group Segments by Average Price"):
 
-    # State dropdown
     selected_state = st.selectbox(
         "Select State",
         options=sorted(seg_state_item['state'].dropna().unique())
     )
 
-    # Filter by selected state
     filtered_seg = seg_state_item[
         seg_state_item['state'] == selected_state
     ]
 
-    # Display table with both state_enc and state
     st.dataframe(
-        filtered_seg[['state_enc', 'state', 'item_group_enc', 'item_group','price']].head(10),
+        filtered_seg[
+            ['state_enc', 'state', 'item_group_enc', 'item_group', 'price']
+        ].head(10),
         use_container_width=True
     )
+
 # Interpretation
     st.markdown(
         """
