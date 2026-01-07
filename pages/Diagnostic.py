@@ -12,7 +12,7 @@ import scipy.stats as stats
 # --------------------
 @st.cache_data
 def load_data():
-    url = "https://raw.githubusercontent.com/s22a0064-AinMaisarah/AdvDataScience_Group2/refs/heads/main/dataset/pasar_mini_data_updated.csv"
+    url = "https://raw.githubusercontent.com/s22a0064-AinMaisarah/AdvDataScience_Group2/refs/heads/main/dataset/pasar_mini_data.csv"
     df = pd.read_csv(url)
     return df
 
