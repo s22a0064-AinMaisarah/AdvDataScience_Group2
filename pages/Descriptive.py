@@ -164,7 +164,7 @@ with col4:
     <div class="metric-card m-cat">
         <div class="metric-label">📦 Top State Highest Sales</div>
         <div class="metric-value">RM 57,216.00</div>
-        <div class="metric-help">Barangan Berbungkus<br>Total Items</div>
+        <div class="metric-help">Johor<br>2025-12-22</div>
     </div>
     """, unsafe_allow_html=True)
 
