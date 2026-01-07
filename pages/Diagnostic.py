@@ -300,12 +300,14 @@ with st.expander("📄 View Correlation Matrix", expanded=False):
 
 st.plotly_chart(fig, use_container_width=True)
 
+st.markdown("---")
+
 # -----------------------------
 # Regression Analysis
 # -----------------------------
 
 with st.container():
-    st.subheader("📈 Multiple Regression: Key Drivers of Price")
+    st.subheader("📈 Multiple Linear Regression: Key Drivers of Price")
 
     st.caption(
         "A multiple linear regression model is applied to examine how geographical "
@@ -381,81 +383,60 @@ with st.container():
 # Statistical Testing 
 # -----------------------------
 
-# --- Perform ANOVA on price across item categories ---
-anova_model = ols('price ~ C(item_category_enc)', data=pasar_mini_df).fit()
-anova_result = sm.stats.anova_lm(anova_model, typ=2)
-
-# --- Boxplot of price by item category ---
-st.subheader("📦 Price Distribution by Item Category")
-st.caption("Visual representation of price spread for each item category.")
-
-fig = px.box(
-    pasar_mini_df,
-    x='item_category_enc',
-    y='price',
-    color='item_category_enc',
-    color_discrete_sequence=px.colors.diverging.RdBu,
-    title='Price Distribution by Item Category (Pasar Mini)',
-    labels={
-        'item_category_enc': 'Item Category',
-        'price': 'Price (RM)'
-    }
-)
-
 # --- Display ANOVA result in Streamlit ---
 st.subheader("📊 ANOVA: Price Differences Across Item Categories")
 st.caption(" ANOVA test examines whether the average prices differ significantly "
     "between item categories in Pasar Mini."
 ) 
 
-st.dataframe(anova_result, use_container_width=True)    
+fig = px.box(
+        pasar_mini_df,
+        x='item_category',
+        y='price',
+        color='item_category',
+        color_discrete_sequence=px.colors.diverging.RdBu,
+        title='Price Distribution by Item Category (Pasar Mini)',
+        labels={
+            'item_category': 'Item Category',
+            'price': 'Price (RM)'
+        }
+    )
 
-# Display in Streamlit
-st.plotly_chart(fig, use_container_width=True)
-
-
-
-st.subheader("🔍 Chi-Square Test: State vs Item Category")
-
-st.caption(
-    "This analysis examines whether the distribution of item categories "
-    "is independent of state using the Chi-Square Test of Independence."
+summary_table = (
+    pasar_mini_df
+    .groupby('item_category')['price']
+    .agg(
+        Mean_Price='mean',
+        Median_Price='median',
+        Min_Price='min',
+        Max_Price='max',
+        Transaction_Count='count'
+    )
+    .reset_index()
 )
 
-# Create contingency table
-contingency_table = pd.crosstab(
-    pasar_mini_df['state'],
-    pasar_mini_df['item_category']
+st.markdown("### 📋 Price Summary by Item Category")
+st.dataframe(summary_table, use_container_width=True)
+
+st.markdown(
+    """
+    <div style="
+        background-color:#FFF7ED;
+        border-left:6px solid #FB923C;
+        padding:16px;
+        border-radius:10px;
+        margin-top:12px;
+    ">
+    <b>Interpretation:</b><br>
+    The price distributions differ noticeably across item categories, indicating varying pricing 
+    structures within Pasar Mini. Categories with wider spreads and visible outliers suggest 
+    greater price variability, possibly driven by differences in product types or demand levels. 
+    These variations highlight item category as an important factor influencing price behavior.
+    </div>
+    """,
+    unsafe_allow_html=True
 )
 
-# Display contingency table
-st.markdown("### 📊 Contingency Table")
-st.dataframe(contingency_table, use_container_width=True)
-
-# Perform Chi-Square test
-chi2, p_value, dof, expected = stats.chi2_contingency(contingency_table)
-
-# Display statistical results
-st.markdown("### 📈 Chi-Square Test Results")
-
-col1, col2, col3 = st.columns(3)
-col1.metric("Chi-Square Statistic", round(chi2, 2))
-col2.metric("Degrees of Freedom", dof)
-col3.metric("p-value", round(p_value, 5))
-
-st.markdown("### 🧠 Chi-Square Interpretation")
-
-if p_value < 0.05:
-    st.success(
-        "The p-value is less than 0.05, indicating a statistically significant "
-        "association between state and item category. This suggests that item "
-        "distribution patterns vary across states."
-    )
-else:
-    st.info(
-        "The p-value is greater than 0.05, indicating no statistically significant "
-        "association between state and item category."
-    )
 
 
 st.markdown("---")
@@ -626,19 +607,16 @@ with st.container():
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
         ">
-            <h4 style="margin-top: 0; color: #7C2D12;">
-                🧠 Diagnostic Interpretation
-            </h4>
-            <p style="font-size: 15px; color: #3F2A1D;">
-                The results indicate that a small number of items dominate transaction volumes in Johor, 
-                suggesting strong and consistent consumer demand for essential goods. 
-                This concentration reflects localized consumption patterns influenced by daily necessities 
-                rather than price variability alone. 
-                Such trends highlight how regional purchasing behavior acts as a key driver of observed price 
-                stability and frequency in Pasar Mini markets.
-            </p>
-        </div>
+        <b>Interpretation:</b><br>
+        The results indicate that a small number of items dominate transaction volumes in Johor, 
+        suggesting strong and consistent consumer demand for essential goods. 
+        This concentration reflects localized consumption patterns influenced by daily necessities 
+        rather than price variability alone. Such trends highlight how regional purchasing behavior
+        acts as a key driver of observed price stability and frequency in Pasar Mini markets.   
+       </div>
         """,
         unsafe_allow_html=True
     )
+
+st.markdown("---")
 
