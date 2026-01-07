@@ -224,7 +224,6 @@ with st.expander(" AVERAGE PRICE OVER TIME ANALYSIS", expanded=False):
     st.markdown("#### Daily Price Summary (First 10 Days)")
     st.dataframe(avg_price.head(10), use_container_width=True)
 
-]
 # ... [Keep your previous imports and data loading] ...
 
 # --------------------
