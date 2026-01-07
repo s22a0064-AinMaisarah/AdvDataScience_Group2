@@ -268,7 +268,7 @@ for name, preds in models.items():
 # --------------------
 st.subheader("3. 📉 Residual Distribution")
 
-    for name, y_pred in models.items():
+for name, y_pred in models.items():
     residuals = y_test.values - y_pred
 
     # Create a DataFrame for residuals
@@ -292,6 +292,7 @@ st.subheader("3. 📉 Residual Distribution")
         )
 
         st.plotly_chart(fig, use_container_width=True)
+
 # --------------------
 # FEATURE IMPORTANCE (RF & DT)
 # --------------------
