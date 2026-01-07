@@ -130,30 +130,40 @@ models = {
 }
 
 # --------------------
-# SUMMARY METRICS 
+# MODEL PERFORMANCE COMPARISON 
 # --------------------
-with st.expander("📊 Model Performance Summary"):
-    metrics = []
-    for name, preds in models.items():
-        metrics.append([
-            name,
-            mean_absolute_error(y_test, preds),
-            np.sqrt(mean_squared_error(y_test, preds)),
-            r2_score(y_test, preds)
-        ])
+with st.expander("📊 View Full Model Performance Comparison"):
+    st.dataframe(
+        metrics_df.style.format({
+            "MAE": "{:.3f}",
+            "RMSE": "{:.3f}",
+            "R²": "{:.3f}"
+        }),
+        use_container_width=True
+    )
 
-    metrics_df = pd.DataFrame(metrics, columns=["Model","MAE","RMSE","R²"])
-    st.dataframe(metrics_df, use_container_width=True)
+    st.markdown("""
+    **Evaluation Metrics Explanation**
+    - **MAE**: Average absolute prediction error  
+    - **RMSE**: Penalizes larger errors more strongly  
+    - **R²**: Proportion of variance explained by the model
+    """)
 
-    # Identify best model (lowest RMSE)
-    best_model = metrics_df.sort_values("RMSE").iloc[0]
+# --------------------
+# BEST MODEL METRICS (MAIN DISPLAY)
+# --------------------
+st.subheader("🏆 Best Performing Model")
 
-    st.markdown("### ✅ Best Model Summary")
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Best Model", best_model["Model"])
-    col2.metric("Lowest RMSE", f"{best_model['RMSE']:.3f}")
-    col3.metric("Highest R²", f"{best_model['R²']:.3f}")
+col1, col2, col3 = st.columns(3)
+col1.metric("Model", best_model["Model"])
+col2.metric("Lowest RMSE", f"{best_model['RMSE']:.3f}")
+col3.metric("Highest R²", f"{best_model['R²']:.3f}")
 
+st.caption(
+    "The best model is selected based on the lowest RMSE, "
+    "indicating superior predictive accuracy on unseen data."
+)
+    
 # --------------------
 # FORECAST 2025 (RF)
 # --------------------
