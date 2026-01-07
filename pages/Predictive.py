@@ -236,6 +236,7 @@ with st.expander("📊 Monthly Price Comparison (Bar Chart)", expanded=False):
 # --------------------
 st.subheader("2. 🔍 Actual vs Predicted Comparison")
 
+# Create scatter plots for each model
 for name, preds in models.items():
     with st.expander(f"View Actual vs Predicted - {name}"):
         fig = px.scatter(
@@ -254,12 +255,14 @@ for name, preds in models.items():
             line=dict(color="red", width=2)
         )
         st.plotly_chart(fig, use_container_width=True)
-        
-        st.markdown("""
-### 🔹 Actual vs Predicted Prices
+
+# Add a **single interpretation expander** at the end
+with st.expander("🔹 Overall Interpretation of Actual vs Predicted"):
+    st.markdown("""
 - **Random Forest:** Points closely follow the diagonal line, showing strong predictive accuracy for low and mid-range prices, with minor deviations at higher prices.  
 - **Decision Tree:** Predictions align fairly well but form horizontal clusters due to grouping of similar prices.  
 - **SVR & Linear Regression:** SVR captures the trend but struggles with high prices; Linear Regression shows a linear trend but wider errors at higher prices, indicating limited ability to capture non-linear patterns.  
+- **Overall:** Random Forest handles complexity best, while simpler models have more difficulty with extreme or non-linear price patterns.
 """)
 
 
