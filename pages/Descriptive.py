@@ -165,7 +165,7 @@ with col3:
 with col4:
     st.markdown("""
     <div class="metric-card m-cat">
-        <div class="metric-label">📦 Top State Highest Sales /div>
+        <div class="metric-label">📦 Top State Highest Sales</div>
         <div class="metric-value">RM 57,216.00</div>
         <div class="metric-help">Barangan Berbungkus<br>Total Items</div>
     </div>
@@ -701,78 +701,6 @@ with st.expander(" Cumulative Frequency Visualization for Item", expanded=False)
     )
 
 # --------------------
-# 16. Visualisation: Cumulative Frequency for Item Category
-# --------------------
-
-# Data Processing
-item_cat_counts = pasar_mini_df['item_category'].value_counts().reset_index()
-item_cat_counts.columns = ['item_category', 'count']
-
-# Calculate average price per category for hover data
-avg_price_cat = pasar_mini_df.groupby('item_category')['price'].mean().reset_index()
-avg_price_cat.rename(columns={'price': 'average_price'}, inplace=True)
-item_cat_counts = item_cat_counts.merge(avg_price_cat, on='item_category', how='left')
-
-# Sort and calculate cumulative percentages
-item_cat_counts = item_cat_counts.sort_values(by='count', ascending=False)
-total_rows = len(pasar_mini_df)
-item_cat_counts['percentage'] = (item_cat_counts['count'] / total_rows) * 100
-item_cat_counts['cumulative_percentage'] = item_cat_counts['percentage'].cumsum()
-
-# Section Objective Header
-st.markdown("""
-<div style="background: linear-gradient(90deg, #4CAF50 0%, #1b5e20 100%); 
-            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To evaluate the distribution and dominance of item categories based on cumulative frequency patterns.
-</div>
-""", unsafe_allow_html=True)
-
-# Expander (Closed by default)
-with st.expander("Cumulative Frequency Visualization for item_category", expanded=False):
-    
-    # Create the Interactive Bar Chart
-    fig_cat = px.bar(
-        item_cat_counts, 
-        x='item_category', y='count', color='item_category',
-        title='Distribution of Observations by Item Category',
-        labels={'item_category': 'Category', 'count': 'Number of Entries'},
-        hover_data={
-            'percentage': ':.2f%',
-            'cumulative_percentage': ':.2f%',
-            'average_price': 'RM {:.2f}'
-        },
-        color_discrete_sequence=px.colors.qualitative.Prism
-    )
-
-    fig_cat.update_layout(
-        title_x=0.5,
-        font=dict(family="Arial, sans-serif", size=12, color="#4CAF50"),
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        xaxis_tickangle=-45,
-        height=600,
-        showlegend=False
-    )
-
-    st.plotly_chart(fig_cat, use_container_width=True)
-
-    # --- Insight Summary ---
-    st.markdown("### Item Category Insights")
-    st.info("""
-    * **Category Dominance:** 'Sayur-sayuran' (vegetables) is the primary driver of the dataset, with **33,018 entries (21.63%)**.
-    * **Core Concentration:** The top two categories (Vegetables + Oils/Fats) represent over **32%** of all observations. 
-    * **Major Drivers:** The top five categories (including packaged spices, baby milk, and sauces) constitute **55.55%** of the data, while the top ten account for nearly **74.74%**.
-    * **Long-Tail Effect:** A significant "long-tail" exists where niche categories like 'mentega' contribute as little as **0.01%**, underscoring a market baseline focused almost entirely on daily food essentials.
-    """)
-
-    # Data Table (Top 10)
-    st.markdown("#### Top 10 Category Statistical Breakdown")
-    st.dataframe(
-        item_cat_counts.head(10)[['item_category', 'count', 'percentage', 'cumulative_percentage', 'average_price']],
-        use_container_width=True
-    )
-
-# --------------------
 # 17. Visualisation: Cumulative Frequency for Premise
 # --------------------
 
@@ -916,74 +844,82 @@ with st.expander("Cumulative Frequency Visualization for State", expanded=False)
     )
 
 # --------------------
-# 20. Visualisation: Cross-tabulation Heatmap (Item Category & State)
+# 21. Visualisation: Cross-tabulation Heatmap (Specific Item vs. State)
 # --------------------
 
-# Data Processing: Pivot Table for Average Price (Top 15 Categories)
-top_15_categories = pasar_mini_df['item_category'].value_counts().nlargest(15).index
-pivot_table_cat_price = pasar_mini_df[pasar_mini_df['item_category'].isin(top_15_categories)].pivot_table(
+# Data Processing: Focus on the top 15 items by volume
+item_counts_full = pasar_mini_df.pivot_table(values='price', index='item', columns='state', aggfunc='count')
+top_15_items = item_counts_full.sum(axis=1).nlargest(15).index
+
+# Pivot Table for Average Price
+pivot_table_avg_price_top_15 = pasar_mini_df.pivot_table(
     values='price', 
-    index='item_category', 
+    index='item', 
     columns='state', 
     aggfunc='mean'
-)
+).loc[top_15_items]
 
 # Section Objective Header
 st.markdown("""
-<div style="background: linear-gradient(90deg, #123456 0%, #333333 100%); 
+<div style="background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%); 
             padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To compare average item prices across item category and states in order to identify regional and category-based price variations.
+    <strong>🎯 Objective:</strong> To compare average prices across specific items and states in order to identify regional and category-based price variations.
 </div>
 """, unsafe_allow_html=True)
 
 # Expander (Closed by default)
-with st.expander("Cross-tabulation: Average Price by Item category and State", expanded=False):
+with st.expander("🌡️ CLICK TO VIEW: Cross-tabulation: Average Price by Item and State", expanded=False):
     
     # Create the Interactive Heatmap
-    fig_cat_heat = px.imshow(
-        pivot_table_cat_price,
-        text_auto=".1f", # Display values on cells with 1 decimal
+    fig_item_heat = px.imshow(
+        pivot_table_avg_price_top_15,
+        text_auto=".1f", 
         aspect="auto",
-        title='Average Price: Top 15 Categories vs. State',
-        labels={'x':'State', 'y':'Item Category', 'color':'Avg Price (RM)'},
+        title='Average Price: Top 15 Specific Items vs. State',
+        labels={'x':'State', 'y':'Specific Item', 'color':'Avg Price (RM)'},
         color_continuous_scale='RdBu_r', 
-        color_continuous_midpoint=pivot_table_cat_price.mean().mean(),
+        color_continuous_midpoint=pivot_table_avg_price_top_15.mean().mean(),
         template="plotly_white"
     )
 
-    fig_cat_heat.update_xaxes(side="top")
-    fig_cat_heat.update_layout(
+    fig_item_heat.update_xaxes(side="top")
+    fig_item_heat.update_layout(
         title_x=0.5,
-        font=dict(family="Arial, sans-serif", size=11, color="#333"),
-        margin=dict(t=120, b=50),
-        height=700
+        font=dict(family="Arial, sans-serif", size=10, color="#333"),
+        margin=dict(t=150, b=50),
+        height=750
     )
 
-    st.plotly_chart(fig_cat_heat, use_container_width=True)
+    st.plotly_chart(fig_item_heat, use_container_width=True)
 
     # --- Insight Summary ---
-    st.markdown("### Detailed Category Price Analysis")
+    st.markdown("### 📝 Detailed Expenditure & Price Range Analysis")
     
-    col1, col2 = st.columns(2)
+    tab1, tab2, tab3 = st.tabs(["💰 Expenditure Patterns", "📊 Volatility & Volume", "📍 Regional Observations"])
     
-    with col1:
-        st.write("**High vs. Low Value Items**")
+    with tab1:
         st.info("""
-        * **High-Value:** 'Susu bayi' (baby milk) is consistently the highest expenditure item, peaking in **Sabah and Sarawak**.
-        * **Low-Value:** 'Gula' (sugar) remains the lowest-cost staple with high price stability due to strong controls.
-        * **Mid-Range Staples:** Vegetables and packaged spices show high volume but moderate price fluctuations.
+        * **High-Value Items:** Products like **Susu Bayi** (baby milk) consistently show the highest prices nationwide.
+        * **Low-Value Staples:** **Gula** (sugar) displays the lowest prices and highest stability due to price controls.
+        * **Expensive Proteins:** **Bahan Laut** (seafood) and specific **Minyak** (oils) frequently appear in the higher price brackets.
         """)
 
-    with col2:
-        st.write("**Regional Dynamics**")
+    with tab2:
+        st.success("""
+        * **High Volume:** **Sayur-sayuran** (vegetables) dominates frequency across states. Prices are mid-range but fluctuate based on local supply.
+        * **Consistent Demand:** **Packaged Spices** and **Oils** show high transaction counts and moderate-to-high pricing.
+        * **Localized Spikes:** **W.P. Labuan** shows higher prices for chicken and eggs, despite lower overall counts, suggesting supply constraints.
+        """)
+
+    with tab3:
         st.warning("""
-        * **East Malaysia:** Sabah and Sarawak often display higher prices for seafood and chicken, likely due to supply chain logistics.
-        * **Urban Centers:** W.P. Kuala Lumpur shows elevated costs, typical for high-operational urban environments.
-        * **Volume Patterns:** Johor maintains high reporting counts but generally keeps prices in the mid-range.
+        * **Johor:** Reports the highest volume of transactions; prices typically stay in the mid-range.
+        * **East Malaysia (Sabah/Sarawak):** Often display higher average prices for baby milk and seafood due to logistical challenges.
+        * **W.P. Kuala Lumpur:** Elevated prices reflect higher urban operational costs.
         """)
 
     # Data Table
-    st.markdown("#### Pivot Data: Avg Price (RM) by Top 15 Categories")
-    st.dataframe(pivot_table_cat_price.style.format("{:.2f}").background_gradient(cmap='RdBu_r', axis=None), use_container_width=True)
+    st.markdown("#### 📋 Pivot Data: Avg Price (RM) by Specific Item")
+    st.dataframe(pivot_table_avg_price_top_15.style.format("{:.2f}").background_gradient(cmap='RdBu_r', axis=None), use_container_width=True)
 
 st.markdown("---")
