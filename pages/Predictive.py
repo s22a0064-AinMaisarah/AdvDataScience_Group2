@@ -102,35 +102,35 @@ y_train, y_test = y.iloc[:split_index], y.iloc[split_index:]
 # --------------------
 # MODEL TRAINING
 # --------------------
-rf = RandomForestRegressor(n_estimators=500, max_depth=10, random_state=42)
-rf.fit(X_train, y_train)
-y_rf = rf.predict(X_test)
+rf_model = RandomForestRegressor(n_estimators=500, max_depth=10, random_state=42)
+rf_model.fit(X_train, y_train)
+y_pred_rf = rf_model.predict(X_test)
 
-lr = LinearRegression()
-lr.fit(X_train, y_train)
-y_lr = lr.predict(X_test)
+lr_model = LinearRegression()
+lr_model.fit(X_train, y_train)
+y_pred_lr = lr_model.predict(X_test)
 
-dt = DecisionTreeRegressor(max_depth=10, random_state=42)
-dt.fit(X_train, y_train)
-y_dt = dt.predict(X_test)
+dt_model = DecisionTreeRegressor(max_depth=10, random_state=42)
+dt_model.fit(X_train, y_train)
+y_pred_dt = dt_model.predict(X_test)
 
 scaler = StandardScaler()
-X_train_s = scaler.fit_transform(X_train)
-X_test_s = scaler.transform(X_test)
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 
-svr = SVR(C=100, gamma=0.1, epsilon=0.1)
-svr.fit(X_train_s, y_train)
-y_svr = svr.predict(X_test_s)
+svr_model = SVR(C=100, gamma=0.1, epsilon=0.1)
+svr_model.fit(X_train_scaled, y_train)
+y_pred_svr = svr_model.predict(X_test_scaled)
 
 models = {
-    "Random Forest": y_rf,
-    "Linear Regression": y_lr,
-    "Decision Tree": y_dt,
-    "SVR": y_svr
+    "Random Forest": y_pred_rf,
+    "Linear Regression": y_pred_lr,
+    "Decision Tree": y_pred_dt,
+    "SVR": y_pred_svr
 }
 
 # --------------------
-# SUMMARY METRICS 
+# MODEL PERFORMANCE SUMMARY
 # --------------------
 with st.expander("📊 Model Performance Summary"):
     metrics = []
@@ -153,11 +153,18 @@ with st.expander("📊 Model Performance Summary"):
     col1.metric("Best Model", best_model["Model"])
     col2.metric("Lowest RMSE", f"{best_model['RMSE']:.3f}")
     col3.metric("Highest R²", f"{best_model['R²']:.3f}")
+
+# --------------------
+# PREDICTIVE VISUALIZATIONS
+# --------------------
+st.subheader("Predictive Visualizations")
+st.markdown("""
+""")
     
 # --------------------
 # FORECAST 2025 (RF)
 # --------------------
-st.subheader("📈 Forecasted Prices for 2025 (Random Forest)")
+st.subheader("1. 📈 Forecasted Prices for 2025 (Random Forest)")
 
 future_2025 = pd.DataFrame({
     "year": [2025]*12,
@@ -170,25 +177,27 @@ future_2025 = pd.DataFrame({
 
 future_2025["predicted_price"] = rf.predict(future_2025[features])
 
-fig_forecast = px.line(
-    future_2025, x="month", y="predicted_price",
+# ---- Line Chart (REQUIRED)
+fig_line = px.line(
+    future_2025,
+    x="month",
+    y="predicted_price",
     markers=True,
-    labels={"month":"Month","predicted_price":"Price (RM)"}
+    title="Forecasted Monthly Food Prices in Pasar Mini (2025)",
+    labels={"month":"Month","predicted_price":"Predicted Price (RM)"}
 )
-st.plotly_chart(fig_forecast, use_container_width=True)
+st.plotly_chart(fig_line, use_container_width=True)
 
-# --------------------
-# FEATURE IMPORTANCE
-# --------------------
-st.subheader("🌟 Feature Importance (Random Forest)")
-
-feat_imp = pd.DataFrame({
-    "Feature": features,
-    "Importance": rf.feature_importances_
-}).sort_values("Importance", ascending=False)
-
-fig_imp = px.bar(feat_imp, x="Feature", y="Importance")
-st.plotly_chart(fig_imp, use_container_width=True)
+# ---- Bar Chart (REQUIRED)
+fig_bar = px.bar(
+    future_2025,
+    x="month",
+    y="predicted_price",
+    text="predicted_price",
+    title="Predicted Food Prices by Month (2025)",
+    labels={"month":"Month","predicted_price":"Predicted Price (RM)"}
+)
+st.plotly_chart(fig_bar, use_container_width=True)
 
 # --------------------
 # ACTUAL VS PREDICTED (ALL MODELS)
@@ -237,6 +246,43 @@ for name, y_pred in models.items():
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+# --------------------
+# FEATURE IMPORTANCE (RF & DT)
+# --------------------
+st.subheader("🌟 Feature Importance")
+
+rf_imp = pd.DataFrame({
+    "Feature": features,
+    "Importance": rf_model.feature_importances_
+}).sort_values("Importance", ascending=False)
+
+dt_imp = pd.DataFrame({
+    "Feature": features,
+    "Importance": dt_model.feature_importances_
+}).sort_values("Importance", ascending=False)
+
+st.markdown("**Random Forest Feature Importance**")
+st.plotly_chart(px.bar(rf_imp, x="Feature", y="Importance"), use_container_width=True)
+
+st.markdown("**Decision Tree Feature Importance**")
+st.plotly_chart(px.bar(dt_imp, x="Feature", y="Importance"), use_container_width=True)
+
+# --------------------
+# LINEAR REGRESSION COEFFICIENTS
+# --------------------
+st.subheader("📐 Linear Regression Coefficients")
+
+coef_df = pd.DataFrame({
+    "Feature": features,
+    "Coefficient": lr_model.coef_
+}).sort_values("Coefficient", ascending=False)
+
+st.plotly_chart(
+    px.bar(coef_df, x="Feature", y="Coefficient",
+           title="Linear Regression Feature Coefficients"),
+    use_container_width=True
+)
 
 # --------------------
 # INTERPRETATION
