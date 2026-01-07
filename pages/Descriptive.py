@@ -225,6 +225,8 @@ with st.expander(" AVERAGE PRICE OVER TIME ANALYSIS", expanded=False):
     st.dataframe(avg_price.head(10), use_container_width=True)
 
 ]
+# ... [Keep your previous imports and data loading] ...
+
 # --------------------
 # 8. Visualisation: Central Tendency 
 # --------------------
@@ -238,12 +240,11 @@ price_count = len(pasar_mini_df)
 # Header with Gradient Background
 st.markdown("""
 <div style="background: linear-gradient(90deg, #764ba2 0%, #4facfe 100%); padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To identify typical price levels (Mean, Median, Mode) within the dataset.
+    <strong>🎯 Objective:</strong> To identify typical price levels (Mean, Median, Mode) within the dataset.
 </div>
 """, unsafe_allow_html=True)
 
-# Expander for clean UI
-with st.expander("Measures of Central Tendency for Price", expanded=False):
+with st.expander("📊 Measures of Central Tendency for Price", expanded=False):
     
     # --- Chart Section ---
     measures = ['Mean', 'Median', 'Mode']
@@ -268,95 +269,63 @@ with st.expander("Measures of Central Tendency for Price", expanded=False):
     )
     st.plotly_chart(fig_bar, use_container_width=True)
     
+    # --- Educational Context ---
+    st.write("### Understanding Central Tendency")
+    # This diagram helps users understand how these three metrics interact in skewed data
+    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Relationship_between_mean_median_mode.png/400px-Relationship_between_mean_median_mode.png", 
+             caption="Comparison of Mean, Median, and Mode in different distributions.")
+    
+
     # --- Point Summary Section ---
     st.markdown("### Statistical Summary")
     
-    # Using columns for a more dashboard-like feel
     col1, col2 = st.columns(2)
     with col1:
         st.metric("Total Observations", f"{price_count:,}")
-        st.info(f"The average item price (Mean) is **RM {price_mean:.2f}**, which is influenced by higher-value items in the inventory.")
+        st.info(f"The average item price (Mean) is **RM {price_mean:.2f}**.")
     
     with col2:
         st.metric("Middle Value (Median)", f"RM {price_median:.2f}")
-        st.success(f"The most frequent price point (Mode) is **RM {price_mode:.2f}**, representing the most common retail price for mini-market staples.")
+        st.success(f"The most frequent price point (Mode) is **RM {price_mode:.2f}**.")
 
-    # --- Instructional Diagram (Optional Context) ---
-    # 
-
-    # --- Data Table ---
-    st.markdown("#### Detailed Metrics Table")
-    ct_df = pd.DataFrame({
-        'Measure': ['Total Count', 'Mean (Average)', 'Median (Middle)', 'Mode (Most Frequent)'],
-        'Value': [f"{price_count:,}", f"RM {price_mean:.2f}", f"RM {price_median:.2f}", f"RM {price_mode:.2f}"]
-    })
-    st.table(ct_df)
-
-st.markdown("---")
 # --------------------
-# Measures of Dispersion
+# 11. Visualisation: Measures of Distribution Shape
 # --------------------
 
-# Calculations for Dispersion
-price_std = pasar_mini_df['price'].std()
-price_min = pasar_mini_df['price'].min()
-price_max = pasar_mini_df['price'].max()
-price_range = price_max - price_min
-q1 = pasar_mini_df['price'].quantile(0.25)
-q3 = pasar_mini_df['price'].quantile(0.75)
-iqr = q3 - q1
+price_skewness = pasar_mini_df['price'].skew()
+price_kurtosis = pasar_mini_df['price'].kurt()
 
-# Create a summary DataFrame for the Dispersion Metrics
-price_stats_df = pd.DataFrame({
-    'Measure': ['Std Deviation', 'Range', '25th Percentile (Q1)', '75th Percentile (Q3)', 'IQR'],
-    'Value': [price_std, price_range, q1, q3, iqr]
-})
-
-# Section Objective Header
 st.markdown("""
-<div style="background: linear-gradient(90deg, #1f77b4 0%, #2ca02c 100%); 
+<div style="background: linear-gradient(90deg, #d62728 0%, #764ba2 100%); 
             padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To summarise the variability and range of item prices to understand the extent of price dispersion.
+    <strong>🎯 Objective:</strong> To assess the shape of the price distribution in order to identify skewness and concentration of prices.
 </div>
 """, unsafe_allow_html=True)
 
-# Expander with Prominent Icon
-with st.expander("Statistical Measures for Price Dispersion", expanded=False):
+with st.expander("📉 Measures of Distribution Shape for Price", expanded=False):
     
-    # Create Interactive Bar Chart
-    fig_disp = px.bar(
-        price_stats_df,
-        x='Measure',
-        y='Value',
-        color='Measure',
-        color_discrete_sequence=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'],
-        title="Dispersion Analysis (Spread of Prices)",
-        text='Value'
-    )
+    # Create the interactive bar chart
+    distribution_shape_df = pd.DataFrame({
+        'Measure': ['Skewness', 'Kurtosis'],
+        'Value': [price_skewness, price_kurtosis]
+    })
+    
+    fig_shape = px.bar(distribution_shape_df, x='Measure', y='Value', color='Measure',
+                       color_discrete_sequence=['#ff7f0e', '#d62728'],
+                       title="Distribution Shape (Skewness & Kurtosis)", text='Value')
 
-    fig_disp.update_traces(texttemplate='%{text:.2f}', textposition='outside')
-    fig_disp.update_layout(
-        title_x=0.5,
-        font=dict(family="Arial, sans-serif", size=12, color="#7f7f7f"),
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        margin=dict(t=50, b=20)
-    )
-
-    st.plotly_chart(fig_disp, use_container_width=True)
+    fig_shape.update_traces(texttemplate='%{text:.3f}', textposition='outside')
+    st.plotly_chart(fig_shape, use_container_width=True)
 
     # --- Insight Summary ---
-    st.markdown("### Dispersion Insights")
+    st.write("### Skewness & Kurtosis Explained")
+    # This diagram visualizes the mathematical concepts of skewness and kurtosis
+    
+    
     st.info(f"""
-    * **Price Volatility:** To understand price volatility, measures of dispersion were employed. The **Standard Deviation of {price_std:.2f}** and a **Range of {price_range:.2f}** highlight a wide variety in the pricing of consumer goods.
-    * **Market Diversity:** This wide range is likely due to the inclusion of both small units (e.g., timun) and bulk or premium items reaching a maximum of **RM {price_max:.2f}**.
-    * **Stable Baseline:** The **Interquartile Range (IQR) of {iqr:.2f}** provides a more stable baseline, showing that the middle 50% of all items fall between **RM {q1:.2f} (25th percentile)** and **RM {q3:.2f} (75th percentile)**.
-    * **Typical Spending:** This middle range represents the typical expenditure for a standard consumer unit in mini-markets.
+    * **Positive Skewness ({price_skewness:.2f}):** Indicates that the 'tail' on the right side of the distribution is longer. Most prices are low, but a few expensive items pull the mean to the right.
+    * **High Kurtosis ({price_kurtosis:.2f}):** This 'Leptokurtic' distribution indicates that the data has heavy tails and a sharp peak, confirming the presence of significant outliers.
     """)
-
-    # Data Table
-    st.markdown("#### Dispersion Metric Details")
-    st.table(price_stats_df)
 # --------------------
 # 10. Visualisation: Cumulative Frequency Analysis
 # --------------------
