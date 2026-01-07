@@ -28,8 +28,10 @@ st.set_page_config(
 def load_data():
     url = "https://raw.githubusercontent.com/s22a0064-AinMaisarah/AdvDataScience_Group2/main/dataset/pasar_mini_data_updated.csv"
     df = pd.read_csv(url)
-    df['date'] = pd.to_datetime(df['date'])
+    df["date"] = pd.to_datetime(df["date"])
     return df
+
+pasar_mini_df = load_data()
 
 # --------------------
 # HEADER
@@ -64,7 +66,7 @@ data-driven decision-making.
 # DATASET PREVIEW
 # --------------------
 with st.expander("🔍 Dataset Preview"):
-    st.dataframe(df.head())  # remove use_container_width
+    st.dataframe(pasar_mini_df.head(), use_container_width=True)
 
 # --------------------
 # FEATURE ENGINEERING
@@ -168,50 +170,74 @@ for Pasar Mini markets in 2025. Visualizations provide both trend analysis and c
 # --------------------
 st.subheader("1. 📈 Forecasted Monthly Food Prices in Pasar Mini for 2025")
 
-# Manual forecast data
-manual_forecast = pd.DataFrame({
+future_2025 = pd.DataFrame({
     "year": [2025]*12,
     "month": list(range(1,13)),
-    "state_enc": [0]*12,
-    "district_enc": [10]*12,
-    "item_group_enc": [0]*12,
-    "item_category_enc": [5]*12,
-    "predicted_price": [3.80, 3.85, 3.90, 3.95, 4.00, 4.05,
-                        4.10, 4.15, 4.20, 4.25, 4.30, 4.35]
+    "state_enc": monthly_price["state_enc"].mode()[0],
+    "district_enc": monthly_price["district_enc"].mode()[0],
+    "item_group_enc": monthly_price["item_group_enc"].mode()[0],
+    "item_category_enc": monthly_price["item_category_enc"].mode()[0],
 })
 
-# Show the table
-st.dataframe(manual_forecast, use_container_width=True)
+future_2025["predicted_price"] = rf_model.predict(future_2025[features])
 
 # --------------------
 # Forecasted Line Chart (Trend Over Time)
 # --------------------
 
 with st.expander("📉 Forecast Trend: Monthly Food Prices (2025)", expanded=True):
+
+    st.subheader("📉 Forecasted Price Trend (Line Chart)")
+
     fig_line = px.line(
-        manual_forecast,
+        future_2025,
         x="month",
         y="predicted_price",
         markers=True,
-        title="Forecasted Monthly Food Prices in Pasar Mini (2025) - Example Data",
-        labels={"month": "Month", "predicted_price": "Predicted Price (RM)"}
+        title="Forecasted Monthly Food Prices in Pasar Mini (2025)",
+        labels={
+            "month": "Month",
+            "predicted_price": "Predicted Price (RM)"
+        }
     )
+
     st.plotly_chart(fig_line, use_container_width=True)
+
+    st.caption(
+        "📌 This line chart illustrates the overall trend and seasonal movement of "
+        "forecasted food prices in Pasar Mini markets for the year 2025."
+    )
 
 # --------------------
 # Monthly Forecast Bar Chart (Month to Month Comparison)
 # --------------------
 with st.expander("📊 Monthly Price Comparison (Bar Chart)", expanded=False):
+
+    st.subheader("📊 Monthly Forecast Comparison")
+
     fig_bar = px.bar(
-        manual_forecast,
+        future_2025,
         x="month",
         y="predicted_price",
         text="predicted_price",
-        title="Predicted Food Prices by Month in Pasar Mini (2025) - Example Data",
-        labels={"month": "Month", "predicted_price": "Predicted Price (RM)"}
+        title="Predicted Food Prices by Month in Pasar Mini (2025)",
+        labels={
+            "month": "Month",
+            "predicted_price": "Predicted Price (RM)"
+        }
     )
-    fig_bar.update_traces(texttemplate="RM %{text:.2f}", textposition="outside")
+
+    fig_bar.update_traces(
+        texttemplate="RM %{text:.2f}",
+        textposition="outside"
+    )
+
     st.plotly_chart(fig_bar, use_container_width=True)
+
+    st.caption(
+        "📌 This bar chart provides a clear month-to-month comparison of predicted "
+        "food prices, allowing users to identify higher or lower pricing periods."
+    )
 
 # --------------------
 # ACTUAL VS PREDICTED
