@@ -159,7 +159,7 @@ with st.expander("📊 Model Performance Summary"):
 # --------------------
 # PREDICTIVE VISUALIZATIONS
 # --------------------
-st.subheader("Predictive Visualizations")
+st.subheader("🔮 Predictive Visualizations")
 st.markdown("""
 """)
     
@@ -177,7 +177,7 @@ future_2025 = pd.DataFrame({
     "item_category_enc": monthly_price["item_category_enc"].mode()[0],
 })
 
-future_2025["predicted_price"] = rf.predict(future_2025[features])
+future_2025["predicted_price"] = rf_model.predict(future_2025[features])
 
 # --------------------
 # Forecasted Line Chart (Trend Over Time)
