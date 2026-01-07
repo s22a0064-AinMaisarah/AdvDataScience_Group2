@@ -245,18 +245,23 @@ with st.expander("📊 Monthly Price Comparison (Bar Chart)", expanded=False):
 st.subheader("2. 🔍 Actual vs Predicted Comparison")
 
 for name, preds in models.items():
-    fig = px.scatter(
-        x=y_test, y=preds,
-        labels={"x":"Actual Price","y":"Predicted Price"},
-        title=name
-    )
-    fig.add_shape(
-        type="line",
-        x0=y_test.min(), y0=y_test.min(),
-        x1=y_test.max(), y1=y_test.max(),
-        line=dict(color="red")
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    with st.expander(f"View Actual vs Predicted - {name}"):
+        fig = px.scatter(
+            x=y_test,
+            y=preds,
+            labels={"x": "Actual Price", "y": "Predicted Price"},
+            title=f"{name}: Actual vs Predicted"
+        )
+        # Add perfect prediction line
+        fig.add_shape(
+            type="line",
+            x0=y_test.min(),
+            y0=y_test.min(),
+            x1=y_test.max(),
+            y1=y_test.max(),
+            line=dict(color="red", width=2)
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
 # --------------------
 # RESIDUAL PLOTS (ALL MODELS)
