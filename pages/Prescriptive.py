@@ -206,7 +206,7 @@ scenario_sorted = scenario.sort_values("priority_index", ascending=False)[
 st.bar_chart(scenario_sorted)
 
 st.success(
-    "Use the Priority Index and scenario results above to justify recommendations such as "
-    "expanding Pasar Mini in Tier 1 states and focusing logistics optimisation in Tier 2."
+    "The Priority Index and scenario results above justify recommendations such as "
+    "expanding Pasar Mini in Tier 1 states and focusing on logistics optimisation in Tier 2."
 )
 
