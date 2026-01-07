@@ -214,29 +214,29 @@ for name, preds in models.items():
 # --------------------
 st.subheader("📉 Residual Distribution (Interactive)")
 
-residuals_data = []
-
 for name, y_pred in models.items():
-    residuals = y_test - y_pred
-    temp_df = pd.DataFrame({
-        "Residual": residuals,
-        "Model": name
+    residuals = y_test.values - y_pred
+
+    res_df = pd.DataFrame({
+        "Residuals": residuals
     })
-    residuals_data.append(temp_df)
 
-residuals_df = pd.concat(residuals_data)
+    fig = px.histogram(
+        res_df,
+        x="Residuals",
+        nbins=30,
+        opacity=0.75,
+        title=f"Residual Distribution – {name}",
+        labels={"Residuals": "Prediction Error (RM)"}
+    )
 
-fig_residual = px.histogram(
-    residuals_df,
-    x="Residual",
-    color="Model",
-    nbins=40,
-    opacity=0.7,
-    marginal="box",
-    title="Residual Distributions Across Predictive Models"
-)
+    fig.update_layout(
+        xaxis_title="Residuals",
+        yaxis_title="Frequency",
+        bargap=0.1
+    )
 
-st.plotly_chart(fig_residual, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
 # --------------------
 # INTERPRETATION
