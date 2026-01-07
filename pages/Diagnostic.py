@@ -316,6 +316,7 @@ with st.container():
         zmin=-1,
         zmax=1,
         title='Pearson Correlation: Price vs Time (Pasar Mini)'
+        ]
     )
 
     fig.update_layout(
