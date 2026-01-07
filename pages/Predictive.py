@@ -314,7 +314,6 @@ with st.expander("Show Decision Tree Feature Importance"):
         "Importance": dt_model.feature_importances_
     }).sort_values("Importance", ascending=False)
     
-    st.markdown("**Decision Tree Feature Importance**")
     st.plotly_chart(px.bar(dt_imp, x="Feature", y="Importance",
                            title="Decision Tree Feature Importance"), use_container_width=True)
     
