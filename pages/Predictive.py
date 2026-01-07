@@ -31,10 +31,7 @@ def load_data():
     df['date'] = pd.to_datetime(df['date'])
     return df
 
-df = load_data()
-st.subheader("📊 Dataset Preview")
-st.dataframe(df.head())
-
+pasar_mini_df = load_data()
 
 # --------------------
 # HEADER
