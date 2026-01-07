@@ -73,9 +73,6 @@ with st.expander("DATASET PREVIEW", expanded=False):
 # --------------------
 # 5. KPI Metrics
 # --------------------
-# --------------------
-# KPI Metrics Styling
-# --------------------
 st.markdown("""
 <style>
 /* Card Styling */
@@ -227,9 +224,7 @@ with st.expander(" AVERAGE PRICE OVER TIME ANALYSIS", expanded=False):
     st.markdown("#### Daily Price Summary (First 10 Days)")
     st.dataframe(avg_price.head(10), use_container_width=True)
 
-# --------------------
-# Central Tendency 
-# --------------------
+]
 # --------------------
 # 8. Visualisation: Central Tendency 
 # --------------------
@@ -240,12 +235,12 @@ price_count = len(pasar_mini_df)
 
 st.markdown("""
 <div style="background: linear-gradient(90deg, #764ba2 0%, #4facfe 100%); padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>🎯 Objective:</strong> To identify typical price levels (Mean, Median, Mode) within the dataset.
+    <strong>Objective:</strong> To identify typical price levels (Mean, Median, Mode) within the dataset.
 </div>
 """, unsafe_allow_html=True)
 
 # Expander set to False to start closed
-with st.expander("📊 Measures of Central Tendency for price", expanded=False):
+with st.expander("Measures of Central Tendency for price", expanded=False):
     
     # --- Chart Section ---
     measures = ['Mean', 'Median', 'Mode']
@@ -268,7 +263,7 @@ with st.expander("📊 Measures of Central Tendency for price", expanded=False):
     st.plotly_chart(fig_bar, use_container_width=True)
     
     # --- Point Summary Section ---
-    st.markdown("### 📝 Statistical Summary")
+    st.markdown("### Statistical Summary")
     
     st.info(f"""
     * **Data Volume:** The descriptive analysis reveals a significant volume of market data, with a total count of **{price_count:,}** recorded price points.
@@ -278,7 +273,7 @@ with st.expander("📊 Measures of Central Tendency for price", expanded=False):
     """)
 
     # --- Data Table ---
-    st.markdown("#### 📋 Detailed Metrics")
+    st.markdown("#### Detailed Metrics")
     ct_df = pd.DataFrame({
         'Measure': ['Total Count', 'Mean', 'Median', 'Mode'],
         'Value': [f"{price_count:,}", f"RM {price_mean:.2f}", f"RM {price_median:.2f}", f"RM {price_mode:.2f}"]
