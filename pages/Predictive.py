@@ -83,6 +83,9 @@ monthly_price = (
     .reset_index()
 )
 
+# Sort BEFORE split
+monthly_price = monthly_price.sort_values(["year","month"]).reset_index(drop=True)
+
 features = ["year","month","state_enc","district_enc",
             "item_group_enc","item_category_enc"]
 target = "price"
@@ -93,7 +96,6 @@ y = monthly_price[target]
 # --------------------
 # TIME-BASED SPLIT
 # --------------------
-monthly_price = monthly_price.sort_values(["year","month"]).reset_index(drop=True)
 split_index = int(len(monthly_price) * 0.8)
 
 X_train, X_test = X.iloc[:split_index], X.iloc[split_index:]
@@ -164,7 +166,7 @@ st.markdown("""
 # --------------------
 # FORECAST 2025 (RF)
 # --------------------
-st.subheader("1. 📈 Forecasted Prices for 2025 (Random Forest)")
+st.subheader("📈 Forecasted Prices for 2025 (Random Forest)")
 
 future_2025 = pd.DataFrame({
     "year": [2025]*12,
@@ -177,27 +179,63 @@ future_2025 = pd.DataFrame({
 
 future_2025["predicted_price"] = rf.predict(future_2025[features])
 
-# ---- Line Chart (REQUIRED)
-fig_line = px.line(
-    future_2025,
-    x="month",
-    y="predicted_price",
-    markers=True,
-    title="Forecasted Monthly Food Prices in Pasar Mini (2025)",
-    labels={"month":"Month","predicted_price":"Predicted Price (RM)"}
-)
-st.plotly_chart(fig_line, use_container_width=True)
+# --------------------
+# Forecasted Line Chart (Trend Over Time)
+# --------------------
 
-# ---- Bar Chart (REQUIRED)
-fig_bar = px.bar(
-    future_2025,
-    x="month",
-    y="predicted_price",
-    text="predicted_price",
-    title="Predicted Food Prices by Month (2025)",
-    labels={"month":"Month","predicted_price":"Predicted Price (RM)"}
-)
-st.plotly_chart(fig_bar, use_container_width=True)
+with st.expander("📉 Forecast Trend: Monthly Food Prices (2025)", expanded=True):
+
+    st.subheader("📉 Forecasted Price Trend (Line Chart)")
+
+    fig_line = px.line(
+        future_2025,
+        x="month",
+        y="predicted_price",
+        markers=True,
+        title="Forecasted Monthly Food Prices in Pasar Mini (2025)",
+        labels={
+            "month": "Month",
+            "predicted_price": "Predicted Price (RM)"
+        }
+    )
+
+    st.plotly_chart(fig_line, use_container_width=True)
+
+    st.caption(
+        "📌 This line chart illustrates the overall trend and seasonal movement of "
+        "forecasted food prices in Pasar Mini markets for the year 2025."
+    )
+
+# --------------------
+# Monthly Forecast Bar Chart (Month to Month Comparison)
+# --------------------
+with st.expander("📊 Monthly Price Comparison (Bar Chart)", expanded=False):
+
+    st.subheader("📊 Monthly Forecast Comparison")
+
+    fig_bar = px.bar(
+        future_2025,
+        x="month",
+        y="predicted_price",
+        text="predicted_price",
+        title="Predicted Food Prices by Month in Pasar Mini (2025)",
+        labels={
+            "month": "Month",
+            "predicted_price": "Predicted Price (RM)"
+        }
+    )
+
+    fig_bar.update_traces(
+        texttemplate="RM %{text:.2f}",
+        textposition="outside"
+    )
+
+    st.plotly_chart(fig_bar, use_container_width=True)
+
+    st.caption(
+        "📌 This bar chart provides a clear month-to-month comparison of predicted "
+        "food prices, allowing users to identify higher or lower pricing periods."
+    )
 
 # --------------------
 # ACTUAL VS PREDICTED (ALL MODELS)
@@ -221,7 +259,7 @@ for name, preds in models.items():
 # --------------------
 # RESIDUAL PLOTS (ALL MODELS)
 # --------------------
-st.subheader("📉 Residual Distribution (Interactive)")
+st.subheader("📉 Residual Distribution")
 
 for name, y_pred in models.items():
     residuals = y_test.values - y_pred
