@@ -26,8 +26,7 @@ st.set_page_config(
 # --------------------
 @st.cache_data
 def load_data():
-    url = "https://raw.githubusercontent.com/s22a0064-AinMaisarah/AdvDataScience_Group2/main/dataset/pasar_mini_data_updated.csv"
-    df = pd.read_csv(url)
+    df = pd.read_csv("dataset/pasar_mini_data_updated.csv")  # local path
     df['date'] = pd.to_datetime(df['date'])
     return df
 
