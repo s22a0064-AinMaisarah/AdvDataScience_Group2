@@ -228,19 +228,22 @@ with st.expander(" AVERAGE PRICE OVER TIME ANALYSIS", expanded=False):
 # --------------------
 # 8. Visualisation: Central Tendency 
 # --------------------
+
+# Calculations
 price_mean = pasar_mini_df['price'].mean()
 price_median = pasar_mini_df['price'].median()
 price_mode = pasar_mini_df['price'].mode()[0] if not pasar_mini_df['price'].mode().empty else 0
 price_count = len(pasar_mini_df)
 
+# Header with Gradient Background
 st.markdown("""
 <div style="background: linear-gradient(90deg, #764ba2 0%, #4facfe 100%); padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
     <strong>Objective:</strong> To identify typical price levels (Mean, Median, Mode) within the dataset.
 </div>
 """, unsafe_allow_html=True)
 
-# Expander set to False to start closed
-with st.expander("Measures of Central Tendency for price", expanded=False):
+# Expander for clean UI
+with st.expander("Measures of Central Tendency for Price", expanded=False):
     
     # --- Chart Section ---
     measures = ['Mean', 'Median', 'Mode']
@@ -249,36 +252,47 @@ with st.expander("Measures of Central Tendency for price", expanded=False):
     fig_bar = go.Figure(data=[go.Bar(
         x=measures, y=values,
         marker_color=['#4facfe', '#764ba2', '#00f2fe'],
-        text=[f'RM {v:.2f}' for v in values], textposition='auto'
+        text=[f'RM {v:.2f}' for v in values], 
+        textposition='auto',
+        hoverinfo='y+text'
     )])
     
     fig_bar.update_layout(
-        title_text="Central Tendency Analysis", 
+        title_text="Central Tendency Analysis of Retail Prices", 
         title_x=0.5, 
         paper_bgcolor='rgba(0,0,0,0)', 
         plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(color="white"),
-        height=400
+        font=dict(size=12),
+        height=400,
+        margin=dict(t=50, b=50)
     )
     st.plotly_chart(fig_bar, use_container_width=True)
     
     # --- Point Summary Section ---
     st.markdown("### Statistical Summary")
     
-    st.info(f"""
-    * **Data Volume:** The descriptive analysis reveals a significant volume of market data, with a total count of **{price_count:,}** recorded price points.
-    * **Mean:** The average item price is calculated at **RM {price_mean:.2f}**.
-    * **Median:** The middle value of the price distribution stands at **RM {price_median:.2f}**.
-    * **Mode:** The most frequently occurring price point in the dataset is **RM {price_mode:.2f}**.
-    """)
+    # Using columns for a more dashboard-like feel
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Total Observations", f"{price_count:,}")
+        st.info(f"The average item price (Mean) is **RM {price_mean:.2f}**, which is influenced by higher-value items in the inventory.")
+    
+    with col2:
+        st.metric("Middle Value (Median)", f"RM {price_median:.2f}")
+        st.success(f"The most frequent price point (Mode) is **RM {price_mode:.2f}**, representing the most common retail price for mini-market staples.")
+
+    # --- Instructional Diagram (Optional Context) ---
+    # 
 
     # --- Data Table ---
-    st.markdown("#### Detailed Metrics")
+    st.markdown("#### Detailed Metrics Table")
     ct_df = pd.DataFrame({
-        'Measure': ['Total Count', 'Mean', 'Median', 'Mode'],
+        'Measure': ['Total Count', 'Mean (Average)', 'Median (Middle)', 'Mode (Most Frequent)'],
         'Value': [f"{price_count:,}", f"RM {price_mean:.2f}", f"RM {price_median:.2f}", f"RM {price_mode:.2f}"]
     })
     st.table(ct_df)
+
+st.markdown("---")
 # --------------------
 # Measures of Dispersion
 # --------------------
