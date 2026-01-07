@@ -168,7 +168,7 @@ for Pasar Mini markets in 2025. Visualizations provide both trend analysis and c
 # --------------------
 # FORECAST 2025 (RF)
 # --------------------
-st.subheader("📈 Forecasted Monthly Food Prices in Pasar Mini for 2025 (Random Forest Model)")
+st.subheader("1. 📈 Forecasted Monthly Food Prices in Pasar Mini for 2025")
 
 future_2025 = pd.DataFrame({
     "year": [2025]*12,
@@ -242,7 +242,7 @@ with st.expander("📊 Monthly Price Comparison (Bar Chart)", expanded=False):
 # --------------------
 # ACTUAL VS PREDICTED (ALL MODELS)
 # --------------------
-st.subheader("🔍 Actual vs Predicted Comparison")
+st.subheader("2. 🔍 Actual vs Predicted Comparison")
 
 for name, preds in models.items():
     fig = px.scatter(
@@ -261,7 +261,7 @@ for name, preds in models.items():
 # --------------------
 # RESIDUAL PLOTS (ALL MODELS)
 # --------------------
-st.subheader("📉 Residual Distribution")
+st.subheader("3. 📉 Residual Distribution")
 
 for name, y_pred in models.items():
     residuals = y_test.values - y_pred
@@ -290,7 +290,7 @@ for name, y_pred in models.items():
 # --------------------
 # FEATURE IMPORTANCE (RF & DT)
 # --------------------
-st.subheader("🌟 Feature Importance")
+st.subheader("4. 🌟 Feature Importance")
 
 rf_imp = pd.DataFrame({
     "Feature": features,
@@ -311,7 +311,7 @@ st.plotly_chart(px.bar(dt_imp, x="Feature", y="Importance"), use_container_width
 # --------------------
 # LINEAR REGRESSION COEFFICIENTS
 # --------------------
-st.subheader("📐 Linear Regression Coefficients")
+st.subheader("5. 📐 Linear Regression Coefficients")
 
 coef_df = pd.DataFrame({
     "Feature": features,
