@@ -194,7 +194,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-with st.expander(" AVERAGE PRICE OVER TIME ANALYSIS", expanded=False):
+with st.expander(" Average Price Over Time Analysis", expanded=False):
     # --- Line Chart ---
     fig_line = px.line(avg_price, x='date', y='price', markers=True,
                   labels={'date': 'Date', 'price': 'Average Price (RM)'},
