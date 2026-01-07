@@ -230,6 +230,11 @@ with st.expander("📊 Monthly Price Comparison (Bar Chart)", expanded=False):
     st.caption(
         "📌 This bar chart provides a clear month-to-month comparison of predicted food prices."
     )
+    st.markdown("""
+    The forecast reveals a gradual upward trend in food prices throughout the year, increasing from approximately RM 3.80 in January to RM 4.35 in December.
+    This pattern reflects moderate seasonal variation and aligns with historical pricing behaviour observed in the training data. 
+    The steady increase toward the final quarter suggests heightened demand or cost accumulation toward year-end, which is consistent with common retail and consumption cycles.
+    """)
 
 
 # --------------------
@@ -255,6 +260,14 @@ for name, preds in models.items():
             line=dict(color="red", width=2)
         )
         st.plotly_chart(fig, use_container_width=True)
+        
+        st.markdown("""
+    The scatter plots comparing actual versus predicted prices show that the Random Forest model performs best, with most points closely following the diagonal line, indicating strong predictive accuracy across low and mid-range prices and only minor deviations at higher prices. 
+    Decision Tree predictions also align fairly well with actual values, though they form horizontal clusters due to the model’s tendency to group similar prices together. 
+    Support Vector Regression (SVR) captures the overall trend but struggles with higher prices, showing more scatter and underestimation. 
+    Linear Regression, while showing a general linear trend, fails to adjust accurately for higher prices, leading to wider errors. 
+    Overall, these plots suggest that models like Random Forest and Decision Tree handle the complexity of food price prediction more effectively, while simpler models such as SVR and Linear Regression are limited in capturing extreme or non-linear patterns.
+    """)
 
 # --------------------
 # RESIDUAL PLOTS (ALL MODELS)
@@ -286,6 +299,14 @@ for name, y_pred in models.items():
 
         st.plotly_chart(fig, use_container_width=True)
 
+        st.markdown("""
+    The residual distributions across the four models show how well each predicts food prices. 
+    The Random Forest model performs best, with errors mostly small and centered around zero, indicating accurate and balanced predictions while handling complex patterns effectively. 
+    SVR also predicts fairly well, but its residuals are slightly skewed, showing occasional underprediction. 
+    The Decision Tree makes very precise predictions for most cases, but a few extreme errors suggest potential overfitting. In contrast, Linear Regression shows wider and more skewed residuals, reflecting consistent errors and lower accuracy. 
+    Overall, models that capture non-linear relationships, like Random Forest, provide more reliable predictions than purely linear approaches.
+    """)
+
 # --------------------
 # FEATURE IMPORTANCE (RF & DT)
 # --------------------
@@ -308,7 +329,14 @@ with st.expander("Show Decision Tree Feature Importance"):
     
     st.plotly_chart(px.bar(dt_imp, x="Feature", y="Importance",
                            title="Decision Tree Feature Importance"), use_container_width=True)
-    
+
+     st.markdown("""
+    Both the Random Forest and Decision Tree models show that product-related features are the key drivers of food price predictions. 
+    In both cases, item category has the strongest influence, followed by item group, while geographic factors like state and district play a smaller role. 
+    Time-related features, such as month and year, have minimal impact. 
+    The Random Forest model balances influence across many trees, making predictions more stable, whereas the Decision Tree model relies on a single structure but leads to a similar conclusion: what the product is matters far more than when or where it is sold.
+    """)
+
 # --------------------
 # LINEAR REGRESSION COEFFICIENTS
 # --------------------
@@ -334,10 +362,9 @@ with st.expander("View Linear Regression Coefficients Chart"):
     st.dataframe(coef_df)
     
     st.markdown("""
-Food prices in Pasar Mini markets fluctuate due to seasonal trends, geographic variation, and product characteristics.
-Without predictive insights, retailers and policymakers may struggle to anticipate price changes and plan effectively.
-This study applies predictive analytics to historical PriceCatcher data to forecast future food prices and support
-data-driven decision-making.
+The linear regression analysis shows that item-related features are the main drivers of predictions, with item group having the strongest positive effect. 
+This means that the way items are categorized significantly influences the model’s output. Other features like state have a minor positive effect, while district, year, and month contribute almost nothing, indicating that location and time play very little role in this model. Item category shows a slight negative effect, suggesting that certain categories slightly reduce predicted values. 
+Overall, both the bar chart and the coefficient table tell the same story: the model relies mostly on the characteristics of the item itself, and improving how items are grouped or classified would likely improve prediction accuracy, whereas adding more temporal or geographic data would have limited impact unless captured through more complex modeling.
 """)
 
 # --------------------
