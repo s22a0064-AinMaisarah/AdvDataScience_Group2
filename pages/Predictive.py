@@ -159,14 +159,16 @@ with st.expander("📊 Model Performance Summary"):
 # --------------------
 # PREDICTIVE VISUALIZATIONS
 # --------------------
-st.subheader("🔮 Predictive Visualizations")
+st.subheader("🔮 Predictive Analytics & Forecast Visualizations")
 st.markdown("""
+This section presents the predictive analysis results, including monthly forecasted prices 
+for Pasar Mini markets in 2025. Visualizations provide both trend analysis and comparative insights.
 """)
     
 # --------------------
 # FORECAST 2025 (RF)
 # --------------------
-st.subheader("📈 Forecasted Prices for 2025 (Random Forest)")
+st.subheader("📈 Forecasted Monthly Food Prices in Pasar Mini for 2025 (Random Forest Model)")
 
 future_2025 = pd.DataFrame({
     "year": [2025]*12,
