@@ -863,12 +863,12 @@ pivot_table_avg_price_top_15 = pasar_mini_df.pivot_table(
 st.markdown("""
 <div style="background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%); 
             padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>🎯 Objective:</strong> To compare average prices across specific items and states in order to identify regional and category-based price variations.
+    <strong>Objective:</strong> To compare average prices across specific items and states in order to identify regional and category-based price variations.
 </div>
 """, unsafe_allow_html=True)
 
 # Expander (Closed by default)
-with st.expander("🌡️ CLICK TO VIEW: Cross-tabulation: Average Price by Item and State", expanded=False):
+with st.expander("Cross-tabulation: Average Price by Item and State", expanded=False):
     
     # Create the Interactive Heatmap
     fig_item_heat = px.imshow(
@@ -893,9 +893,9 @@ with st.expander("🌡️ CLICK TO VIEW: Cross-tabulation: Average Price by Item
     st.plotly_chart(fig_item_heat, use_container_width=True)
 
     # --- Insight Summary ---
-    st.markdown("### 📝 Detailed Expenditure & Price Range Analysis")
+    st.markdown("### Detailed Expenditure & Price Range Analysis")
     
-    tab1, tab2, tab3 = st.tabs(["💰 Expenditure Patterns", "📊 Volatility & Volume", "📍 Regional Observations"])
+    tab1, tab2, tab3 = st.tabs(["Expenditure Patterns", "Volatility & Volume", "Regional Observations"])
     
     with tab1:
         st.info("""
@@ -919,7 +919,7 @@ with st.expander("🌡️ CLICK TO VIEW: Cross-tabulation: Average Price by Item
         """)
 
     # Data Table
-    st.markdown("#### 📋 Pivot Data: Avg Price (RM) by Specific Item")
+    st.markdown("#### Pivot Data: Avg Price (RM) by Specific Item")
     st.dataframe(pivot_table_avg_price_top_15.style.format("{:.2f}").background_gradient(cmap='RdBu_r', axis=None), use_container_width=True)
 
 st.markdown("---")
