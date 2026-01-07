@@ -333,19 +333,6 @@ with st.expander("View Linear Regression Coefficients Chart"):
     st.write("Data used for chart:")
     st.dataframe(coef_df)
 
-     st.markdown("""
-    **Interpretation:**  
-    The bar chart illustrates how each feature affects the linear regression model’s predictions, showing that item characteristics are the primary drivers, while location and time play minor roles. Among the features:
-    
-    - `item_group_enc` has the strongest positive impact (~2.01), meaning the way items are grouped significantly influences predictions.  
-    - `state_enc` has a small positive effect (~0.11).  
-    - `district_enc` (~0.002) and `year` (0) contribute almost nothing.  
-    - `month` has a very slight negative effect, showing minimal influence from temporal factors.  
-    - `item_category_enc` slightly lowers predictions (~–0.16), indicating some categories tend to reduce predicted values.  
-    
-    Overall, the model highlights that **what the item is matters far more than when or where it is observed**, suggesting that focusing on improving **item classification or grouping** would likely enhance prediction accuracy, while adding more geographic or temporal data offers limited benefit unless captured in a more complex model.
-    """)
-
 # --------------------
 # INTERPRETATION
 # --------------------
