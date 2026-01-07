@@ -307,7 +307,12 @@ with st.container():
     fig = px.imshow(
         pearson_corr,
         text_auto=".2f",
-        color_continuous_scale='RdBu_r',  # red-blue diverging palette
+        color_continuous_scale=[
+        "#313695",  # strong negative (dark blue)
+        "#74add1",  # moderate negative (light blue)
+        "#ffffbf",  # neutral / zero (pale yellow)
+        "#f46d43",  # moderate positive (orange-red)
+        "#d73027"   # strong positive (dark red)
         zmin=-1,
         zmax=1,
         title='Pearson Correlation: Price vs Time (Pasar Mini)'
@@ -547,6 +552,7 @@ state_mapping = (
 
 # --- Add state column to segmentation table ---
 seg_state_item['state'] = seg_state_item['state_enc'].map(state_mapping)
+seg_item_group_item['item_group'] = seg_item_group_item['item_group_enc'].map(state_mapping)
 
 # --- Streamlit Expander with State Dropdown ---
 with st.expander("📋 View Top 10 State–Item Group Segments by Average Price"):
