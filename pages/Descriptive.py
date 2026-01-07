@@ -156,8 +156,8 @@ with col2:
 with col3:
     st.markdown("""
     <div class="metric-card m-top">
-        <div class="metric-label">🏢 Top Premise</div>
-        <div class="metric-value">1,641</div>
+        <div class="metric-label">🏢 Top Premise Highest Sales</div>
+        <div class="metric-value">RM 1,641.00</div>
         <div class="metric-help">Kifarah Fresh Mart<br>Records Count</div>
     </div>
     """, unsafe_allow_html=True)
@@ -165,8 +165,8 @@ with col3:
 with col4:
     st.markdown("""
     <div class="metric-card m-cat">
-        <div class="metric-label">📦 Top Item Group</div>
-        <div class="metric-value">67,098</div>
+        <div class="metric-label">📦 Top State Highest Sales /div>
+        <div class="metric-value">RM 57,216.00</div>
         <div class="metric-help">Barangan Berbungkus<br>Total Items</div>
     </div>
     """, unsafe_allow_html=True)
@@ -537,7 +537,7 @@ with st.expander("Mode Categorical Columns", expanded=False):
     # --- Insight Summary ---
     st.markdown("### Categorical Analysis Insights")
     st.info("""
-    * **Dominant Product Groupings:** Analysis reveals that **"Barangan Berbungkus"** (Packaged Goods) is the most frequent item_group, while **"Sayur-Sayuran"** (Vegetables) is the modal item_category.
+    * **Dominant Product Groupings:** Analysis reveals that **"Sayur-Sayuran"** (Vegetables) is the modal item_category.
     * **Leading Consumer Items:** The most frequently recorded individual product is **"Minyak Masak Tulen Cap Buruh (1kg)"**, suggesting essential cooking oils are a primary focus of price monitoring.
     * **Geographical Baseline:** The dataset is most heavily represented by the state of **Johor** and the district of **Seberang Perai Utara**.
     * **Primary Representative:** **"Pasar Raya Kifarah Fresh Mart"** was identified as the modal premise, serving as the primary representative for the mini-market category in this analysis.
@@ -697,78 +697,6 @@ with st.expander(" Cumulative Frequency Visualization for Item", expanded=False)
     st.markdown("#### Item Frequency Rank (Top 15)")
     st.dataframe(
         item_counts.head(15)[['item', 'count', 'percentage', 'cumulative_percentage', 'average_price']],
-        use_container_width=True
-    )
-
-# --------------------
-# 15. Visualisation: Cumulative Frequency for Item Group
-# --------------------
-
-# Data Processing
-item_group_counts = pasar_mini_df['item_group'].value_counts().reset_index()
-item_group_counts.columns = ['item_group', 'count']
-
-# Calculate average price per item_group
-average_price_per_item_group = pasar_mini_df.groupby('item_group')['price'].mean().reset_index()
-average_price_per_item_group.rename(columns={'price': 'average_price'}, inplace=True)
-item_group_counts = item_group_counts.merge(average_price_per_item_group, on='item_group', how='left')
-
-# Calculate proportions and cumulative metrics
-total_rows = len(pasar_mini_df)
-item_group_counts['percentage'] = (item_group_counts['count'] / total_rows) * 100
-item_group_counts['cumulative_percentage'] = item_group_counts['percentage'].cumsum()
-
-# Section Objective Header
-st.markdown("""
-<div style="background: linear-gradient(90deg, #4CAF50 0%, #00f2fe 100%); 
-            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To analyse the contribution of different item groups to the overall dataset using cumulative frequency analysis.
-</div>
-""", unsafe_allow_html=True)
-
-# Expander (Closed by default)
-with st.expander("Cumulative Frequency Visualization for item_group", expanded=False):
-    
-    # Create the Interactive Bar Chart
-    fig_group = px.bar(
-        item_group_counts, 
-        x='item_group', y='count', color='item_group',
-        title='Item Group Frequency and Cumulative Percentage',
-        labels={'item_group': 'Item Group', 'count': 'Number of Entries'},
-        hover_data={
-            'percentage': ':.2f%',
-            'cumulative_percentage': ':.2f%',
-            'average_price': 'RM {:.2f}'
-        },
-        color_discrete_sequence=px.colors.qualitative.Dark2
-    )
-
-    fig_group.update_layout(
-        title_x=0.5,
-        font=dict(family="Arial, sans-serif", size=12, color="#4CAF50"),
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        xaxis_tickangle=-45,
-        height=500
-    )
-
-    st.plotly_chart(fig_group, use_container_width=True)
-
-    # --- Insight Summary ---
-    st.markdown("### Item Group Insights")
-    st.info("""
-    The Cumulative Frequency Analysis of the item_group dimension reveals a significant concentration of data within a highly condensed set of categories.
-    
-    * **Dominant Categories:** 'Barangan berbungkus' (packaged goods) is the dominant category with 67,098 entries (**43.96%**), followed by 'barangan segar' (fresh produce) at **34.52%**.
-    * **Core Market Baseline:** Collectively, these two groups represent **78.48%** of all records, indicating monitoring is heavily weighted toward essential staples.
-    * **Broad Coverage:** Inclusion of 'barangan kering' and 'susu dan barangan bayi' brings cumulative coverage to **98.03%**.
-    * **Marginal Groups:** Categories like 'minuman' (**1.51%**) and 'produk kebersihan' (**0.45%**) remain statistically secondary in volume.
-    """)
-
-    # Data Table
-    st.markdown("#### Item Group Statistical Breakdown")
-    st.dataframe(
-        item_group_counts[['item_group', 'count', 'percentage', 'cumulative_percentage', 'average_price']],
         use_container_width=True
     )
 
@@ -988,67 +916,74 @@ with st.expander("Cumulative Frequency Visualization for State", expanded=False)
     )
 
 # --------------------
-# 19. Visualisation: Cross-tabulation Heatmap (Price & State)
+# 20. Visualisation: Cross-tabulation Heatmap (Item Category & State)
 # --------------------
 
-# Data Processing: Pivot Table for Average Price
-pivot_table_avg_price = pasar_mini_df.pivot_table(
+# Data Processing: Pivot Table for Average Price (Top 15 Categories)
+top_15_categories = pasar_mini_df['item_category'].value_counts().nlargest(15).index
+pivot_table_cat_price = pasar_mini_df[pasar_mini_df['item_category'].isin(top_15_categories)].pivot_table(
     values='price', 
-    index='item_group', 
+    index='item_category', 
     columns='state', 
     aggfunc='mean'
 )
 
 # Section Objective Header
 st.markdown("""
-<div style="background: linear-gradient(90deg, #333333 0%, #555555 100%); 
+<div style="background: linear-gradient(90deg, #123456 0%, #333333 100%); 
             padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To compare average item prices across item groups and states in order to identify regional and category-based price variations.
+    <strong>Objective:</strong> To compare average item prices across item category and states in order to identify regional and category-based price variations.
 </div>
 """, unsafe_allow_html=True)
 
 # Expander (Closed by default)
-with st.expander("Average Price by Item Group and State Heatmap", expanded=False):
+with st.expander("Cross-tabulation: Average Price by Item category and State", expanded=False):
     
     # Create the Interactive Heatmap
-    fig_heat = px.imshow(
-        pivot_table_avg_price, 
+    fig_cat_heat = px.imshow(
+        pivot_table_cat_price,
+        text_auto=".1f", # Display values on cells with 1 decimal
         aspect="auto",
-        title='Heatmap: Price Variation by Region & Group',
-        labels={'x':'State', 'y':'Item Group', 'color':'Avg Price (RM)'},
-        color_continuous_scale='RdBu_r', # Red for High, Blue for Low
-        color_continuous_midpoint=pasar_mini_df['price'].mean()
+        title='Average Price: Top 15 Categories vs. State',
+        labels={'x':'State', 'y':'Item Category', 'color':'Avg Price (RM)'},
+        color_continuous_scale='RdBu_r', 
+        color_continuous_midpoint=pivot_table_cat_price.mean().mean(),
+        template="plotly_white"
     )
 
-    fig_heat.update_xaxes(side="top")
-    fig_heat.update_layout(
+    fig_cat_heat.update_xaxes(side="top")
+    fig_cat_heat.update_layout(
         title_x=0.5,
-        font=dict(family="Arial, sans-serif", size=12, color="#333"),
-        margin=dict(t=100) # Space for the top x-axis labels
+        font=dict(family="Arial, sans-serif", size=11, color="#333"),
+        margin=dict(t=120, b=50),
+        height=700
     )
 
-    st.plotly_chart(fig_heat, use_container_width=True)
+    st.plotly_chart(fig_cat_heat, use_container_width=True)
 
     # --- Insight Summary ---
-    st.markdown("### Regional Price Analysis Insights")
-    st.info("""
-    * **High Expenditure Baseline:** 'Susu dan Barangan Bayi' represents the highest expenditure nationwide, peaking at **RM 26.39 in Sarawak**.
-    * **Volatility in Beverages:** The 'Minuman' category shows the most extreme spread, ranging from **RM 6.95 (Sarawak)** to a high of **RM 16.56 (Johor)**.
-    * **East vs. West Logistics:** East Malaysia reports higher averages for packaged and dry goods, while Federal Territories like **Putrajaya and KL** show the highest costs for 'Barangan Segar' (Fresh Produce) at **RM 15.37**.
-    * **Data Availability:** The presence of gaps (NaN values) for cleaning products in certain regions highlights varying levels of product availability across the Malaysian retail landscape.
-    """)
+    st.markdown("### Detailed Category Price Analysis")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.write("**High vs. Low Value Items**")
+        st.info("""
+        * **High-Value:** 'Susu bayi' (baby milk) is consistently the highest expenditure item, peaking in **Sabah and Sarawak**.
+        * **Low-Value:** 'Gula' (sugar) remains the lowest-cost staple with high price stability due to strong controls.
+        * **Mid-Range Staples:** Vegetables and packaged spices show high volume but moderate price fluctuations.
+        """)
 
-    # --- Data Table (Pivot) ---
-    st.markdown("#### Cross-tabulation: Average Price (RM)")
-    st.dataframe(pivot_table_avg_price.style.format("{:.2f}").highlight_null(color='lightgrey'), use_container_width=True)
+    with col2:
+        st.write("**Regional Dynamics**")
+        st.warning("""
+        * **East Malaysia:** Sabah and Sarawak often display higher prices for seafood and chicken, likely due to supply chain logistics.
+        * **Urban Centers:** W.P. Kuala Lumpur shows elevated costs, typical for high-operational urban environments.
+        * **Volume Patterns:** Johor maintains high reporting counts but generally keeps prices in the mid-range.
+        """)
 
-
-
-
-
-
-
-
-
+    # Data Table
+    st.markdown("#### Pivot Data: Avg Price (RM) by Top 15 Categories")
+    st.dataframe(pivot_table_cat_price.style.format("{:.2f}").background_gradient(cmap='RdBu_r', axis=None), use_container_width=True)
 
 st.markdown("---")
