@@ -212,15 +212,31 @@ for name, preds in models.items():
 # --------------------
 # RESIDUAL PLOTS (ALL MODELS)
 # --------------------
-st.subheader("📉 Residual Distributions")
+st.subheader("📉 Residual Distribution (Interactive)")
 
-for name, preds in models.items():
-    residuals = y_test - preds
-    fig, ax = plt.subplots()
-    sns.histplot(residuals, bins=30, kde=True, ax=ax)
-    ax.set_title(name)
-    ax.set_xlabel("Residual")
-    st.pyplot(fig)
+residuals_data = []
+
+for name, y_pred in models.items():
+    residuals = y_test - y_pred
+    temp_df = pd.DataFrame({
+        "Residual": residuals,
+        "Model": name
+    })
+    residuals_data.append(temp_df)
+
+residuals_df = pd.concat(residuals_data)
+
+fig_residual = px.histogram(
+    residuals_df,
+    x="Residual",
+    color="Model",
+    nbins=40,
+    opacity=0.7,
+    marginal="box",
+    title="Residual Distributions Across Predictive Models"
+)
+
+st.plotly_chart(fig_residual, use_container_width=True)
 
 # --------------------
 # INTERPRETATION
