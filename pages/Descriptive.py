@@ -1,24 +1,65 @@
+# =========================================================
+# Traffic Congestion Survey Analysis of Disagreement
+# Structured Version — by Nurul Ain Maisarah Hamidin (2026)
+# =========================================================
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import numpy as np
 
-# --------------------
-# 1. Load Data
-# --------------------
+# ---------------------------------------------------------
+# 1. PAGE CONFIGURATION
+# ---------------------------------------------------------
+st.set_page_config(
+    page_title="Traffic Congestion Survey Analysis",
+    page_icon="📊",
+    layout="wide"
+)
+
+# ---------------------------------------------------------
+# 2. DATA LOADING & PROCESSING FUNCTIONS
+# ---------------------------------------------------------
 @st.cache_data
-def load_data():
-    url = "https://raw.githubusercontent.com/s22a0064-AinMaisarah/AdvDataScience_Group2/refs/heads/main/dataset/pasar_mini_data.csv"
-    df = pd.read_csv(url)
-    df['date'] = pd.to_datetime(df['date'])
-    return df
-
-try:
-    pasar_mini_df = load_data()
-except Exception as e:
-    st.error(f"Error loading data: {e}")
-    st.stop()
+def load_and_process_data():
+    try:
+        df = pd.read_csv("cleaned_data.csv")
+        
+        # Define column ranges (Adjust indices as per your actual CSV)
+        likert_cols = df.columns[3:28].tolist()
+        
+        # Identify categories based on keywords
+        factor_cols = [col for col in likert_cols if 'Factor' in col]
+        effect_cols = [col for col in likert_cols if 'Effect' in col]
+        step_cols   = [col for col in likert_cols if 'Step' in col]
+        
+        # Aggregate Disagreement (Likert 1 & 2) by Area Type
+        result_map = {}
+        for col in likert_cols:
+            result_map[col] = (
+                df[df[col].isin([1, 2])]
+                .groupby('Area Type')[col]
+                .count()
+            )
+        
+        disagreement_df = pd.DataFrame(result_map).fillna(0).astype(int)
+        
+        return df, disagreement_df, likert_cols
     
+    except FileNotFoundError:
+        return None, None, None
+
+# Load the data
+merged_df, disagree_area_type_original, likert_cols = load_and_process_data()
+
+if merged_df is None:
+    st.error("CSV file not found. Please ensure 'cleaned_data.csv' is in the folder.")
+    st.stop()
+
+# ---------------------------------------------------------
+# 3. CUSTOM STYLES (CSS)
+# ---------------------------------------------------------
 st.markdown("""
 <style>
     .center-title {
@@ -35,868 +76,62 @@ st.markdown("""
         height: 3px; background: linear-gradient(90deg, transparent, #4facfe, #764ba2, transparent);
         margin: 10px auto 30px auto; width: 80%; border-radius: 50%;
     }
-    /* Unified Expander Style */
-    .stExpander {
-        background-color: #1E1E1E !important;
-        border: 2px solid #4facfe !important;
-        border-radius: 15px !important;
-        animation: glow 3s infinite;
-    }
-    @keyframes glow {
-        0% { box-shadow: 0 0 5px #4facfe; }
-        50% { box-shadow: 0 0 20px #00f2fe; }
-        100% { box-shadow: 0 0 5px #4facfe; }
-    }
     .metric-card {
         background: #ffffff; border-radius: 12px; padding: 15px;
         text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        border-bottom: 4px solid #ddd; transition: 0.2s;
+        border-bottom: 4px solid #ddd;
     }
-    .metric-card:hover { transform: translateY(-3px); }
 </style>
 """, unsafe_allow_html=True)
 
-# --------------------
-# 3. Header Section
-# --------------------
-st.markdown('<div class="center-title">Descriptive Analytics</div>', unsafe_allow_html=True)
+# ---------------------------------------------------------
+# 4. HEADER SECTION
+# ---------------------------------------------------------
+st.markdown('<div class="center-title">Disagreement (Likert 1–2) Responses across Area Types</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Nurul Ain Maisarah Binti Hamidin | S22A0064</div>', unsafe_allow_html=True)
 st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 
-# --------------------
-# 4. Dataset Preview (CLOSED BY DEFAULT)
-# --------------------
-with st.expander("DATASET PREVIEW", expanded=False):
-    st.write("### Previewing First 5 Rows")
-    st.dataframe(pasar_mini_df.head(), use_container_width=True)
-
-# --------------------
-# 5. KPI Metrics
-# --------------------
-st.markdown("""
-<style>
-/* Card Styling */
-.metric-card {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 15px;
-    padding: 15px;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    border-top: 5px solid #ddd; 
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    min-height: 140px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.metric-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-/* Individual accent colors using your palette */
-.m-max { border-top-color: #FF4B4B; background: linear-gradient(to bottom, #fff5f5, #ffffff); } 
-.m-min { border-top-color: #00CC96; background: linear-gradient(to bottom, #f0fff4, #ffffff); } 
-.m-top { border-top-color: #636EFA; background: linear-gradient(to bottom, #f0f3ff, #ffffff); } 
-.m-cat { border-top-color: #AB63FA; background: linear-gradient(to bottom, #f9f0ff, #ffffff); }
-
-.metric-label {
-    font-size: 0.75rem;
-    color: #555;
-    text-transform: uppercase;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    margin-bottom: 5px;
-}
-
-.metric-value {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: #1f1f1f;
-    margin: 2px 0;
-}
-
-.metric-help {
-    font-size: 0.7rem;
-    color: #888;
-    line-height: 1.2;
-    margin-top: 8px;
-    border-top: 1px solid #eee;
-    padding-top: 8px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.subheader("Key Dataset Metrics")
-
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    st.markdown("""
-    <div class="metric-card m-max">
-        <div class="metric-label">🔺 Max Price</div>
-        <div class="metric-value">RM 498.00</div>
-        <div class="metric-help">Bawang Besar Import (India) 1 kg<br><b>2025-12-19</b></div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col2:
-    st.markdown("""
-    <div class="metric-card m-min">
-        <div class="metric-label">🔻 Min Price</div>
-        <div class="metric-value">RM 0.50</div>
-        <div class="metric-help">Serbuk Kari Adabi<br><b>2025-12-08</b></div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col3:
-    st.markdown("""
-    <div class="metric-card m-top">
-        <div class="metric-label">🏢 Top Premise Highest Sales</div>
-        <div class="metric-value">RM 1,641.00</div>
-        <div class="metric-help">Kifarah Fresh Mart<br>Records Count</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col4:
-    st.markdown("""
-    <div class="metric-card m-cat">
-        <div class="metric-label">📦 Top State Highest Sales</div>
-        <div class="metric-value">RM 57,216.00</div>
-        <div class="metric-help">Johor<br>2025-12-22</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-st.markdown("<br>", unsafe_allow_html=True)
-# --------------------
-# 6. Main Objective
-# --------------------
-st.markdown("<br>", unsafe_allow_html=True)
-st.subheader("Descriptive Objectives")
-st.markdown("""
-<div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); padding: 1.2rem; border-radius: 12px; color: white;">
-    To descriptively analyze price patterns, distribution characteristics across time, location, and item classifications among Pasar Mini.
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown("---")
-st.markdown("### Visual Analysis")
-
-# --------------------
-# 7. Visualisation: Average Price Over Time (CLOSED BY DEFAULT)
-# --------------------
-avg_price = pasar_mini_df.groupby('date')['price'].mean().reset_index()
-
-st.markdown("""
-<div style="background: linear-gradient(90deg, #FF4081 0%, #764ba2 100%); padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To examine trends and changes in average item prices over time.
-</div>
-""", unsafe_allow_html=True)
-
-with st.expander(" Average Price Over Time Analysis", expanded=False):
-    # --- Line Chart ---
-    fig_line = px.line(avg_price, x='date', y='price', markers=True,
-                  labels={'date': 'Date', 'price': 'Average Price (RM)'},
-                  line_shape='spline', color_discrete_sequence=['#FF4081'])
-    
-    fig_line.update_layout(
-        hovermode='x unified', 
-        paper_bgcolor='rgba(0,0,0,0)', 
-        plot_bgcolor='rgba(0,0,0,0)', 
-        font=dict(color="#FF4081"),
-        margin=dict(t=20, b=20)
-    )
-    st.plotly_chart(fig_line, use_container_width=True)
-
-    # --- Trend Summary Points ---
-    st.markdown("### Temporal Trend Insights")
-    
-    st.info("""
-    * **Overall Movement:** December 2025 shows a **fluctuating yet downward trend**, starting at **RM 12.29** (Dec 1st) and ending at **RM 11.25** (Dec 31st).
-    * **Weekly Peaks:** Data reveals a **cyclical pattern** with peaks every 7 days (1st, 8th, 15th, and 22nd). The monthly high was **RM 12.61** on December 22nd.
-    * **Rapid Adjustments:** Following each peak, prices drop abruptly by ~1.0 unit. A clear example is the shift from **RM 12.29** (Dec 1st) to **RM 11.08** (Dec 2nd).
-    * **Volatility Range:** Most prices oscillate within a narrow band of **RM 11.50 to RM 12.00**, with the lowest point reached on December 26th (**RM 10.94**).
-    * **Temporal Rhythm:** The consistent 7-day surge cycle identifies a recurring reporting rhythm or specific weekly adjustment behavior in the Pasar Mini structure.
-    """)
-
-    # --- Data Table ---
-    st.markdown("#### Daily Price Summary (First 10 Days)")
-    st.dataframe(avg_price.head(10), use_container_width=True)
-
-# ... [Keep your previous imports and data loading] ...
-
-# --------------------
-# 8. Visualisation: Central Tendency 
-# --------------------
-
-# Calculations
-price_mean = pasar_mini_df['price'].mean()
-price_median = pasar_mini_df['price'].median()
-price_mode = pasar_mini_df['price'].mode()[0] if not pasar_mini_df['price'].mode().empty else 0
-price_count = len(pasar_mini_df)
-
-# Header with Gradient Background
-st.markdown("""
-<div style="background: linear-gradient(90deg, #764ba2 0%, #4facfe 100%); padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To identify typical price levels (Mean, Median, Mode) within the dataset.
-</div>
-""", unsafe_allow_html=True)
-
-with st.expander("Measures of Central Tendency for Price", expanded=False):
-    
-    # --- Chart Section ---
-    measures = ['Mean', 'Median', 'Mode']
-    values = [price_mean, price_median, price_mode]
-    
-    fig_bar = go.Figure(data=[go.Bar(
-        x=measures, y=values,
-        marker_color=['#4facfe', '#764ba2', '#00f2fe'],
-        text=[f'RM {v:.2f}' for v in values], 
-        textposition='auto',
-        hoverinfo='y+text'
-    )])
-    
-    fig_bar.update_layout(
-        title_text="Central Tendency Analysis of Retail Prices", 
-        title_x=0.5, 
-        paper_bgcolor='rgba(0,0,0,0)', 
-        plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(size=12),
-        height=400,
-        margin=dict(t=50, b=50)
-    )
-    st.plotly_chart(fig_bar, use_container_width=True)
-    
-    # --- Educational Context ---
-    st.write("### Understanding Central Tendency")
-    # This diagram helps users understand how these three metrics interact in skewed data
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Relationship_between_mean_median_mode.png/400px-Relationship_between_mean_median_mode.png", 
-             caption="Comparison of Mean, Median, and Mode in different distributions.")
-    
-
-    # --- Point Summary Section ---
-    st.markdown("### Statistical Summary")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("Total Observations", f"{price_count:,}")
-        st.info(f"The average item price (Mean) is **RM {price_mean:.2f}**.")
-    
-    with col2:
-        st.metric("Middle Value (Median)", f"RM {price_median:.2f}")
-        st.success(f"The most frequent price point (Mode) is **RM {price_mode:.2f}**.")
-
-# --------------------
-# 11. Visualisation: Measures of Distribution Shape
-# --------------------
-
-price_skewness = pasar_mini_df['price'].skew()
-price_kurtosis = pasar_mini_df['price'].kurt()
-
-st.markdown("""
-<div style="background: linear-gradient(90deg, #d62728 0%, #764ba2 100%); 
-            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To assess the shape of the price distribution in order to identify skewness and concentration of prices.
-</div>
-""", unsafe_allow_html=True)
-
-with st.expander("Measures of Distribution Shape for Price", expanded=False):
-    
-    # Create the interactive bar chart
-    distribution_shape_df = pd.DataFrame({
-        'Measure': ['Skewness', 'Kurtosis'],
-        'Value': [price_skewness, price_kurtosis]
-    })
-    
-    fig_shape = px.bar(distribution_shape_df, x='Measure', y='Value', color='Measure',
-                       color_discrete_sequence=['#ff7f0e', '#d62728'],
-                       title="Distribution Shape (Skewness & Kurtosis)", text='Value')
-
-    fig_shape.update_traces(texttemplate='%{text:.3f}', textposition='outside')
-    st.plotly_chart(fig_shape, use_container_width=True)
-
-    # --- Insight Summary ---
-    st.write("### Skewness & Kurtosis Explained")
-    # This diagram visualizes the mathematical concepts of skewness and kurtosis
-    
-    
-    st.info(f"""
-    * **Positive Skewness ({price_skewness:.2f}):** Indicates that the 'tail' on the right side of the distribution is longer. Most prices are low, but a few expensive items pull the mean to the right.
-    * **High Kurtosis ({price_kurtosis:.2f}):** This 'Leptokurtic' distribution indicates that the data has heavy tails and a sharp peak, confirming the presence of significant outliers.
-    """)
-# --------------------
-# 10. Visualisation: Cumulative Frequency Analysis
-# --------------------
-
-# Data Processing for Cumulative Plot
-price_data = pasar_mini_df['price'].sort_values().reset_index(drop=True)
-total_count = len(price_data)
-cumulative_counts = price_data.value_counts(sort=False).sort_index().cumsum()
-cumulative_percentages = (cumulative_counts / total_count) * 100
-
-cumulative_df = pd.DataFrame({
-    'price': cumulative_percentages.index,
-    'cumulative_percentage': cumulative_percentages.values
-})
-
-# Recalculate key stats for annotations
-p_min, p_max = price_data.min(), price_data.max()
-p_med = pasar_mini_df['price'].median()
-p_q1 = pasar_mini_df['price'].quantile(0.25)
-p_q3 = pasar_mini_df['price'].quantile(0.75)
-
-# Section Objective Header
-st.markdown("""
-<div style="background: linear-gradient(90deg, #FF69B4 0%, #764ba2 100%); 
-            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To provide a comprehensive statistical overview of item prices using descriptive summary statistics.
-</div>
-""", unsafe_allow_html=True)
-
-# Expander with Prominent Icon
-with st.expander(" Detailed Summary Statistics & Cumulative Analysis", expanded=False):
-    
-    # Create the Plotly figure
-    fig_cum = go.Figure()
-
-    # Add the cumulative frequency line
-    fig_cum.add_trace(go.Scatter(
-        x=cumulative_df['price'], y=cumulative_df['cumulative_percentage'],
-        mode='lines', name='Cumulative %', line=dict(color='#FF69B4', width=3)
-    ))
-
-    # Add horizontal/vertical indicator lines for Median
-    fig_cum.add_shape(type="line", x0=p_min, y0=50, x1=p_med, y1=50, line=dict(color="white", width=1, dash="dash"))
-    fig_cum.add_shape(type="line", x0=p_med, y0=0, x1=p_med, y1=50, line=dict(color="white", width=1, dash="dash"))
-
-    fig_cum.update_layout(
-        title_text='Cumulative Price Distribution',
-        xaxis_title='Price (RM)',
-        yaxis_title='Cumulative Percentage (%)',
-        hovermode='x unified',
-        title_x=0.5,
-        font=dict(family="Arial, sans-serif", size=12, color="#FF69B4"),
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        height=500
-    )
-
-    # Annotations for key points
-    fig_cum.add_annotation(x=p_med, y=50, text=f"Median: RM{p_med:.2f}", showarrow=True, arrowhead=1, ax=-40, ay=-40)
-    fig_cum.add_annotation(x=p_q1, y=25, text=f"Q1: RM{p_q1:.2f}", showarrow=True, arrowhead=1)
-    fig_cum.add_annotation(x=p_q3, y=75, text=f"Q3: RM{p_q3:.2f}", showarrow=True, arrowhead=1)
-
-    st.plotly_chart(fig_cum, use_container_width=True)
-
-    # --- Insight Summary ---
-    st.markdown("### Cumulative Analysis Insights")
-    
-    st.info(f"""
-    * **Distribution Concentration:** The analysis reveals a distribution heavily concentrated at the lower end, confirming a **significant positive skew** (2.298).
-    * **Median Threshold:** The rapid accumulation aligns with the **Median price of {p_med:.2f}**, indicating that 50% of all items are priced at or below this RM 9.00 threshold.
-    * **Market Character:** The data demonstrates that lower price points possess higher individual counts. This suggests the "Pasar Mini" sector primarily services **high-volume, low-cost essential goods**.
-    * **Extreme Outliers:** While the scale reaches RM {p_max:.2f}, these higher points appear with a frequency of only one, characterizing them as extreme outliers rather than representative market trends.
-    """)
-
-    # --- Summary Statistics Table ---
-    st.markdown("#### Summary Statistics Table")
-    st.dataframe(pasar_mini_df['price'].describe().to_frame().T, use_container_width=True)
-# --------------------
-# 11. Visualisation: Measures of Distribution Shape
-# --------------------
-
-# Calculate measures
-price_skewness = pasar_mini_df['price'].skew()
-price_kurtosis = pasar_mini_df['price'].kurt()
-
-# Create a DataFrame for display
-distribution_shape_df = pd.DataFrame({
-    'Measure': ['Skewness', 'Kurtosis'],
-    'Value': [price_skewness, price_kurtosis]
-})
-
-# Section Objective Header (Using a distinct gradient)
-st.markdown("""
-<div style="background: linear-gradient(90deg, #d62728 0%, #764ba2 100%); 
-            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To assess the shape of the price distribution in order to identify skewness and concentration of prices.
-</div>
-""", unsafe_allow_html=True)
-
-# Expander with Prominent Icon (Closed by default)
-with st.expander("Measures of Distribution Shape for Price", expanded=False):
-    
-    # Create the interactive bar chart
-    fig_shape = px.bar(
-        distribution_shape_df,
-        x='Measure',
-        y='Value',
-        color='Measure',
-        color_discrete_sequence=['#ff7f0e', '#d62728'], # High contrast colors
-        title="Distribution Shape (Skewness & Kurtosis)",
-        text='Value'
-    )
-
-    fig_shape.update_traces(texttemplate='%{text:.3f}', textposition='outside')
-    fig_shape.update_layout(
-        title_x=0.5,
-        font=dict(family="Arial, sans-serif", size=12, color="#7f7f7f"),
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        margin=dict(t=50, b=20)
-    )
-
-    st.plotly_chart(fig_shape, use_container_width=True)
-
-    # --- Insight Summary ---
-    st.markdown("### Distribution Shape Insights")
-    st.info(f"""
-    * **Right-Skewed Distribution:** A **Skewness of {price_skewness:.2f}** indicates a significant right-skewed pattern. This confirms that while most goods are priced below **RM 10.00**, a few high-priced items pull the average upward.
-    * **Heavy-Tailed Extremes:** A high **Kurtosis of {price_kurtosis:.2f}** suggests a "heavy-tailed" distribution. This statistically confirms the presence of extreme price outliers within the dataset.
-    * **Outlier Impact:** The most prominent outlier identified is the maximum recorded value of **RM 498.00**, which significantly influences the tail of the distribution compared to the typical item price.
-    """)
-
-    # Data Table
-    st.markdown("#### Detailed Shape Metrics")
-    st.table(distribution_shape_df.style.format({"Value": "{:.3f}"}))
-
-# --------------------
-# 12. Visualisation: Mode for Categorical Columns
-# --------------------
-
-# Calculations (Recalculating to ensure values are current)
-# Replace these with your actual categorical columns if names differ
-cat_cols = ['item_group', 'item_category', 'item', 'unit', 'state', 'district', 'premise']
-mode_data = []
-
-for col in cat_cols:
-    if col in pasar_mini_df.columns:
-        mode_val = pasar_mini_df[col].mode()[0]
-        mode_data.append({'Column': col, 'Mode': mode_val})
-
-selected_modes_df = pd.DataFrame(mode_data)
-
-# Section Objective Header
-st.markdown("""
-<div style="background: linear-gradient(90deg, #00CC96 0%, #636EFA 100%); 
-            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To identify the most frequently occurring categories within selected categorical variables.
-</div>
-""", unsafe_allow_html=True)
-
-# Expander with Prominent Icon (Closed by default)
-with st.expander("Mode Categorical Columns", expanded=False):
-    
-    # Create the interactive bar chart
-    fig_cat = px.bar(
-        selected_modes_df,
-        x='Column',
-        y='Mode',
-        color='Column',
-        title='Most Frequent Categorical Values',
-        text='Mode',
-        color_discrete_sequence=px.colors.qualitative.Pastel
-    )
-
-    fig_cat.update_layout(
-        title_x=0.5,
-        font=dict(family="Arial, sans-serif", size=12, color="#7f7f7f"),
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        margin=dict(t=50, b=20),
-        height=500
-    )
-    
-    fig_cat.update_traces(textposition='outside')
-    st.plotly_chart(fig_cat, use_container_width=True)
-
-    # --- Insight Summary ---
-    st.markdown("### Categorical Analysis Insights")
-    st.info("""
-    * **Dominant Product Groupings:** Analysis reveals that **"Sayur-Sayuran"** (Vegetables) is the modal item_category.
-    * **Leading Consumer Items:** The most frequently recorded individual product is **"Minyak Masak Tulen Cap Buruh (1kg)"**, suggesting essential cooking oils are a primary focus of price monitoring.
-    * **Geographical Baseline:** The dataset is most heavily represented by the state of **Johor** and the district of **Seberang Perai Utara**.
-    * **Primary Representative:** **"Pasar Raya Kifarah Fresh Mart"** was identified as the modal premise, serving as the primary representative for the mini-market category in this analysis.
-    """)
-
-    # Data Table
-    st.markdown("#### Modal Value Details")
-    st.table(selected_modes_df)
-
-# --------------------
-# 13. Visualisation: Cumulative Frequency for Dates
-# --------------------
-
-# Data Processing
-pasar_mini_df['date'] = pd.to_datetime(pasar_mini_df['date'])
-
-# Filter for Dec 2025 (up to the 22nd)
-filtered_df_date = pasar_mini_df[
-    (pasar_mini_df['date'].dt.year == 2025) & 
-    (pasar_mini_df['date'].dt.month == 12) & 
-    (pasar_mini_df['date'].dt.day <= 22)
-].copy()
-
-# Aggregations
-date_counts = filtered_df_date['date'].value_counts().sort_index().reset_index()
-date_counts.columns = ['date', 'count']
-average_price_per_date = filtered_df_date.groupby('date')['price'].mean().reset_index()
-date_counts = date_counts.merge(average_price_per_date, on='date', how='left')
-
-# Cumulative calculations
-date_counts['cumulative_count'] = date_counts['count'].cumsum()
-date_counts['cumulative_percentage'] = (date_counts['cumulative_count'] / len(filtered_df_date)) * 100
-
-# Highlighting specific surge dates
-specific_dates = [
-    pd.to_datetime('2025-12-01'), pd.to_datetime('2025-12-08'), 
-    pd.to_datetime('2025-12-15'), pd.to_datetime('2025-12-22')
-]
-
-# Section Objective Header
-st.markdown("""
-<div style="background: linear-gradient(90deg, #2ECC71 0%, #27AE60 100%); 
-            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To examine the accumulation of price observations over time using cumulative frequency analysis.
-</div>
-""", unsafe_allow_html=True)
-
-# Expander (Closed by default)
-with st.expander(" Cumulative Frequency for Dates", expanded=False):
-    
-    # Create Chart
-    fig_date = px.line(
-        date_counts, x='date', y='cumulative_count', markers=True,
-        title='Data Accumulation Surge (Dec 1st - 22nd)',
-        labels={'date': 'Date', 'cumulative_count': 'Total Entries Accumulation'},
-        color_discrete_sequence=['#2ECC71']
-    )
-
-    # Add Star markers for surge dates
-    for s_date in specific_dates:
-        if s_date in date_counts['date'].values:
-            row = date_counts[date_counts['date'] == s_date]
-            fig_date.add_scatter(
-                x=[s_date], y=[row['cumulative_count'].iloc[0]],
-                mode='markers', marker=dict(size=12, color='red', symbol='star'),
-                name=f"Surge: {s_date.strftime('%b %d')}",
-                hovertext=f"Surge Date: {s_date.strftime('%Y-%m-%d')}<br>Cumulative %: {row['cumulative_percentage'].iloc[0]:.2f}%"
-            )
-
-    fig_date.update_layout(
-        hovermode='x unified', title_x=0.5,
-        font=dict(family="Arial, sans-serif", size=12, color="#2ECC71"),
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)'
-    )
-    
-    st.plotly_chart(fig_date, use_container_width=True)
-
-    # --- Insight Summary ---
-    st.markdown("### Temporal Accumulation Insights")
-    st.info("""
-    * **Non-Uniform Collection:** The analysis reveals a highly skewed data collection pattern, heavily concentrated on four specific dates: **Dec 1st, 8th, 15th, and 22nd**.
-    * **Dominant Surge Dates:** These four dates alone account for approximately **87.78%** of the entire dataset, with December 22nd contributing the highest volume (36,378 records).
-    * **Weekly Cycles:** This periodic spike suggests a **synchronized data harvest** or weekly reporting cycle from the PriceCatcher platform.
-    * **Representation Note:** The dataset offers high granularity for specific snapshots, reaching **97.14%** accumulation by Dec 22nd, reflecting weekly cycles rather than a smooth daily distribution.
-    """)
-
-    # Data Table for verification
-    st.markdown("#### Cumulative Data Log")
-    st.dataframe(date_counts.set_index('date'), use_container_width=True)
-
-# --------------------
-# 14. Visualisation: Cumulative Frequency for Item
-# --------------------
-
-# Data Processing
-item_counts = pasar_mini_df['item'].value_counts().reset_index()
-item_counts.columns = ['item', 'count']
-
-# Calculate average price per item for richer hover data
-average_price_per_item = pasar_mini_df.groupby('item')['price'].mean().reset_index()
-average_price_per_item.rename(columns={'price': 'average_price'}, inplace=True)
-item_counts = item_counts.merge(average_price_per_item, on='item', how='left')
-
-# Sort and calculate cumulative statistics
-item_counts = item_counts.sort_values(by='count', ascending=False)
-total_rows = len(pasar_mini_df)
-item_counts['percentage'] = (item_counts['count'] / total_rows) * 100
-item_counts['cumulative_count'] = item_counts['count'].cumsum()
-item_counts['cumulative_percentage'] = item_counts['percentage'].cumsum()
-
-# Section Objective Header
-st.markdown("""
-<div style="background: linear-gradient(90deg, #4CAF50 0%, #2E7D32 100%); 
-            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To identify dominant items contributing to the majority of observations through cumulative frequency visualisation.
-</div>
-""", unsafe_allow_html=True)
-
-# Expander (Closed by default)
-with st.expander(" Cumulative Frequency Visualization for Item", expanded=False):
-    
-    # Create the Top 15 Bar Chart
-    fig_item = px.bar(
-        item_counts.head(15), 
-        x='item', y='count', color='item',
-        title='Top 15 Most Frequent Items',
-        labels={'item': 'Product Name', 'count': 'Frequency'},
-        hover_data={
-            'percentage': ':.2f%',
-            'cumulative_percentage': ':.2f%',
-            'average_price': 'RM {:.2f}'
-        },
-        color_discrete_sequence=px.colors.qualitative.Alphabet
-    )
-
-    fig_item.update_layout(
-        title_x=0.5,
-        font=dict(family="Arial, sans-serif", size=12, color="#4CAF50"),
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        xaxis_tickangle=-45,
-        height=600
-    )
-
-    st.plotly_chart(fig_item, use_container_width=True)
-
-    # --- Insight Summary ---
-    st.markdown("### Market Concentration Insights")
-    st.info("""
-    * **Concentrated Structure:** Out of 252 unique items, the dataset is dominated by a small number of high-frequency essential goods, specifically cooking oil brands.
-    * **Top Prevalent Items:** **'Minyak masak tulen cap buruh'** is the most frequent (2.12%), followed by **'Cap Seri Murni'** (2.08%) and **'Cap Pisau'** (1.93%).
-    * **The Top 5 Impact:** Collectively, the top five items account for **9.36%** of all recorded observations, showing a significant Pareto-type skew.
-    * **The Long-Tail Distribution:** Conversely, a large variety of products like specialized rice or niche perishables appear very rarely. This suggests that mini-market data is heavily weighted toward a narrow selection of high-turnover household staples.
-    """)
-
-    # Data Table
-    st.markdown("#### Item Frequency Rank (Top 15)")
-    st.dataframe(
-        item_counts.head(15)[['item', 'count', 'percentage', 'cumulative_percentage', 'average_price']],
-        use_container_width=True
-    )
-
-# --------------------
-# 17. Visualisation: Cumulative Frequency for Premise
-# --------------------
-
-# Data Processing: Focus on top 15 premises
-premise_counts = pasar_mini_df['premise'].value_counts().reset_index().head(15)
-premise_counts.columns = ['premise', 'count']
-
-# Calculate average price per premise for hover context
-avg_price_premise = pasar_mini_df.groupby('premise')['price'].mean().reset_index()
-avg_price_premise.rename(columns={'price': 'average_price'}, inplace=True)
-premise_counts = premise_counts.merge(avg_price_premise, on='premise', how='left')
-
-# Calculate proportions and cumulative metrics (based on entire dataset for accuracy)
-total_global_rows = len(pasar_mini_df)
-premise_counts['percentage'] = (premise_counts['count'] / total_global_rows) * 100
-premise_counts['cumulative_percentage'] = premise_counts['percentage'].cumsum()
-
-# Section Objective Header
-st.markdown("""
-<div style="background: linear-gradient(90deg, #1F77B4 0%, #084B82 100%); 
-            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To determine the concentration of observations among the top premises contributing to the dataset.
-</div>
-""", unsafe_allow_html=True)
-
-# Expander (Closed by default)
-with st.expander("Cumulative Frequency Visualization for Premise", expanded=False):
-    
-    # Create the Interactive Bar Chart
-    fig_premise = px.bar(
-        premise_counts, 
-        x='premise', y='count', color='premise',
-        title='Top 15 Premises by Observation Volume',
-        labels={'premise': 'Retailer Name', 'count': 'Number of Entries'},
-        hover_data={
-            'percentage': ':.2f%',
-            'cumulative_percentage': ':.2f%',
-            'average_price': 'RM {:.2f}'
-        },
-        color_discrete_sequence=px.colors.sequential.Blues_r
-    )
-
-    fig_premise.update_layout(
-        title_x=0.5,
-        font=dict(family="Arial, sans-serif", size=12, color="#1F77B4"),
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        xaxis_tickangle=-45,
-        height=600,
-        showlegend=False
-    )
-
-    st.plotly_chart(fig_premise, use_container_width=True)
-
-    # --- Insight Summary ---
-    st.markdown("### Premise Distribution Insights")
-    st.info("""
-    * **Decentralized Network:** Unlike product categories, premises show a balanced distribution. The top contributor, **PASAR RAYA KIFARAH FRESH MART**, accounts for only **1.08%** of entries.
-    * **Low Concentration:** The top five premises collectively represent only **5.08%** of total observations, ensuring the dataset is not skewed by a single dominant retailer.
-    * **Broad Representation:** It takes approximately 40 to 50 premises to reach a 50% cumulative threshold, reflecting a wide geographical reporting network.
-    * **Balanced Baseline:** The distribution confirms that the findings are representative of a balanced network of multiple small-scale commercial entities rather than localized anomalies.
-    """)
-
-    # Data Table
-    st.markdown("#### Top 15 Premise Statistical Breakdown")
-    st.dataframe(
-        premise_counts[['premise', 'count', 'percentage', 'cumulative_percentage', 'average_price']],
-        use_container_width=True
-    )
-
-# --------------------
-# 18. Visualisation: Cumulative Frequency for State
-# --------------------
-
-# Data Processing
-state_counts = pasar_mini_df['state'].value_counts().reset_index()
-state_counts.columns = ['state', 'count']
-
-# Calculate average price per state for hover context
-avg_price_state = pasar_mini_df.groupby('state')['price'].mean().reset_index()
-avg_price_state.rename(columns={'price': 'average_price'}, inplace=True)
-state_counts = state_counts.merge(avg_price_state, on='state', how='left')
-
-# Sort and calculate cumulative metrics
-state_counts = state_counts.sort_values(by='count', ascending=False)
-total_rows = len(pasar_mini_df)
-state_counts['percentage'] = (state_counts['count'] / total_rows) * 100
-state_counts['cumulative_percentage'] = state_counts['percentage'].cumsum()
-
-# Section Objective Header
-st.markdown("""
-<div style="background: linear-gradient(90deg, #8B008B 0%, #4B0082 100%); 
-            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To assess the distribution of price observations across states using cumulative frequency analysis.
-</div>
-""", unsafe_allow_html=True)
-
-# Expander (Closed by default)
-with st.expander("Cumulative Frequency Visualization for State", expanded=False):
-    
-    # Create the Interactive Bar Chart
-    fig_state = px.bar(
-        state_counts, 
-        x='state', y='count', color='state',
-        title='Observation Volume by State',
-        labels={'state': 'State', 'count': 'Number of Entries'},
-        hover_data={
-            'percentage': ':.2f%',
-            'cumulative_percentage': ':.2f%',
-            'average_price': 'RM {:.2f}'
-        },
-        color_discrete_sequence=px.colors.qualitative.Vivid
-    )
-
-    fig_state.update_layout(
-        title_x=0.5,
-        font=dict(family="Arial, sans-serif", size=12, color="#8B008B"),
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        xaxis_tickangle=-45,
-        height=500,
-        showlegend=False
-    )
-
-    st.plotly_chart(fig_state, use_container_width=True)
-
-    # --- Insight Summary ---
-    st.markdown("### Geographical Distribution Insights")
-    st.info("""
-    * **Regional Concentration:** The dataset shows moderate concentration, with **Johor** being the primary contributor at **12.41%** (18,944 entries).
-    * **The Top 5 Milestone:** Johor, Perak, Sarawak, Pulau Pinang, and Kelantan collectively account for **50.25%** of all observations. 
-    * **Reporting Bias:** Half of the national monitoring data comes from only one-third of the administrative regions, suggesting more intensive activity in larger or more populous states.
-    * **Lower Representation:** Regions like W.P. Labuan (0.38%) and Perlis (1.64%) contribute significantly less, implying the baseline findings are heavily influenced by the top 5 states.
-    """)
-
-    # Data Table (Top 10)
-    st.markdown("#### Top 10 State Statistical Breakdown")
-    st.dataframe(
-        state_counts.head(10)[['state', 'count', 'percentage', 'cumulative_percentage', 'average_price']],
-        use_container_width=True
-    )
-
-# --------------------
-# 21. Visualisation: Cross-tabulation Heatmap (Specific Item vs. State)
-# --------------------
-
-# Data Processing: Focus on the top 15 items by volume
-item_counts_full = pasar_mini_df.pivot_table(values='price', index='item', columns='state', aggfunc='count')
-top_15_items = item_counts_full.sum(axis=1).nlargest(15).index
-
-# Pivot Table for Average Price
-pivot_table_avg_price_top_15 = pasar_mini_df.pivot_table(
-    values='price', 
-    index='item', 
-    columns='state', 
-    aggfunc='mean'
-).loc[top_15_items]
-
-# Section Objective Header
-st.markdown("""
-<div style="background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%); 
-            padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 15px;">
-    <strong>Objective:</strong> To compare average prices across specific items and states in order to identify regional and category-based price variations.
-</div>
-""", unsafe_allow_html=True)
-
-# Expander (Closed by default)
-with st.expander("Cross-tabulation: Average Price by Item and State", expanded=False):
-    
-    # Create the Interactive Heatmap
-    fig_item_heat = px.imshow(
-        pivot_table_avg_price_top_15,
-        text_auto=".1f", 
-        aspect="auto",
-        title='Average Price: Top 15 Specific Items vs. State',
-        labels={'x':'State', 'y':'Specific Item', 'color':'Avg Price (RM)'},
-        color_continuous_scale='RdBu_r', 
-        color_continuous_midpoint=pivot_table_avg_price_top_15.mean().mean(),
-        template="plotly_white"
-    )
-
-    fig_item_heat.update_xaxes(side="top")
-    fig_item_heat.update_layout(
-        title_x=0.5,
-        font=dict(family="Arial, sans-serif", size=10, color="#333"),
-        margin=dict(t=150, b=50),
-        height=750
-    )
-
-    st.plotly_chart(fig_item_heat, use_container_width=True)
-
-    # --- Insight Summary ---
-    st.markdown("### Detailed Expenditure & Price Range Analysis")
-    
-    tab1, tab2, tab3 = st.tabs(["Expenditure Patterns", "Volatility & Volume", "Regional Observations"])
-    
-    with tab1:
-        st.info("""
-        * **High-Value Items:** Products like **Susu Bayi** (baby milk) consistently show the highest prices nationwide.
-        * **Low-Value Staples:** **Gula** (sugar) displays the lowest prices and highest stability due to price controls.
-        * **Expensive Proteins:** **Bahan Laut** (seafood) and specific **Minyak** (oils) frequently appear in the higher price brackets.
-        """)
-
-    with tab2:
-        st.success("""
-        * **High Volume:** **Sayur-sayuran** (vegetables) dominates frequency across states. Prices are mid-range but fluctuate based on local supply.
-        * **Consistent Demand:** **Packaged Spices** and **Oils** show high transaction counts and moderate-to-high pricing.
-        * **Localized Spikes:** **W.P. Labuan** shows higher prices for chicken and eggs, despite lower overall counts, suggesting supply constraints.
-        """)
-
-    with tab3:
-        st.warning("""
-        * **Johor:** Reports the highest volume of transactions; prices typically stay in the mid-range.
-        * **East Malaysia (Sabah/Sarawak):** Often display higher average prices for baby milk and seafood due to logistical challenges.
-        * **W.P. Kuala Lumpur:** Elevated prices reflect higher urban operational costs.
-        """)
-
-    # Data Table
-    st.markdown("#### Pivot Data: Avg Price (RM) by Specific Item")
-    st.dataframe(pivot_table_avg_price_top_15.style.format("{:.2f}").background_gradient(cmap='RdBu_r', axis=None), use_container_width=True)
-
-st.markdown("---")
+# ---------------------------------------------------------
+# 5. DATA VISUALIZATION TABLE
+# ---------------------------------------------------------
+st.subheader("Disagreement Count Matrix")
+st.dataframe(disagree_area_type_original, use_container_width=True)
+
+# ---------------------------------------------------------
+# 6. KPI METRICS & INSIGHTS
+# ---------------------------------------------------------
+with st.expander("🔍 View Key Disagreement Insights", expanded=True):
+    st.write("### Analysis Summary")
+    st.info("Analysis of how respondents across all area types selected 'Strongly Disagree' and 'Disagree'.")
+
+    m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+
+    with m_col1:
+        st.metric(
+            label="Most Disagreement: Factor",
+            value="33",
+            help="Students Not Sharing Vehicles: Rural (9), Suburban (6), Urban (18)."
+        )
+
+    with m_col2:
+        st.metric(
+            label="Most Disagreement: Effect",
+            value="11",
+            help="Unintended Road Accidents: Rural (1), Suburban (1), Urban (9)."
+        )
+
+    with m_col3:
+        st.metric(
+            label="Most Disagreement: Step",
+            value="14",
+            help="Vehicle Sharing Step: Rural (6), Suburban (2), Urban (6)."
+        )
+
+    with m_col4:
+        st.metric(
+            label="Lowest Disagreement",
+            value="2",
+            help="Pressure on Road User Effect: Rural (1), Suburban (0), Urban (1)."
+        )
+
+    st.markdown("---")
