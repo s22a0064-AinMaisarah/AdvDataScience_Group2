@@ -703,3 +703,164 @@ with st.expander("📅 December 2025 Reporting Volume", expanded=False):
 # Final Section Divider
 st.markdown("---")
 
+# ---------------------------------------------------------
+# 15. ITEM FREQUENCY & CUMULATIVE ANALYSIS
+# ---------------------------------------------------------
+
+with st.expander("🍎 Item Prevalence & Cumulative Analysis", expanded=False):
+    
+    # 1. Calculate Frequency and Proportions
+    # Note: Using 'item' column as per your code
+    if 'item' in pasar_mini_df.columns:
+        item_counts = pasar_mini_df['item'].value_counts().reset_index()
+        item_counts.columns = ['item', 'count']
+
+        # Calculate average price per item
+        avg_price_item = pasar_mini_df.groupby('item')['price'].mean().reset_index()
+        avg_price_item.rename(columns={'price': 'average_price'}, inplace=True)
+
+        # Merge and sort
+        item_counts = item_counts.merge(avg_price_item, on='item', how='left')
+        item_counts = item_counts.sort_values(by='count', ascending=False)
+
+        # Cumulative Calculations
+        total_rows = len(pasar_mini_df)
+        item_counts['percentage'] = (item_counts['count'] / total_rows) * 100
+        item_counts['cumulative_count'] = item_counts['count'].cumsum()
+        item_counts['cumulative_percentage'] = item_counts['percentage'].cumsum()
+
+        st.subheader("Top 15 Most Frequent Items")
+
+        # 2. Create Interactive Bar Chart
+        fig_item = px.bar(
+            item_counts.head(15), 
+            x='item',
+            y='count',
+            color='item',
+            title='Frequency Distribution (Top 15 Items)',
+            labels={'item': 'Item Name', 'count': 'Number of Entries'},
+            hover_data={
+                'percentage': ':.2f%',
+                'cumulative_count': True,
+                'cumulative_percentage': ':.2f%',
+                'average_price': ':.2f'
+            }
+        )
+
+        fig_item.update_layout(
+            title_x=0.5,
+            font=dict(family="Arial, sans-serif", size=12, color="#4CAF50"),
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            xaxis_tickangle=-45,
+            showlegend=False
+        )
+
+        st.plotly_chart(fig_item, use_container_width=True)
+
+        # 3. Table and Insights
+        st.divider()
+        col_t, col_i = st.columns([1.3, 1])
+
+        with col_t:
+            st.write("**Cumulative Frequency Table (Top 15)**")
+            st.dataframe(item_counts.head(15), use_container_width=True, hide_index=True)
+
+        with col_i:
+            st.write("**📊 Pareto Insights**")
+            
+            # Find how many items make up 80% of data (approx)
+            top_80_count = len(item_counts[item_counts['cumulative_percentage'] <= 85])
+            
+            st.info(f"""
+            - **Data Density:** The top 15 items represent a significant portion of your total market records.
+            - **Cumulative Reach:** You can see exactly when the **{item_counts['item'].iloc[0]}** is combined with other top items, how much of the total dataset they cover.
+            - **Average Price Context:** Hovering over the bars reveals the average price, allowing you to see if the most frequent items are also the most affordable.
+            - **Market Focus:** This list helps identify which products are the "staples" of Pasar Mini inventories.
+            """)
+    else:
+        st.warning("Column 'item' not found in the dataset.")
+
+# Final Section Divider
+st.markdown("---")
+
+# ---------------------------------------------------------
+# 16. ITEM GROUP CUMULATIVE ANALYSIS
+# ---------------------------------------------------------
+
+with st.expander("📦 Item Group Frequency & Cumulative Analysis", expanded=False):
+    
+    # 1. Calculate Frequency and Proportions for Item Groups
+    if 'item_group' in pasar_mini_df.columns:
+        item_group_counts = pasar_mini_df['item_group'].value_counts().reset_index()
+        item_group_counts.columns = ['item_group', 'count']
+
+        # Calculate average price per group
+        avg_price_group = pasar_mini_df.groupby('item_group')['price'].mean().reset_index()
+        avg_price_group.rename(columns={'price': 'average_price'}, inplace=True)
+
+        # Merge and sort
+        item_group_counts = item_group_counts.merge(avg_price_group, on='item_group', how='left')
+        item_group_counts = item_group_counts.sort_values(by='count', ascending=False)
+
+        # Cumulative Calculations
+        total_rows_group = len(pasar_mini_df)
+        item_group_counts['percentage'] = (item_group_counts['count'] / total_rows_group) * 100
+        item_group_counts['cumulative_count'] = item_group_counts['count'].cumsum()
+        item_group_counts['cumulative_percentage'] = item_group_counts['percentage'].cumsum()
+
+        st.subheader("Distribution by Product Group")
+
+        # 2. Create Interactive Bar Chart
+        fig_group = px.bar(
+            item_group_counts, 
+            x='item_group',
+            y='count',
+            color='item_group',
+            title='Frequency and Cumulative Weight by Item Group',
+            labels={'item_group': 'Item Group', 'count': 'Number of Entries'},
+            hover_data={
+                'percentage': ':.2f%',
+                'cumulative_count': True,
+                'cumulative_percentage': ':.2f%',
+                'average_price': ':.2f'
+            }
+        )
+
+        fig_group.update_layout(
+            title_x=0.5,
+            font=dict(family="Arial, sans-serif", size=12, color="#4CAF50"),
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            xaxis_tickangle=-45,
+            showlegend=False
+        )
+
+        st.plotly_chart(fig_group, use_container_width=True)
+
+        # 3. Table and Insights
+        st.divider()
+        col_t, col_i = st.columns([1.3, 1])
+
+        with col_t:
+            st.write("**Cumulative Frequency Table (Top 10 Groups)**")
+            st.dataframe(item_group_counts.head(10), use_container_width=True, hide_index=True)
+
+        with col_i:
+            st.write("**📊 Group Insights**")
+            
+            top_group = item_group_counts['item_group'].iloc[0]
+            top_group_pct = item_group_counts['percentage'].iloc[0]
+            
+            st.info(f"""
+            - **Leading Category:** The **{top_group}** group is the most prevalent, accounting for **{top_group_pct:.2f}%** of all recorded entries.
+            - **Inventory Breadth:** By looking at the cumulative percentage, you can see how many groups are required to cover 90% of your total data.
+            - **Price Comparison:** Note how the `average_price` varies between groups—this helps identify which categories are "High Volume, Low Cost" vs "Low Volume, High Cost."
+            - **Data Symmetry:** A steep decline in bar heights suggests that your data collection is focused heavily on a few specific departments.
+            """)
+    else:
+        st.warning("Column 'item_group' not found in the dataset.")
+
+# Final Section Divider
+st.markdown("---")
+
