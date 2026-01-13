@@ -308,7 +308,7 @@ with st.expander("📉 Measures of Price Dispersion", expanded=False):
         - **Price Range (RM {price_range:.2f}):** This is the gap between the cheapest item (RM 0.50) and the most expensive (RM 498.00).
         - **Analysis:** Because the Range and Variance are quite high, it indicates a **highly diverse inventory** ranging from basic spices to high-value bulk imports.
         """)
-        st.markdown("---")
+st.markdown("---")
 # ---------------------------------------------------------
 # 10. CUMULATIVE FREQUENCY & PERCENTILES
 # ---------------------------------------------------------
@@ -380,5 +380,73 @@ with st.expander("📈 Cumulative Price Distribution & Percentiles", expanded=Fa
         - **Interquartile Range (IQR):** The "middle 50%" of your prices fall between **RM {q1:.2f} and RM {q3:.2f}**. This is the core price range for most groceries.
         - **Max Outlier:** Notice how the curve flattens significantly after RM 100. This confirms that items like the RM 498.00 Bawang are rare outliers compared to the rest of the stock.
         """)
-        st.markdown("---")
+st.markdown("---")
+
+# ---------------------------------------------------------
+# 11. DISTRIBUTION SHAPE ANALYSIS
+# ---------------------------------------------------------
+
+with st.expander("📐 Distribution Shape (Skewness & Kurtosis)", expanded=False):
+    
+    # 1. Calculate statistical measures
+    price_skewness = pasar_mini_df['price'].skew()
+    price_kurtosis = pasar_mini_df['price'].kurtosis()
+
+    distribution_shape_df = pd.DataFrame({
+        'Measure': ['Skewness', 'Kurtosis'],
+        'Value': [price_skewness, price_kurtosis]
+    })
+
+    st.subheader("Interactive Distribution Shape Analysis")
+
+    # 2. Create the Bar Chart
+    fig_shape = px.bar(
+        distribution_shape_df,
+        x='Measure',
+        y='Value',
+        color='Measure',
+        color_discrete_sequence=px.colors.qualitative.Dark24,
+        title="Distribution Shape: Price Asymmetry & Peakedness",
+        labels={'Measure': 'Measure', 'Value': 'Value'},
+        text='Value'
+    )
+
+    fig_shape.update_traces(texttemplate='%{text:.3f}', textposition='outside')
+    fig_shape.update_layout(
+        title_x=0.5,
+        font=dict(family="Arial, sans-serif", size=12),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        showlegend=False
+    )
+
+    fig_shape.update_xaxes(showline=True, linewidth=1, linecolor='black')
+    fig_shape.update_yaxes(showline=True, linewidth=1, linecolor='black')
+
+    # Display chart in Streamlit
+    st.plotly_chart(fig_shape, use_container_width=True)
+
+    # 3. Layout for Table and Insights
+    col_tbl, col_ins = st.columns([1, 1.2])
+
+    with col_tbl:
+        st.write("**Shape Statistics Table**")
+        st.dataframe(distribution_shape_df, use_container_width=True, hide_index=True)
+
+    with col_ins:
+        st.write("**💡 Interpreting the Shape**")
+        
+        # Determine Skewness Note
+        skew_desc = "Highly Positive" if price_skewness > 1 else "Moderate"
+        
+        # Determine Kurtosis Note
+        kurt_desc = "Leptokurtic (Heavy tails/Outliers)" if price_kurtosis > 3 else "Platykurtic (Flat)"
+
+        st.info(f"""
+        - **Skewness ({price_skewness:.3f}):** A value > 1 indicates a **{skew_desc}** right-skew. This confirms that the majority of items are cheap, but the "tail" of the graph is stretched toward the expensive items.
+        - **Kurtosis ({price_kurtosis:.3f}):** Since your kurtosis is likely high, it is **{kurt_desc}**. This indicates that the dataset has frequent outliers (extreme price differences) rather than a smooth bell curve.
+        """)
+
+# --- Add the divider as requested ---
+st.markdown("---")
 
