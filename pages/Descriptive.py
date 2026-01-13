@@ -309,3 +309,76 @@ with st.expander("📉 Measures of Price Dispersion", expanded=False):
         - **Analysis:** Because the Range and Variance are quite high, it indicates a **highly diverse inventory** ranging from basic spices to high-value bulk imports.
         """)
         st.markdown("---")
+# ---------------------------------------------------------
+# 10. CUMULATIVE FREQUENCY & PERCENTILES
+# ---------------------------------------------------------
+
+with st.expander("📈 Cumulative Price Distribution & Percentiles", expanded=False):
+    
+    # 1. Data Preparation
+    price_data = pasar_mini_df['price'].sort_values().reset_index(drop=True)
+    total_count = len(price_data)
+    cumulative_counts = price_data.value_counts(sort=False).sort_index().cumsum()
+    cumulative_percentages = (cumulative_counts / total_count) * 100
+
+    cumulative_df = pd.DataFrame({
+        'price': cumulative_percentages.index,
+        'cumulative_percentage': cumulative_percentages.values
+    })
+
+    # 2. Re-calculate stats for annotations
+    p_min = price_data.min()
+    p_max = price_data.max()
+    p_median = price_data.median()
+    q1 = price_data.quantile(0.25)
+    q3 = price_data.quantile(0.75)
+
+    st.subheader("Ogive Chart: Cumulative Percentage Analysis")
+
+    # 3. Create the Figure
+    fig_ogive = go.Figure()
+
+    # Cumulative line
+    fig_ogive.add_trace(go.Scatter(
+        x=cumulative_df['price'], y=cumulative_df['cumulative_percentage'],
+        mode='lines', name='Cumulative %', line=dict(color='#1f77b4', width=3)
+    ))
+
+    # Helper function for annotations
+    def add_stat_line(fig, x_val, y_val, label, color, dash="dash"):
+        fig.add_shape(type="line", x0=p_min, y0=y_val, x1=x_val, y1=y_val, line=dict(color=color, width=1, dash=dash))
+        fig.add_shape(type="line", x0=x_val, y0=0, x1=x_val, y1=y_val, line=dict(color=color, width=1, dash=dash))
+        fig.add_annotation(x=x_val, y=y_val, text=f"{label}: {x_val:.2f}", showarrow=True, 
+                           arrowhead=2, bgcolor="white", bordercolor=color)
+
+    # Add Median, Q1, Q3
+    add_stat_line(fig_ogive, p_median, 50, "Median", "red")
+    add_stat_line(fig_ogive, q1, 25, "Q1", "green", "dot")
+    add_stat_line(fig_ogive, q3, 75, "Q3", "purple", "dot")
+
+    fig_ogive.update_layout(
+        xaxis_title='Price (RM)', yaxis_title='Cumulative Percentage (%)',
+        hovermode='x unified', title_x=0.5, height=600,
+        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)'
+    )
+    
+    st.plotly_chart(fig_ogive, use_container_width=True)
+
+    # 4. Detailed Summary & Insights
+    st.divider()
+    col_table, col_text = st.columns([1, 1.5])
+
+    with col_table:
+        st.write("**Descriptive Statistics Table**")
+        st.dataframe(pasar_mini_df['price'].describe().to_frame(), use_container_width=True)
+
+    with col_text:
+        st.write("**🔍 Market Insights**")
+        st.info(f"""
+        - **The 75% Rule (Q3):** 75% of all items in your Pasar Mini dataset are priced below **RM {q3:.2f}**.
+        - **The 25% Rule (Q1):** The bottom quarter of your inventory consists of very affordable items priced under **RM {q1:.2f}**.
+        - **Interquartile Range (IQR):** The "middle 50%" of your prices fall between **RM {q1:.2f} and RM {q3:.2f}**. This is the core price range for most groceries.
+        - **Max Outlier:** Notice how the curve flattens significantly after RM 100. This confirms that items like the RM 498.00 Bawang are rare outliers compared to the rest of the stock.
+        """)
+         st.markdown("---")
+
