@@ -380,5 +380,5 @@ with st.expander("📈 Cumulative Price Distribution & Percentiles", expanded=Fa
         - **Interquartile Range (IQR):** The "middle 50%" of your prices fall between **RM {q1:.2f} and RM {q3:.2f}**. This is the core price range for most groceries.
         - **Max Outlier:** Notice how the curve flattens significantly after RM 100. This confirms that items like the RM 498.00 Bawang are rare outliers compared to the rest of the stock.
         """)
-         st.markdown("---")
+        st.markdown("---")
 
