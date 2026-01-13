@@ -538,3 +538,78 @@ with st.expander("📊 Price Range Distribution (Binned)", expanded=False):
 # Final Footer Divider
 st.markdown("---")
 
+# ---------------------------------------------------------
+# 13. CATEGORICAL MODE ANALYSIS
+# ---------------------------------------------------------
+
+with st.expander("🏷️ Most Frequent Categorical Values (Modes)", expanded=False):
+    
+    # 1. Data Preparation - Calculate modes for specific categorical columns
+    # Adjust these column names to match your actual dataset columns
+    cat_columns = ['item_name', 'premise_name', 'item_category'] 
+    # Check which columns actually exist in the dataframe to avoid errors
+    existing_cats = [c for c in cat_columns if c in pasar_mini_df.columns]
+    
+    modes_list = []
+    for col in existing_cats:
+        mode_val = pasar_mini_df[col].mode()
+        if not mode_val.empty:
+            modes_list.append({'Column': col, 'Mode': mode_val[0]})
+            
+    selected_modes_df = pd.DataFrame(modes_list)
+
+    if not selected_modes_df.empty:
+        st.subheader("Top Frequent Categories")
+
+        # 2. Create the interactive bar chart
+        fig_mode = px.bar(
+            selected_modes_df,
+            x='Column',
+            y='Mode',
+            color='Column',
+            title='Most Frequent Values per Category',
+            labels={'Column': 'Categorical Column', 'Mode': 'Most Frequent Value'},
+            text='Mode'
+        )
+
+        fig_mode.update_layout(
+            title_x=0.5,
+            font=dict(family="Arial, sans-serif", size=12),
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            showlegend=False
+        )
+
+        fig_mode.update_xaxes(showline=True, linewidth=1, linecolor='black')
+        # Hide Y-axis labels if they are names/text, otherwise it looks cluttered
+        fig_mode.update_yaxes(showticklabels=False, showline=True, linewidth=1, linecolor='black')
+
+        st.plotly_chart(fig_mode, use_container_width=True)
+
+        # 3. Layout for Table and Insights
+        st.divider()
+        col_tbl, col_ins = st.columns([1, 1.2])
+
+        with col_tbl:
+            st.write("**Mode Summary Table**")
+            st.dataframe(selected_modes_df, use_container_width=True, hide_index=True)
+
+        with col_ins:
+            st.write("**📝 Categorical Insights**")
+            
+            # Extract specific modes for the text explanation
+            top_item = selected_modes_df.loc[selected_modes_df['Column'] == 'item_name', 'Mode'].values[0] if 'item_name' in existing_cats else "N/A"
+            top_cat = selected_modes_df.loc[selected_modes_df['Column'] == 'item_category', 'Mode'].values[0] if 'item_category' in existing_cats else "N/A"
+
+            st.success(f"""
+            - **Dominant Item:** The most frequently appearing product in this record set is **{top_item}**. 
+            - **Primary Category:** **{top_cat}** is the most well-represented category, indicating where the bulk of inventory data is focused.
+            - **Business Interpretation:** Identifying the mode helps stakeholders understand which items or premises are over-represented in the survey, ensuring that price averages aren't biased toward a single dominant product.
+            """)
+    else:
+        st.warning("No categorical columns found to calculate modes.")
+
+# --- Final Page Divider ---
+st.markdown("---")
+st.caption("Dashboard Analysis Complete | Data Source: pasar_mini_data.csv")
+
