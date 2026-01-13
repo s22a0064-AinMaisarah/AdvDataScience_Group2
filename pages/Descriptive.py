@@ -864,3 +864,318 @@ with st.expander("📦 Item Group Frequency & Cumulative Analysis", expanded=Fal
 # Final Section Divider
 st.markdown("---")
 
+# ---------------------------------------------------------
+# 17. ITEM CATEGORY CUMULATIVE ANALYSIS
+# ---------------------------------------------------------
+
+with st.expander("📂 Item Category Frequency & Cumulative Analysis", expanded=False):
+    
+    # 1. Calculate Frequency and Proportions for Item Categories
+    if 'item_category' in pasar_mini_df.columns:
+        item_cat_counts = pasar_mini_df['item_category'].value_counts().reset_index()
+        item_cat_counts.columns = ['item_category', 'count']
+
+        # Calculate average price per category
+        avg_price_cat = pasar_mini_df.groupby('item_category')['price'].mean().reset_index()
+        avg_price_cat.rename(columns={'price': 'average_price'}, inplace=True)
+
+        # Merge and sort
+        item_cat_counts = item_cat_counts.merge(avg_price_cat, on='item_category', how='left')
+        item_cat_counts = item_cat_counts.sort_values(by='count', ascending=False)
+
+        # Cumulative Calculations
+        total_rows_cat = len(pasar_mini_df)
+        item_cat_counts['percentage'] = (item_cat_counts['count'] / total_rows_cat) * 100
+        item_cat_counts['cumulative_count'] = item_cat_counts['count'].cumsum()
+        item_cat_counts['cumulative_percentage'] = item_cat_counts['percentage'].cumsum()
+
+        st.subheader("Distribution by Item Category")
+
+        # 2. Create Interactive Bar Chart
+        fig_cat = px.bar(
+            item_cat_counts, 
+            x='item_category',
+            y='count',
+            color='item_category',
+            title='Category Frequency and Cumulative Influence',
+            labels={'item_category': 'Category Name', 'count': 'Number of Entries'},
+            hover_data={
+                'percentage': ':.2f%',
+                'cumulative_count': True,
+                'cumulative_percentage': ':.2f%',
+                'average_price': ':.2f'
+            }
+        )
+
+        fig_cat.update_layout(
+            title_x=0.5,
+            font=dict(family="Arial, sans-serif", size=12, color="#4CAF50"),
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            xaxis_tickangle=-45,
+            showlegend=False
+        )
+
+        st.plotly_chart(fig_cat, use_container_width=True)
+
+        # 3. Table and Insights
+        st.divider()
+        col_t, col_i = st.columns([1.3, 1])
+
+        with col_t:
+            st.write("**Category Summary Table (Top 10)**")
+            st.dataframe(item_cat_counts.head(10), use_container_width=True, hide_index=True)
+
+        with col_i:
+            st.write("**📑 Category Insights**")
+            
+            top_cat = item_cat_counts['item_category'].iloc[0]
+            top_cat_count = item_cat_counts['count'].iloc[0]
+            
+            st.info(f"""
+            - **Primary Category:** **{top_cat}** leads the dataset with **{top_cat_count:,}** entries.
+            - **Market Composition:** By observing the cumulative percentage, you can identify how few categories are responsible for the vast majority of Pasar Mini listings.
+            - **Pricing Strategy:** High-frequency categories often have lower average prices, representing "fast-moving" consumer goods. 
+            - **Data Skew:** Large differences between the top and bottom categories indicate a specialized inventory focus within these mini markets.
+            """)
+    else:
+        st.warning("Column 'item_category' not found in the dataset.")
+
+# Final Section Divider
+st.markdown("---")
+
+# ---------------------------------------------------------
+# 18. PREMISE FREQUENCY & CUMULATIVE ANALYSIS
+# ---------------------------------------------------------
+
+with st.expander("🏪 Premise Frequency & Cumulative Analysis", expanded=False):
+    
+    # 1. Calculate Frequency for Premises
+    if 'premise' in pasar_mini_df.columns:
+        # Take the top 15 premises by entry count
+        premise_counts = pasar_mini_df['premise'].value_counts().reset_index().head(15)
+        premise_counts.columns = ['premise', 'count']
+
+        # Calculate average price per premise
+        avg_price_premise = pasar_mini_df.groupby('premise')['price'].mean().reset_index()
+        avg_price_premise.rename(columns={'price': 'average_price'}, inplace=True)
+
+        # Merge count and average price
+        premise_counts = premise_counts.merge(avg_price_premise, on='premise', how='left')
+
+        # Sort by count
+        premise_counts = premise_counts.sort_values(by='count', ascending=False)
+
+        # Calculate proportions, percentages, and cumulative values (within top 15)
+        total_rows_top_15 = premise_counts['count'].sum()
+        premise_counts['percentage'] = (premise_counts['count'] / total_rows_top_15) * 100
+        premise_counts['cumulative_count'] = premise_counts['count'].cumsum()
+        premise_counts['cumulative_percentage'] = premise_counts['percentage'].cumsum()
+
+        st.subheader("Top 15 Most Active Premises")
+
+        # 2. Create Interactive Bar Chart
+        fig_premise = px.bar(
+            premise_counts,
+            x='premise',
+            y='count',
+            color='premise',
+            title='Entry Frequency by Premise (Top 15)',
+            labels={'premise': 'Premise Name', 'count': 'Number of Entries'},
+            hover_data={
+                'count': True,
+                'percentage': ':.2f%',
+                'cumulative_percentage': ':.2f%',
+                'average_price': ':.2f'
+            }
+        )
+
+        fig_premise.update_layout(
+            title_x=0.5,
+            font=dict(family="Arial, sans-serif", size=12, color="#1F77B4"), # Blue Theme
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            xaxis_tickangle=-45,
+            showlegend=False
+        )
+
+        fig_premise.update_xaxes(showgrid=True, gridcolor='LightGrey')
+        fig_premise.update_yaxes(showgrid=True, gridcolor='LightGrey')
+
+        st.plotly_chart(fig_premise, use_container_width=True)
+
+        # 3. Table and Insights
+        st.divider()
+        col_t, col_i = st.columns([1.3, 1])
+
+        with col_t:
+            st.write("**Top 15 Premise Summary Table**")
+            st.dataframe(premise_counts, use_container_width=True, hide_index=True)
+
+        with col_i:
+            st.write("**🏘️ Premise Insights**")
+            
+            top_premise = premise_counts['premise'].iloc[0]
+            top_premise_avg = premise_counts['average_price'].iloc[0]
+            
+            st.info(f"""
+            - **Main Data Contributor:** The premise **{top_premise}** has the highest volume of records in this subset.
+            - **Local Pricing:** The average price at this top premise is **RM {top_premise_avg:.2f}**.
+            - **Market Representation:** The top 15 premises together account for **{total_rows_top_15:,}** total entries.
+            - **Cumulative Distribution:** By checking the cumulative percentage, you can identify if a few "Power Premises" are providing the majority of your data or if it is evenly distributed.
+            """)
+    else:
+        st.warning("Column 'premise' not found in the dataset.")
+
+# Final Section Divider
+st.markdown("---")
+
+# ---------------------------------------------------------
+# 19. STATE FREQUENCY & CUMULATIVE ANALYSIS
+# ---------------------------------------------------------
+
+with st.expander("📍 State Frequency & Cumulative Analysis", expanded=False):
+    
+    # 1. Calculate Frequency for States
+    if 'state' in pasar_mini_df.columns:
+        state_counts = pasar_mini_df['state'].value_counts().reset_index()
+        state_counts.columns = ['state', 'count']
+
+        # Calculate average price per state
+        avg_price_state = pasar_mini_df.groupby('state')['price'].mean().reset_index()
+        avg_price_state.rename(columns={'price': 'average_price'}, inplace=True)
+
+        # Merge count and average price
+        state_counts = state_counts.merge(avg_price_state, on='state', how='left')
+
+        # Sort by count
+        state_counts = state_counts.sort_values(by='count', ascending=False)
+
+        # Calculate proportions and cumulative values
+        total_rows_state = len(pasar_mini_df)
+        state_counts['percentage'] = (state_counts['count'] / total_rows_state) * 100
+        state_counts['cumulative_count'] = state_counts['count'].cumsum()
+        state_counts['cumulative_percentage'] = state_counts['percentage'].cumsum()
+
+        st.subheader("Regional Data Distribution")
+
+        # 2. Create Interactive Bar Chart
+        fig_state = px.bar(
+            state_counts,
+            x='state',
+            y='count',
+            color='state',
+            title='Record Frequency by State',
+            labels={'state': 'State Name', 'count': 'Number of Entries'},
+            hover_data={
+                'count': True,
+                'percentage': ':.2f%',
+                'cumulative_percentage': ':.2f%',
+                'average_price': ':.2f'
+            }
+        )
+
+        fig_state.update_layout(
+            title_x=0.5,
+            font=dict(family="Arial, sans-serif", size=12, color="#8B008B"), # Dark Magenta
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            xaxis_tickangle=-45,
+            showlegend=False
+        )
+
+        fig_state.update_xaxes(showgrid=True, gridcolor='LightGrey')
+        fig_state.update_yaxes(showgrid=True, gridcolor='LightGrey')
+
+        st.plotly_chart(fig_state, use_container_width=True)
+
+        # 3. Table and Insights
+        st.divider()
+        col_t, col_i = st.columns([1.3, 1])
+
+        with col_t:
+            st.write("**State Summary Table (Top 10)**")
+            st.dataframe(state_counts.head(10), use_container_width=True, hide_index=True)
+
+        with col_i:
+            st.write("**🌏 Geographical Insights**")
+            
+            top_state = state_counts['state'].iloc[0]
+            top_state_pct = state_counts['percentage'].iloc[0]
+            
+            st.info(f"""
+            - **Highest Coverage:** **{top_state}** is the most recorded state, contributing **{top_state_pct:.2f}%** of the total data.
+            - **Price Variation:** By hovering over the bars, you can compare the `average_price` between states (e.g., comparing prices in Selangor vs. Kelantan).
+            - **Data Concentration:** The cumulative percentage shows if the dataset is focused on just a few urban states or if it is well-distributed across Malaysia.
+            - **Strategic Value:** This visualization helps identify regions where more Pasar Mini price monitoring might be required.
+            """)
+    else:
+        st.warning("Column 'state' not found in the dataset.")
+
+# Final Section Divider
+st.markdown("---")
+
+# ---------------------------------------------------------
+# 20. REGIONAL PRICE CROSS-TABULATION (HEATMAP)
+# ---------------------------------------------------------
+
+with st.expander("🌡️ Item Price Variation by State (Heatmap)", expanded=False):
+    
+    # 1. Prepare Data for Heatmap
+    if 'item' in pasar_mini_df.columns and 'state' in pasar_mini_df.columns:
+        # Get count of items to find the most prevalent ones
+        pivot_count = pasar_mini_df.pivot_table(values='price', index='item', columns='state', aggfunc='count')
+        
+        # Select the top 15 most frequent items
+        top_15_items = pivot_count.sum(axis=1).nlargest(15).index
+        
+        # Calculate the Average Price for these top 15 items across states
+        pivot_avg_price = pasar_mini_df.pivot_table(
+            values='price', index='item', columns='state', aggfunc='mean'
+        ).loc[top_15_items]
+
+        st.subheader("Price Heatmap: Top 15 Items vs. States")
+
+        # 2. Create Interactive Heatmap
+        fig_heat = px.imshow(
+            pivot_avg_price,
+            text_auto='.2f', # Display price with 2 decimal places in cells
+            aspect="auto",
+            title='Average Price Matrix (RM)',
+            labels={'x':'State Name', 'y':'Grocery Item', 'color':'Avg Price (RM)'},
+            color_continuous_scale=px.colors.sequential.RdBu_r, # Red for high, Blue for low
+            template="plotly_white"
+        )
+
+        fig_heat.update_xaxes(side="top", tickangle=-45)
+        fig_heat.update_layout(
+            title_x=0.5,
+            font=dict(family="Arial, sans-serif", size=11),
+            margin=dict(t=120, b=50) # Extra top margin for labels
+        )
+
+        st.plotly_chart(fig_heat, use_container_width=True)
+
+        # 3. Data Tables & Insights
+        st.divider()
+        st.write("#### Detailed Cross-tabulation Data")
+        
+        tab1, tab2 = st.tabs(["💰 Average Price per State", "🔢 Record Count per State"])
+        
+        with tab1:
+            st.dataframe(pivot_avg_price.style.format("{:.2f}").background_gradient(cmap='RdBu_r', axis=None), use_container_width=True)
+            
+        with tab2:
+            st.dataframe(pivot_count.loc[top_15_items], use_container_width=True)
+
+        st.info("""
+        **🔍 How to read this Heatmap:**
+        - **Colors:** Deep red cells indicate higher average prices for that item in that state, while blue cells indicate more affordable pricing.
+        - **White/Gaps:** If a cell is empty or white, it means no data was recorded for that specific item in that state.
+        - **Insights:** This view allows you to see if certain states (like urban centers) have consistently higher prices for essential goods compared to others.
+        """)
+    else:
+        st.warning("Required columns ('item' and 'state') not found for pivot analysis.")
+
+# Final Page Divider
+st.markdown("---")
