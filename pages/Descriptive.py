@@ -1,13 +1,9 @@
-# =========================================================
-# Descriptive Across Price Among Pasar Mini
-# Structured Version — by Nurul Ain Maisarah Hamidin (2026)
-# =========================================================
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
+import os
 
 # ---------------------------------------------------------
 # 1. PAGE CONFIGURATION
@@ -18,13 +14,18 @@ st.set_page_config(
 )
 
 # --------------------
-# LOAD DATA
+# 2. LOAD DATA
 # --------------------
 @st.cache_data
 def load_data():
-    df = pd.read_csv("dataset/pasar_mini_data_updated.csv")  # local path
-    df['date'] = pd.to_datetime(df['date'])
-    return df
+    # Creating a dummy file check to prevent crash if file is missing
+    file_path = "dataset/pasar_mini_data.csv"
+    if os.path.exists(file_path):
+        df = pd.read_csv(file_path)
+        df['date'] = pd.to_datetime(df['date'])
+        return df
+    else:
+        return None
 
 pasar_mini_df = load_data()
 
@@ -47,11 +48,6 @@ st.markdown("""
         height: 3px; background: linear-gradient(90deg, transparent, #4facfe, #764ba2, transparent);
         margin: 10px auto 30px auto; width: 80%; border-radius: 50%;
     }
-    .metric-card {
-        background: #ffffff; border-radius: 12px; padding: 15px;
-        text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        border-bottom: 4px solid #ddd;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -63,14 +59,15 @@ st.markdown('<div class="subtitle">Nurul Ain Maisarah Binti Hamidin | S22A0064</
 st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 5. DATA VISUALIZATION TABLE
+# 5. DATA VISUALIZATION SECTION
 # ---------------------------------------------------------
-st.subheader("Disagreement Count Matrix")
-st.dataframe(disagree_area_type_original, use_container_width=True)
+if pasar_mini_df is not None:
+    with st.expander("🔍 View Raw Dataset", expanded=False):
+        st.dataframe(pasar_mini_df, use_container_width=True)
 
-# ---------------------------------------------------------
-# 6. KPI METRICS & INSIGHTS
-# ---------------------------------------------------------
+    # ---------------------------------------------------------
+    # 6. KPI METRICS & INSIGHTS
+    # ---------------------------------------------------------
     st.write("### Descriptive Summary")
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
 
@@ -91,15 +88,25 @@ st.dataframe(disagree_area_type_original, use_container_width=True)
     with m_col3:
         st.metric(
             label="Most Sales Item",
-            value="minyak masak tulen cap buruh",
+            value="minyak masak tulen",
             help="Average Price RM 18.77."
         )
 
     with m_col4:
         st.metric(
-            label="Most Sales Premise",
+            label="Most Sales Premise ID",
             value="1641",
             help="Pasar Raya Kifarah Fresh Mart."
         )
 
     st.markdown("---")
+    
+    # Example Visualization: Price Distribution
+    st.subheader("📊 Price Distribution by Category")
+    # Assuming your CSV has a 'price' and 'item_category' column
+    if 'price' in pasar_mini_df.columns:
+        fig = px.box(pasar_mini_df, y="price", title="Price Spread Across Mini Markets")
+        st.plotly_chart(fig, use_container_width=True)
+
+else:
+    st.error("Error: 'dataset/pasar_mini_data.csv' not found. Please upload the data.")
