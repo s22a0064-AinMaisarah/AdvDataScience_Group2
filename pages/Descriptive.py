@@ -167,3 +167,76 @@ with st.expander("📈 Average Price Trends Over Time", expanded=False):
         """)
 
 st.markdown("---")
+
+# ---------------------------------------------------------
+# 8. CENTRAL TENDENCY ANALYSIS (Mean, Median, Mode)
+# ---------------------------------------------------------
+
+with st.expander("📊 Measures of Central Tendency", expanded=False):
+    
+    # 1. Calculate measures of central tendency
+    price_mean = pasar_mini_df['price'].mean()
+    price_median = pasar_mini_df['price'].median()
+    # Mode can return multiple values, so we take the first one
+    price_mode = pasar_mini_df['price'].mode()[0] if not pasar_mini_df['price'].mode().empty else 0
+
+    st.subheader("Statistical Price Distribution")
+
+    # 2. Prepare data for plotting
+    measures = ['Mean (Average)', 'Median (Middle)', 'Mode (Most Frequent)']
+    values = [price_mean, price_median, price_mode]
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c'] # Blue, Orange, Green
+
+    # 3. Create the interactive bar chart
+    fig_central = go.Figure(data=[go.Bar(
+        x=measures,
+        y=values,
+        marker_color=colors,
+        text=[f'RM {val:.2f}' for val in values],
+        textposition='auto',
+        hoverinfo='text',
+        hovertext=[f'<b>{m}:</b> RM {v:.2f}' for m, v in zip(measures, values)]
+    )])
+
+    fig_central.update_layout(
+        title_text="Price Distribution: Central Tendency",
+        xaxis_title="Statistical Measure",
+        yaxis_title="Price (RM)",
+        title_x=0.5,
+        font=dict(family="Arial, sans-serif", size=12),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+    )
+
+    fig_central.update_xaxes(showline=True, linewidth=1, linecolor='black')
+    fig_central.update_yaxes(showline=True, linewidth=1, linecolor='black')
+
+    # Display chart in Streamlit
+    st.plotly_chart(fig_central, use_container_width=True)
+
+    # 4. Layout for Table and Insights
+    col_tbl, col_ins = st.columns([1, 1.2])
+
+    with col_tbl:
+        st.write("**Central Tendency Summary**")
+        central_tendency_df = pd.DataFrame({
+            'Measure': ['Mean', 'Median', 'Mode'],
+            'Value (RM)': [f"{price_mean:.2f}", f"{price_median:.2f}", f"{price_mode:.2f}"]
+        })
+        st.table(central_tendency_df)
+
+    with col_ins:
+        st.write("**📝 Statistical Insights**")
+        
+        # Determine skewness based on mean vs median
+        skew_type = "Right-Skewed (Positive)" if price_mean > price_median else "Left-Skewed (Negative)"
+        skew_note = "expensive outliers (like the RM 498.00 item) are pulling the average up." if price_mean > price_median else "cheaper items are pulling the average down."
+
+        st.success(f"""
+        - **Data Distribution:** The distribution is **{skew_type}**. This means {skew_note}
+        - **Mean (RM {price_mean:.2f}):** This is the mathematical average. It is sensitive to extreme prices.
+        - **Median (RM {price_median:.2f}):** The 50th percentile. Half of your grocery items are cheaper than this value, and half are more expensive.
+        - **Mode (RM {price_mode:.2f}):** This is the most common price found in the dataset.
+        """)
+
+st.markdown("---")
