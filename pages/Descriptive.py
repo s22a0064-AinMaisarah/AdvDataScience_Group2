@@ -17,44 +17,16 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------------------------------------------------
-# 2. DATA LOADING & PROCESSING FUNCTIONS
-# ---------------------------------------------------------
+# --------------------
+# LOAD DATA
+# --------------------
 @st.cache_data
-def load_and_process_data():
-    try:
-        df = pd.read_csv("cleaned_data.csv")
-        
-        # Define column ranges (Adjust indices as per your actual CSV)
-        likert_cols = df.columns[3:28].tolist()
-        
-        # Identify categories based on keywords
-        factor_cols = [col for col in likert_cols if 'Factor' in col]
-        effect_cols = [col for col in likert_cols if 'Effect' in col]
-        step_cols   = [col for col in likert_cols if 'Step' in col]
-        
-        # Aggregate Disagreement (Likert 1 & 2) by Area Type
-        result_map = {}
-        for col in likert_cols:
-            result_map[col] = (
-                df[df[col].isin([1, 2])]
-                .groupby('Area Type')[col]
-                .count()
-            )
-        
-        disagreement_df = pd.DataFrame(result_map).fillna(0).astype(int)
-        
-        return df, disagreement_df, likert_cols
-    
-    except FileNotFoundError:
-        return None, None, None
+def load_data():
+    df = pd.read_csv("dataset/pasar_mini_data_updated.csv")  # local path
+    df['date'] = pd.to_datetime(df['date'])
+    return df
 
-# Load the data
-merged_df, disagree_area_type_original, likert_cols = load_and_process_data()
-
-if merged_df is None:
-    st.error("CSV file not found. Please ensure 'cleaned_data.csv' is in the folder.")
-    st.stop()
+pasar_mini_df = load_data()
 
 # ---------------------------------------------------------
 # 3. CUSTOM STYLES (CSS)
@@ -86,7 +58,7 @@ st.markdown("""
 # ---------------------------------------------------------
 # 4. HEADER SECTION
 # ---------------------------------------------------------
-st.markdown('<div class="center-title">Disagreement (Likert 1–2) Responses across Area Types</div>', unsafe_allow_html=True)
+st.markdown('<div class="center-title">Descriptive Across Price Among Pasar Mini</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Nurul Ain Maisarah Binti Hamidin | S22A0064</div>', unsafe_allow_html=True)
 st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 
@@ -99,38 +71,35 @@ st.dataframe(disagree_area_type_original, use_container_width=True)
 # ---------------------------------------------------------
 # 6. KPI METRICS & INSIGHTS
 # ---------------------------------------------------------
-with st.expander("🔍 View Key Disagreement Insights", expanded=True):
-    st.write("### Analysis Summary")
-    st.info("Analysis of how respondents across all area types selected 'Strongly Disagree' and 'Disagree'.")
-
+    st.write("### Descriptive Summary")
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
 
     with m_col1:
         st.metric(
-            label="Most Disagreement: Factor",
-            value="33",
-            help="Students Not Sharing Vehicles: Rural (9), Suburban (6), Urban (18)."
+            label="Lowest Price Item",
+            value="RM 0.50",
+            help="Serbuk Kari Ayam dan Daging Adabi."
         )
 
     with m_col2:
         st.metric(
-            label="Most Disagreement: Effect",
-            value="11",
-            help="Unintended Road Accidents: Rural (1), Suburban (1), Urban (9)."
+            label="Highest Price Item",
+            value="RM 498.00",
+            help="Bawang Besar Import (India) | 2025-12-19."
         )
 
     with m_col3:
         st.metric(
-            label="Most Disagreement: Step",
-            value="14",
-            help="Vehicle Sharing Step: Rural (6), Suburban (2), Urban (6)."
+            label="Most Sales Item",
+            value="minyak masak tulen cap buruh",
+            help="Average Price RM 18.77."
         )
 
     with m_col4:
         st.metric(
-            label="Lowest Disagreement",
-            value="2",
-            help="Pressure on Road User Effect: Rural (1), Suburban (0), Urban (1)."
+            label="Most Sales Premise",
+            value="1641",
+            help="Pasar Raya Kifarah Fresh Mart."
         )
 
     st.markdown("---")
