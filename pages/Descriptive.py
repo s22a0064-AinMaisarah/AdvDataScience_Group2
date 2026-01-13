@@ -613,3 +613,93 @@ with st.expander("🏷️ Most Frequent Categorical Values (Modes)", expanded=Fa
 st.markdown("---")
 st.caption("Dashboard Analysis Complete | Data Source: pasar_mini_data.csv")
 
+# ---------------------------------------------------------
+# 14. DECEMBER CUMULATIVE VOLUME ANALYSIS
+# ---------------------------------------------------------
+
+with st.expander("📅 December 2025 Reporting Volume", expanded=False):
+    
+    # 1. Filter and Prepare Data
+    pasar_mini_df['date'] = pd.to_datetime(pasar_mini_df['date'])
+    
+    filtered_df_date = pasar_mini_df[
+        (pasar_mini_df['date'].dt.year == 2025) & 
+        (pasar_mini_df['date'].dt.month == 12) & 
+        (pasar_mini_df['date'].dt.day <= 22)
+    ].copy()
+
+    if not filtered_df_date.empty:
+        # Calculate frequency and average price
+        date_counts = filtered_df_date['date'].value_counts().sort_index().reset_index()
+        date_counts.columns = ['date', 'count']
+        
+        avg_price_date = filtered_df_date.groupby('date')['price'].mean().reset_index()
+        avg_price_date.rename(columns={'price': 'average_price'}, inplace=True)
+        
+        # Merge and calculate cumulative stats
+        date_counts = date_counts.merge(avg_price_date, on='date', how='left')
+        date_counts['cumulative_count'] = date_counts['count'].cumsum()
+        date_counts['cumulative_percentage'] = (date_counts['cumulative_count'] / len(filtered_df_date)) * 100
+
+        st.subheader("Cumulative Entry Tracking (Dec 1st - 22nd)")
+
+        # 2. Create Interactive Line Chart
+        fig_volume = px.line(
+            date_counts, x='date', y='cumulative_count', markers=True,
+            title='Growth of Entries Over Time (Pasar Mini)',
+            labels={'date': 'Date', 'cumulative_count': 'Total Entries to Date'},
+            hover_data={'date': '|%Y-%m-%d', 'count': True, 'average_price': ':.2f'}
+        )
+
+        # 3. Add Star Markers for Highlighted Weekly Dates
+        specific_dates = ['2025-12-01', '2025-12-08', '2025-12-15', '2025-12-22']
+        
+        for d_str in specific_dates:
+            s_date = pd.to_datetime(d_str)
+            if s_date in date_counts['date'].values:
+                row = date_counts[date_counts['date'] == s_date].iloc[0]
+                fig_volume.add_scatter(
+                    x=[s_date], y=[row['cumulative_count']],
+                    mode='markers', marker=dict(size=12, color='red', symbol='star'),
+                    name=f"Milestone: {s_date.strftime('%b %d')}",
+                    hovertext=(f"<b>Date:</b> {d_str}<br><b>Daily Count:</b> {row['count']}<br>"
+                               f"<b>Cumulative:</b> {row['cumulative_count']}<br>"
+                               f"<b>Avg Price:</b> RM{row['average_price']:.2f}")
+                )
+
+        fig_volume.update_layout(
+            hovermode='x unified', title_x=0.5,
+            font=dict(family="Arial, sans-serif", size=12, color="#2ECC71"),
+            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
+            margin=dict(t=80)
+        )
+        
+        fig_volume.update_xaxes(tickformat="%d %b", gridcolor='LightGrey')
+        fig_volume.update_yaxes(gridcolor='LightGrey')
+
+        st.plotly_chart(fig_volume, use_container_width=True)
+
+        # 4. Insights and Table
+        st.divider()
+        col_t, col_i = st.columns([1, 1.2])
+        
+        with col_t:
+            st.write("**Daily Reporting Summary**")
+            st.dataframe(date_counts[['date', 'count', 'cumulative_count']].head(10), 
+                         use_container_width=True, hide_index=True)
+            
+        with col_i:
+            st.write("**📈 Volume Insights**")
+            total_period_entries = date_counts['count'].sum()
+            st.success(f"""
+            - **Total Period Volume:** Between Dec 1st and Dec 22nd, a total of **{total_period_entries:,}** entries were recorded.
+            - **Growth Pattern:** The cumulative line chart shows how quickly data is being aggregated. A steeper slope indicates a high-activity recording day.
+            - **Milestone Highlight:** The red stars represent the start of each week, allowing you to compare weekly performance directly.
+            - **Data Freshness:** The latest average price in this specific window provides a real-time snapshot of grocery costs during the holiday month.
+            """)
+    else:
+        st.warning("No data found for the specified range in December 2025.")
+
+# Final Section Divider
+st.markdown("---")
+
