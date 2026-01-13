@@ -450,3 +450,91 @@ with st.expander("📐 Distribution Shape (Skewness & Kurtosis)", expanded=False
 # --- Add the divider as requested ---
 st.markdown("---")
 
+# ---------------------------------------------------------
+# 12. PRICE BINNED DISTRIBUTION ANALYSIS
+# ---------------------------------------------------------
+
+with st.expander("📊 Price Range Distribution (Binned)", expanded=False):
+    
+    # 1. Manual Histogram Calculation
+    counts, bin_edges = np.histogram(pasar_mini_df['price'], bins=50)
+
+    bins_df = pd.DataFrame({
+        'price_bin_start': bin_edges[:-1],
+        'price_bin_end': bin_edges[1:],
+        'count': counts
+    })
+
+    # 2. Calculate percentages and cumulative totals
+    total_entries = bins_df['count'].sum()
+    bins_df['percentage'] = (bins_df['count'] / total_entries) * 100
+    bins_df['cumulative_count'] = bins_df['count'].cumsum()
+    bins_df['cumulative_percentage'] = bins_df['percentage'].cumsum()
+
+    # Format bin labels for the X-axis
+    bins_df['price_range'] = bins_df.apply(
+        lambda row: f"RM{row['price_bin_start']:.2f}-{row['price_bin_end']:.2f}",
+        axis=1
+    )
+
+    st.subheader("Frequency Distribution of Prices")
+
+    # 3. Create the Interactive Bar Chart
+    fig_bins = px.bar(
+        bins_df,
+        x='price_range',
+        y='count',
+        color='percentage',
+        color_continuous_scale=px.colors.sequential.Viridis,
+        title='Price Density: Item Counts per Price Bracket',
+        labels={
+            'price_range': 'Price Range (RM)',
+            'count': 'Number of Items',
+            'percentage': 'Market Share (%)'
+        },
+        hover_data={
+            'count': True,
+            'percentage': ':.2f',
+            'cumulative_percentage': ':.2f'
+        }
+    )
+
+    fig_bins.update_layout(
+        title_x=0.5,
+        font=dict(family="Arial, sans-serif", size=11),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        xaxis_tickangle=-45,
+        height=600
+    )
+
+    st.plotly_chart(fig_bins, use_container_width=True)
+
+    st.divider()
+
+    # 4. Data Table and Insights
+    col_tbl, col_ins = st.columns([1.2, 1])
+
+    with col_tbl:
+        st.write("**Price Binning Table (Top 10 Ranges)**")
+        # Showing the top ranges where most items fall
+        display_bins = bins_df.sort_values('count', ascending=False).head(10)
+        st.dataframe(display_bins[['price_range', 'count', 'percentage', 'cumulative_percentage']], 
+                     use_container_width=True, hide_index=True)
+
+    with col_ins:
+        st.write("**🔍 Distribution Insights**")
+        
+        # Identify the peak bin
+        peak_bin = bins_df.loc[bins_df['count'].idxmax()]
+        
+        st.success(f"""
+        - **Market Concentration:** The most common price range is **{peak_bin['price_range']}**, containing **{peak_bin['count']}** different items.
+        - **Density Analysis:** A tall spike at the beginning of the chart confirms that your Pasar Mini is heavily focused on **low-cost daily essentials**.
+        - **The Long Tail:** The very short bars on the far right represent "Luxury" or "Bulk" items that are infrequent but high in value.
+        - **Inventory Strategy:** This distribution suggests a high-volume, low-margin business model common in local mini markets.
+        """)
+
+# Final Footer Divider
+st.markdown("---")
+
