@@ -1,5 +1,5 @@
 # =========================================================
-# Traffic Congestion Survey Analysis of Disagreement
+# Descriptive Across Price Among Pasar Mini
 # Structured Version — by Nurul Ain Maisarah Hamidin (2026)
 # =========================================================
 
@@ -13,8 +13,7 @@ import numpy as np
 # 1. PAGE CONFIGURATION
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="Traffic Congestion Survey Analysis",
-    page_icon="📊",
+    page_title="Descriptive Across Price Among Pasar Mini",
     layout="wide"
 )
 
