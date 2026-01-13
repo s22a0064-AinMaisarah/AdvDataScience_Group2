@@ -240,3 +240,72 @@ with st.expander("📊 Measures of Central Tendency", expanded=False):
         """)
 
 st.markdown("---")
+
+# ---------------------------------------------------------
+# 9. DISPERSION ANALYSIS (Variance & Standard Deviation)
+# ---------------------------------------------------------
+
+with st.expander("📉 Measures of Price Dispersion", expanded=False):
+    
+    # 1. Calculate dispersion measures
+    # Standard Deviation: average distance from the mean
+    price_std = pasar_mini_df['price'].std()
+    # Variance: the squared standard deviation
+    price_var = pasar_mini_df['price'].var()
+    # Range: difference between max and min
+    price_range = pasar_mini_df['price'].max() - pasar_mini_df['price'].min()
+
+    st.subheader("Interactive Dispersion Analysis")
+
+    # 2. Create the DataFrame for plotting
+    price_stats_df = pd.DataFrame({
+        'Measure': ['Std Deviation', 'Variance', 'Price Range'],
+        'Value': [price_std, price_var, price_range]
+    })
+
+    # 3. Create the bar chart
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+
+    fig_disp = px.bar(
+        price_stats_df,
+        x='Measure',
+        y='Value',
+        color='Measure',
+        color_discrete_sequence=colors,
+        title="Price Variance & Spread in Pasar Mini",
+        labels={'Measure': 'Statistical Measure', 'Value': 'Value'},
+        text='Value'
+    )
+
+    fig_disp.update_traces(texttemplate='%{text:.2f}', textposition='outside')
+    fig_disp.update_layout(
+        title_x=0.5,
+        font=dict(family="Arial, sans-serif", size=12),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        showlegend=False
+    )
+
+    fig_disp.update_xaxes(showline=True, linewidth=1, linecolor='black')
+    fig_disp.update_yaxes(showline=True, linewidth=1, linecolor='black')
+
+    # Display chart in Streamlit
+    st.plotly_chart(fig_disp, use_container_width=True)
+
+    # 4. Layout for Table and Insights
+    col_tbl, col_ins = st.columns([1, 1.2])
+
+    with col_tbl:
+        st.write("**Dispersion Summary Table**")
+        st.dataframe(price_stats_df, use_container_width=True, hide_index=True)
+
+    with col_ins:
+        st.write("**💡 Understanding the Spread**")
+        
+        st.warning(f"""
+        - **Standard Deviation (RM {price_std:.2f}):** On average, prices deviate from the mean by this amount. A high value suggests that prices are very inconsistent across items.
+        - **Variance ({price_var:.2f}):** This represents how far the price set is spread out from their average value. 
+        - **Price Range (RM {price_range:.2f}):** This is the gap between the cheapest item (RM 0.50) and the most expensive (RM 498.00).
+        - **Analysis:** Because the Range and Variance are quite high, it indicates a **highly diverse inventory** ranging from basic spices to high-value bulk imports.
+        """)
+        st.markdown("---")
