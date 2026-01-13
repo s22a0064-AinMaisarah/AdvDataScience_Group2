@@ -101,12 +101,69 @@ if pasar_mini_df is not None:
 
     st.markdown("---")
     
-    # Example Visualization: Price Distribution
-    st.subheader("📊 Price Distribution by Category")
-    # Assuming your CSV has a 'price' and 'item_category' column
-    if 'price' in pasar_mini_df.columns:
-        fig = px.box(pasar_mini_df, y="price", title="Price Spread Across Mini Markets")
-        st.plotly_chart(fig, use_container_width=True)
+# ---------------------------------------------------------
+# 7. TIME SERIES ANALYSIS (Average Price Trend)
+# ---------------------------------------------------------
 
-else:
-    st.error("Error: 'dataset/pasar_mini_data.csv' not found. Please upload the data.")
+with st.expander("📈 Average Price Trends Over Time", expanded=False):
+    
+    # 1. Calculate the average price per date
+    # Ensure 'date' is datetime and 'price' is numeric
+    pasar_mini_df['date'] = pd.to_datetime(pasar_mini_df['date'])
+    average_price_per_date = pasar_mini_df.groupby('date')['price'].mean().reset_index()
+
+    st.subheader("Interactive Price Trend Analysis")
+
+    # 2. Create the interactive line plot
+    fig_line = px.line(
+        average_price_per_date,
+        x='date',
+        y='price',
+        markers=True,
+        title='Average Price Fluctuations in Pasar Mini',
+        labels={'date': 'Date', 'price': 'Average Price (RM)'},
+        line_shape='linear', 
+        color_discrete_sequence=["#FF4081"], # Pink color as per your original font color
+        hover_data={
+            'date': '|%Y-%m-%d', 
+            'price': ':.2f'
+        }
+    )
+
+    fig_line.update_layout(
+        hovermode='x unified',
+        title_x=0.5,
+        font=dict(family="Arial, sans-serif", size=12),
+        plot_bgcolor='rgba(0,0,0,0)', 
+        paper_bgcolor='rgba(0,0,0,0)',
+    )
+
+    fig_line.update_xaxes(showgrid=True, gridwidth=1, gridcolor='LightGrey')
+    fig_line.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGrey')
+
+    # Display chart in Streamlit
+    st.plotly_chart(fig_line, use_container_width=True)
+
+    # 3. Layout for Table and Insights
+    col_table, col_insight = st.columns([1, 1.2])
+
+    with col_table:
+        st.write("**Top 10 Price Records**")
+        st.dataframe(average_price_per_date.head(10), use_container_width=True, hide_index=True)
+
+    with col_insight:
+        st.write("**📊 Analysis & Insights**")
+        
+        # Calculate some dynamic insights
+        max_price = average_price_per_date['price'].max()
+        min_price = average_price_per_date['price'].min()
+        latest_avg = average_price_per_date['price'].iloc[-1]
+        
+        st.info(f"""
+        - **Price Volatility:** The average price across Pasar Mini premises shows a fluctuation between **RM {min_price:.2f}** and **RM {max_price:.2f}**.
+        - **Current Trend:** The most recent recorded average price stands at **RM {latest_avg:.2f}**.
+        - **Market Behavior:** Spikes in the line chart often correlate with the arrival of imported goods (e.g., Bawang Besar Import) or supply chain shifts.
+        - **Stability:** Periods where the line is flatter indicate steady pricing for essential household items like *Minyak Masak Buruh*.
+        """)
+
+st.markdown("---")
